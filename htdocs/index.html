@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello Pointcloud!!</title>
+
+	<style>
+	html, body {
+		padding: 0px;
+		margin: 0px;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+	</style>
+
+	<script id="pointVS" type="x-shader/x-vertex">
+		attribute vec3 positionIn;
+		attribute vec3 colorIn;
+
+		uniform mat4 viewMatrix;
+		uniform mat4 projMatrix;
+
+		varying vec3 color;
+
+		void main()
+		{
+			mat4 HACK_transform = mat4(1.0);
+			HACK_transform[1].y = -1.0;
+
+			gl_Position = projMatrix * viewMatrix * HACK_transform * vec4(positionIn, 1.0);
+			gl_PointSize = 2.0;
+			color = colorIn;
+		}
+	</script>
+	
+	<script id="pointFS" type="x-shader/x-fragment">
+		precision mediump float;
+
+		varying vec3 color;
+
+		void main()
+		{
+			gl_FragColor = vec4(color, 1.0);
+		}
+	</script>
+	
+	
+	<script id="gridVS" type="x-shader/x-vertex">
+	  attribute vec3 positionIn;
+	  
+	  uniform mat4 viewMatrix;
+	  uniform mat4 projMatrix;
+	  
+	  void main()
+	  {
+	    gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
+	    gl_PointSize = 1.0;
+	    
+	  }
+	</script>
+	
+	<script id="gridFS" type="x-shader/x-fragment">
+	  precision mediump float;
+	  uniform vec3 color;
+	  
+	  void main()
+	  {
+	    gl_FragColor = vec4(color, 1.0);
+	  }
+	</script>
+	
+	<script src="scripts/gl-matrix.js"></script>
+	<script src="scripts/aabb.js"></script>
+	<script src="scripts/camera.js"></script>
+	<script src="scripts/pointcloud.js"></script>
+	<script src="scripts/main.js"></script>
+</head>
+
+
+<body onload="showBlob('http://10.129.29.215:8000/shell2_medium.blob')">
+	<canvas id="canvas" width="800" height="600"></canvas>
+</body>
+</html>
