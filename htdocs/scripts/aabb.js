@@ -101,7 +101,7 @@ function getSpanLength(bbox) {
   
 }
 
-function isVisible(bbox) {
+function isVisible(bbox, projMatrix, viewMatrix) {
   var vertices = extractVertices(bbox);
   
   clipVertices = new Float32Array(8*3);
@@ -116,6 +116,8 @@ function isVisible(bbox) {
   }
   
   var visible = false;
+  // note: this fails if the bounding box spans the whole fov and the individual
+  // points fall outside the frustum! 
   for (i = 0; i < 8*3; i += 3) {
     if (clipVertices[i+0] >= -1.0 && clipVertices[i+0] <= 1.0 &&
         clipVertices[i+1] >= -1.0 && clipVertices[i+1] <= 1.0 &&
@@ -173,3 +175,6 @@ function drawAABB(bbox, shader) {
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   
 }
+
+
+

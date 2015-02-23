@@ -87,28 +87,54 @@ function clampAngles(sphericalCoords) {
 
 }
 
+/// pans the camera along the current pane
+function panCamera(camera, deltaX, deltaY) {
+	var forward = vec3.create();
+	vec3.sub(forward, camera.position, camera.target);
+	vec3.normalize(forward, forward);
+
+	var right = vec3.create();
+	vec3.cross(right, forward, camera.up)
+
+	var up = vec3.create();
+	vec3.cross(up, forward, right);
+
+	vec3.scale(up, up, deltaY);
+	vec3.scale(right, right, deltaX);
+
+	moveCamera(camera, up);
+	moveCamera(camera, right);
+}
+
+function moveCamera(camera, delta) { 
+	vec3.add(camera.position, camera.position, delta);
+	vec3.add(camera.target, camera.target, delta);
+}
+
+
 function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
 	
-	var angles = getPolarCoordinates(camera);
+	if (typeof camera.angles == 'undefined') {
+		camera.angles = getPolarCoordinates(camera);
+		console.print("Creating camera angles:" + camera.angles);
+	}
 
-	
 	//console.log("pc: " + rad2deg(angles.theta) + " d" + rad2deg(deltaTheta));
 
-	angles.theta += deltaTheta;
-	angles.phi += deltaPhi;
+	camera.angles.theta -= deltaTheta;
+	camera.angles.phi += deltaPhi;
 	
-	clampAngles(angles);
+	clampAngles(camera.angles);
 
 	//console.log("new theta: " + rad2deg(angles.theta));
 
 	//console.log(angles.phi, deltaPhi);
 
 	// set new coordinates
-	var delta = vec3.create();
-
-	delta[0] = angles.radius * Math.sin(angles.theta)*Math.cos(angles.phi);
-	delta[1] = angles.radius * Math.sin(angles.theta)*Math.sin(angles.phi);
-	delta[2] = angles.radius * Math.cos(angles.theta);
+	var delta = [0,0,0];
+	delta[0] = camera.angles.radius * Math.sin(camera.angles.theta)*Math.cos(camera.angles.phi);
+	delta[1] = camera.angles.radius * Math.sin(camera.angles.theta)*Math.sin(camera.angles.phi);
+	delta[2] = camera.angles.radius * Math.cos(camera.angles.theta);
 
 	vec3.add(camera.position, camera.target, delta);
 }
@@ -173,9 +199,8 @@ function moveForwards(camera, amount) {
 	vec3.normalize(delta, delta);
 	vec3.scale(delta, delta,  amount);
 
-	vec3.add(camera.target, camera.target, delta);
-	vec3.add(camera.position, camera.position, delta);
 
+	moveCamera(camera, delta);
 	vec3.add(camera.velocity, camera.velocity, delta);
 }
 
@@ -190,9 +215,7 @@ function moveRight(camera, amount) {
 
 	vec3.scale(right, right,  amount);
 
-	vec3.add(camera.target, camera.target, right);
-	vec3.add(camera.position, camera.position, right);
-
+	moveCamera(camera, right);
 	vec3.add(camera.velocity, camera.velocity, right);
 }
 
@@ -202,6 +225,9 @@ function setCameraMode(camera, mode) {
 
 	if (mode == "orbit") {
 		camera.velocity = [0,0,0];
+	}
+	else {
+		camera.angles = undefined;
 	}
 
 	console.log("Set camera mode to " + camera.mode);
@@ -235,9 +261,6 @@ function updateCamera(camera, dt) {
  	var v = vec3.clone(camera.velocity);
  	vec3.scale(v, v, dt);
 
-
- 	vec3.add(camera.position, camera.position, v);
- 	vec3.add(camera.target, camera.target, v);
-
+ 	moveCamera(camera, v);
 
 }

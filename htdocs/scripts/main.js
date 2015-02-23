@@ -38,7 +38,7 @@ var viewMatrix;
 
 var camera = null;
 
-var mouse = {down:false, lastPosition:[0,0]};
+var mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 
 var enableGrid = true;
@@ -300,21 +300,21 @@ function loadBlob(url, callback) {
   xhr.send(null);
 }
 
-
 // mouse callback functions follow .... 
 function handleMouseDown(event) {
-  mouse.down = true;
+  event.preventDefault();
+
+  mouse.button[event.button] = true;
   mouse.lastPosition = [event.clientX, event.clientY];
+
+
 }
 
 function handleMouseUp(event) {
-  mouse.down = false;
+  mouse.button[event.button] = false;
 }
 
 function handleMouseMotion(event) {
-  if (!mouse.down)
-    return;
-
   var mousePosition = [event.clientX, event.clientY];
 
   var deltaX = (mousePosition[0] - mouse.lastPosition[0]) / canvas.clientWidth*Math.PI;
@@ -323,11 +323,20 @@ function handleMouseMotion(event) {
   // scale to -1..1
  // deltaY *= 180.0 / Math.PI;
   
-  if (camera.mode == "orbit")
-    rotateCameraAroundTarget(camera, deltaX, deltaY);
-  else
-    rotateCamera(camera, deltaX*5.0, deltaY*5.0);
 
+  if (mouse.button[0]) {
+
+    if (camera.mode == "orbit")
+      rotateCameraAroundTarget(camera, deltaX, deltaY);
+    else
+      rotateCamera(camera, deltaX*5.0, deltaY*5.0);
+  }
+
+  else if (mouse.button[2]) {
+    panCamera(camera, deltaX, -deltaY);
+
+
+  }
 
 
   mouse.lastPosition = mousePosition;
@@ -408,6 +417,11 @@ function init() {
   document.onmousewheel = handleMouseWheel;
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
+  
+  // disables the right-click menu
+  document.oncontextmenu = function() {
+    return false;
+  }
 
   projMatrix = mat4.create();
   viewMatrix = mat4.create();
