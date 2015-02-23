@@ -45,7 +45,6 @@ function drawPointcloud(gl, pointcloud, shader)  {
   
 }
 
-
 // loads a pointcloud from a blob
 /**
  * @param gl WebGL context
@@ -176,7 +175,7 @@ function loadPoints2(gl, blob, pointCount, placement) {
 
       for (i = 0; i < pointCount; ++i)  {
         points[i*3+0] -= c[0];
-        points[i*3+1] -= bbox.min[1];
+        points[i*3+1] -= bbox.max[1];
         points[i*3+2] -= c[2];
       }
 
@@ -188,8 +187,11 @@ function loadPoints2(gl, blob, pointCount, placement) {
       bbox.max[0] -= c[0];
       bbox.max[2] -= c[2];
 
-      bbox.max[1] -= bbox.min[1];
-      bbox.min[1] = 0.0;
+      bbox.min[1] -= bbox.max[1];
+      bbox.max[1] = 0.0;
+
+
+
 
 
     }

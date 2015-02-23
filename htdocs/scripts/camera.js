@@ -153,23 +153,23 @@ function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
   	
 }
 
-
-function createCamera() {
-
-	var pos = [5.0, 5.0, 2.0];
+function createOrbitalCamera() {
 	var tgt = [0.0, 0.0, 0.0];
 	var up = [0.0, 1.0, 0.0];
-
-	// fovy has to be in radians
 	var fov = 60.0 * Math.PI / 180.0;
 
-	camera = {fovy:fov, aspect:1.3, near:0.1, far:100.0, position:pos, target:tgt, up:up};
+	var theta = deg2rad(22)
+	var phi = deg2rad(10);
+	var radius = 5.0;
+
+	camera = {fovy:fov, aspect:1.3, near:0.1, far:100.0, target:tgt, up:up, theta:theta, phi:phi, radius:radius};
 	return camera;
 }
 
+
 // returns the polar coordinates of the camera in relation to its target
 function getPolarCoordinates(camera) {
-	angles = {theta:0.0, phi:0.0, radius:0.0};
+	var angles = {theta:0.0, phi:0.0, radius:0.0};
 
 	var delta = vec3.create();
 	vec3.sub(delta, camera.position, camera.target);
@@ -184,15 +184,21 @@ function getPolarCoordinates(camera) {
 	return angles;
 }
 
+// calculates the camera's position from its angles and target
+function getPosition(camera) { 
+	var pos = vec3.create();
+	pos[0] = camera.target[0] + camera.radius * Math.sin(camera.theta)*Math.sin(camera.phi);
+	pos[2] = camera.target[2] + camera.radius * Math.sin(camera.theta)*Math.cos(camera.phi);
+	pos[1] = camera.target[1] + camera.radius * Math.cos(camera.theta);
+
+	return pos;
+}
+
+
 function clampAngles(sphericalCoords) {
-	sphericalCoords.phi = Math.max( sphericalCoords.phi, deg2rad(-85));
-	sphericalCoords.phi = Math.min( sphericalCoords.phi, deg2rad( 85));
+	sphericalCoords.theta = Math.max( sphericalCoords.theta, 0.05);
+	sphericalCoords.theta = Math.min( sphericalCoords.theta, Math.PI-0.05);
 
-	if (sphericalCoords.theta < 0)
-		sphericalCoords.theta += (2*Math.PI);
-
-	if (sphericalCoords.theta > 2*Math.PI)
-		sphericalCoords.theta -= (2*Math.PI);
 
 	return sphericalCoords;
 
@@ -201,7 +207,7 @@ function clampAngles(sphericalCoords) {
 /// pans the camera along the current pane
 function panCamera(camera, deltaX, deltaY) {
 	var forward = vec3.create();
-	vec3.sub(forward, camera.position, camera.target);
+	vec3.sub(forward, getPosition(camera), camera.target);
 	vec3.normalize(forward, forward);
 
 	var right = vec3.create();
@@ -213,80 +219,21 @@ function panCamera(camera, deltaX, deltaY) {
 	vec3.scale(up, up, deltaY);
 	vec3.scale(right, right, deltaX);
 
-	moveCamera(camera, up);
-	moveCamera(camera, right);
-}
+	vec3.add(camera.target, camera.target, up);
+	vec3.add(camera.target, camera.target, right); 
 
-function moveCamera(camera, delta) { 
-	vec3.add(camera.position, camera.position, delta);
-	vec3.add(camera.target, camera.target, delta);
 }
 
 
 function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
+
+	camera.theta -= deltaTheta;
+	camera.phi += deltaPhi;
 	
-	if (typeof camera.angles == 'undefined') {
-		camera.angles = getPolarCoordinates(camera);
-		//camera.angleV = [theta:deltaTheta, phi:deltaPhi];
-	}
-
-	camera.angles.theta -= deltaTheta;
-	camera.angles.phi += deltaPhi;
-	
-	clampAngles(camera.angles);
-
-	//console.log("new theta: " + rad2deg(angles.theta));
-
-	//console.log(angles.phi, deltaPhi);
-
-	// set new coordinates
-	var delta = [0,0,0];
-	delta[0] = camera.angles.radius * Math.sin(camera.angles.theta)*Math.cos(camera.angles.phi);
-	delta[1] = camera.angles.radius * Math.sin(camera.angles.theta)*Math.sin(camera.angles.phi);
-	delta[2] = camera.angles.radius * Math.cos(camera.angles.theta);
-
-	vec3.add(camera.position, camera.target, delta);
-}
+	clampAngles(camera);
 
 
-function rotateCamera(camera, deltaTheta, deltaPhi) {
-	// rotate target point (== view location) around camera position
-
-
-	var up = [0,1,0];
-	var fwd = vec3.create();
-	vec3.sub(fwd, camera.target, camera.position);
-	vec3.normalize(fwd, fwd);
-
-	var rgt = vec3.create();
-	vec3.cross(rgt, fwd, up);
-
-	vec3.scale(rgt, rgt, deltaTheta);
-	vec3.scale(up, up, deltaPhi);
-
-	vec3.add(camera.target, camera.target, up);
-	vec3.add(camera.target, camera.target, rgt);
-
-}
-
-
-
-function moveCameraToTarget(camera, deltaDistance) {
-	const MIN_DISTANCE = 0.1;
-	const MAX_DISTANCE = 100.0;
-
-	var delta = vec3.create();
-	vec3.sub(delta, camera.position, camera.target);
-
-	var distance = vec3.length(delta);
-	vec3.normalize(delta, delta);
-
-	distance += deltaDistance;
-	distance = Math.max(distance, MIN_DISTANCE);
-	distance = Math.min(distance, MAX_DISTANCE);
-
-	vec3.scale(delta, delta, distance);
-	vec3.add(camera.position, delta, camera.target);
+	console.log("theta: " + rad2deg(camera.theta) + " phi: " + rad2deg(camera.phi));
 }
 
 
@@ -298,59 +245,6 @@ function setProjectionMatrix(camera, projMatrix) {
 
 function setViewMatrix(camera, viewMatrix) {
 	mat4.identity(viewMatrix);
-	mat4.lookAt(viewMatrix, camera.position, camera.target, camera.up);
+	mat4.lookAt(viewMatrix, getPosition(camera), camera.target, camera.up);
 	return viewMatrix;
-}
-
-function moveForwards(camera, amount) {
-	var delta = vec3.create(); 
-	vec3.sub(delta, camera.position, camera.target);
-	vec3.normalize(delta, delta);
-	vec3.scale(delta, delta,  amount);
-
-
-	moveCamera(camera, delta);
-	vec3.add(camera.velocity, camera.velocity, delta);
-}
-
-function moveRight(camera, amount) {
-	var delta = vec3.create();
-	vec3.sub(delta, camera.position, camera.target);
-	vec3.normalize(delta, delta);
-	
-	var up = [0,1,0];
-	var right = vec3.create();
-	vec3.cross(right, delta, up);
-
-	vec3.scale(right, right,  amount);
-
-	moveCamera(camera, right);
-	vec3.add(camera.velocity, camera.velocity, right);
-}
-
-
-function updateCamera(camera, dt) {
-
-	/*	
- 	const MAX_SPEED = 10.0;
-
- 	var speed = vec3.length(camera.velocity);
- 	speed = Math.max(speed, -MAX_SPEED);
- 	speed = Math.min(speed,  MAX_SPEED);
-
- 	if (speed < Math.abs(0.1)) {
- 		speed = 0;
- 		return; 	}
-
-
- 	// let speed decay over time
- 	speed *= Math.pow(0.075, dt);
- 	vec3.normalize(camera.velocity, camera.velocity);
- 	vec3.scale(camera.velocity, camera.velocity, speed);
-
- 	var v = vec3.clone(camera.velocity);
- 	vec3.scale(v, v, dt);
-
- 	moveCamera(camera, v);
-	*/
 }

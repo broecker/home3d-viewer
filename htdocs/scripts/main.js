@@ -31,7 +31,8 @@ var gl; // A global variable for the WebGL context
 var pointcloudShader, gridShader;
 var objectShader;
 
-var grid;
+var grid = null;
+var plane = null;
 
 var pointcloud = null;
 
@@ -180,6 +181,40 @@ function loadShaders() {
   objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
  }
 
+function createPlaneBuffer(gl) { 
+  var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
+  var planeNormals = [0,1,0, 0,1,0, 0,1,0, 0,1,0 ];
+  var planeColors = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ];
+  var planeTexCoords = [0,1, 0,0, 1,1, 1,0];
+
+  var planeVertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, planeVertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planeVertices), gl.STATIC_DRAW);
+  planeVertexBuffer.itemSize = 3;
+  planeVertexBuffer.numItems = 12;
+
+  var planeNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, planeNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planeNormals), gl.STATIC_DRAW);
+  planeNormalBuffer.itemSize = 3;
+  planeNormalBuffer.numItems = 12;
+
+  var planeColorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, planeColorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planeColors), gl.STATIC_DRAW);
+  planeColorBuffer.itemSize = 3;
+  planeColorBuffer.numItems = 12;
+
+  var planeTCBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, planeTCBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(planeTexCoords), gl.STATIC_DRAW);
+  planeTCBuffer.itemSize = 2;
+  planeTCBuffer.numItems = 8;
+
+  plane =  {vertexBuffer:planeVertexBuffer, normalBuffer:planeNormalBuffer, colorBuffer:planeColorBuffer, texcoordBuffer:planeTexCoords, primType:gl.TRIANGLE_STRIP};
+
+}
+
 function createGridBuffer(gl){
 
   var gridVertices = [];
@@ -225,6 +260,22 @@ function drawGrid() {
   gl.drawArrays(gl.LINES, 0, grid.buffer.numItems);
 }
 
+function drawPlane() {
+  gl.useProgram(objectShader);
+  gl.enableVertexAttribArray(objectShader.vertexPositionAttribute);
+  gl.enableVertexAttribArray(objectShader.vertexColorAttribute);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, plane.vertexBuffer);
+  gl.vertexAttribPointer(planeShader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, plane.colorBuffer);
+  gl.vertexAttribPointer(planeShader.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
+  gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
 
 function render() {
   
@@ -258,8 +309,7 @@ function render() {
 
       //console.log(getCentroid(pointcloud.aabb));
       camera.target = getCentroid(pointcloud.aabb);
-      vec3.add(camera.position, camera.position, camera.target);
-
+      
       console.log("Setting camera target to " + camera.target)
 
     }
@@ -279,9 +329,6 @@ function tick() {
   
   if (lastTime !== 0) {
     var dt = (time - lastTime) / 1000.0;
-
-    updateCamera(camera, dt);
-
 
     if (mouse.down == false ) {
 
@@ -338,15 +385,15 @@ function handleMouseUp(event) {
 function handleMouseMotion(event) {
   var mousePosition = [event.clientX, event.clientY];
 
-  var deltaX = (mousePosition[0] - mouse.lastPosition[0]) / canvas.clientWidth*Math.PI;
-  var deltaY = (mousePosition[1] - mouse.lastPosition[1]) / canvas.clientHeight*Math.PI;
+  var deltaX = (mousePosition[0] - mouse.lastPosition[0]) / canvas.clientWidth;
+  var deltaY = (mousePosition[1] - mouse.lastPosition[1]) / canvas.clientHeight;
  
   // scale to -1..1
  // deltaY *= 180.0 / Math.PI;
   
 
   if (mouse.button[0]) {
-      rotateCameraAroundTarget(camera, deltaX, deltaY);
+      rotateCameraAroundTarget(camera, deltaY*Math.PI, deltaX*Math.PI);
   }
 
   else if (mouse.button[2]) {
@@ -403,9 +450,7 @@ function init() {
   projMatrix = mat4.create();
   viewMatrix = mat4.create();
 
-  camera = createCamera();  
-  camera.position[0] += 3.0;
-  camera.position[2] += 3.0;
+  camera = createOrbitalCamera();
 
   loadShaders();
   createGridBuffer(gl);
@@ -424,6 +469,10 @@ function init() {
  //loop();
   
 
+}
+
+function toggleGrid() { 
+  enableGrid = !enableGrid;
 }
 
 
