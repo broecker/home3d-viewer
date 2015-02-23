@@ -29,6 +29,8 @@ var gl; // A global variable for the WebGL context
 
 // shader stuff
 var pointcloudShader, gridShader;
+var objectShader;
+
 var grid;
 
 var pointcloud = null;
@@ -159,7 +161,24 @@ function loadShaders() {
   
   
 
-}
+  // load the object shader
+  fragmentShader = getShader(gl, "objectVS");
+  vertexShader = getShader(gl, "objectFS");
+
+  objectShader = gl.createProgram();
+  gl.attachShader(objectShader, vertexShader);
+  gl.attachShader(objectShader, fragmentShader);
+  gl.linkProgram(objectShader);
+  
+  if (!gl.getProgramParameter(objectShader, gl.LINK_STATUS)) {
+      alert("Could not initialize grid shader");
+  }
+  
+  objectShader.vertexPositionAttribute = gl.getAttribLocation(objectShader, "positionIn");
+  objectShader.vertexColorAttribute = gl.getAttribLocation(objectShader, "colorIn");
+  objectShader.projMatrixUniform = gl.getUniformLocation(objectShader, "projMatrix");
+  objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
+ }
 
 function createGridBuffer(gl){
 
@@ -229,6 +248,9 @@ function render() {
     drawGrid();
   
   
+  if (mouse.button[0] || mouse.button[2])
+    drawCameraFocus(gl, objectShader, projMatrix, viewMatrix, camera);
+  
   if (pointcloud) {
 
     if (render.prevPointcloud != pointcloud) {
@@ -237,7 +259,6 @@ function render() {
       //console.log(getCentroid(pointcloud.aabb));
       camera.target = getCentroid(pointcloud.aabb);
       vec3.add(camera.position, camera.position, camera.target);
-
 
       console.log("Setting camera target to " + camera.target)
 
@@ -294,7 +315,7 @@ function loadBlob(url, callback) {
 
     if (this.status == 200) {
       var myBlob = this.response;
-      loadPoints2(gl, myBlob, 0);
+      loadPoints2(gl, myBlob, 0, 'on ground');
     }
   }
   xhr.send(null);
@@ -325,11 +346,7 @@ function handleMouseMotion(event) {
   
 
   if (mouse.button[0]) {
-
-    if (camera.mode == "orbit")
       rotateCameraAroundTarget(camera, deltaX, deltaY);
-    else
-      rotateCamera(camera, deltaX*5.0, deltaY*5.0);
   }
 
   else if (mouse.button[2]) {
@@ -353,52 +370,12 @@ function handleMouseWheel(event) {
 
 function handleKeydown(event) { 
 
-
-  if (camera.mode == "fly") {
-
-
-    // 'w'
-    if (event.keyCode == 87)
-      moveForwards(camera, -0.5);
-    // 's'
-    if (event.keyCode == 83)
-      moveForwards(camera, 0.5);
-
-    // 'a'
-    if (event.keyCode == 65)
-      moveRight(camera, 0.5);
-    // 'd'
-    if (event.keyCode == 68)
-      moveRight(camera, -0.5);
-  }
-
-  // 'c'
-  if (event.keyCode == 67) {
-    if (camera.mode == "orbit")
-      setCameraMode(camera, "fly");
-    else
-      setCameraMode(camera, "orbit")
-  }
-
   // 'g'
   if (event.keyCode == 71)
     enableGrid = !enableGrid;
 }
 
 function handleKeyup(event) {
-
-if (camera.mode == "fly") {
-
-    // 'w'
-    if (event.keyCode == 87 || event.keyCode == 83)
-      moveForwards(camera, 0.0);
-
-    // 'a'
-    if (event.keyCode == 65 || event.keyCode == 68)
-      moveRight(camera, 0.0);
-  }
-
-
 }
 
 

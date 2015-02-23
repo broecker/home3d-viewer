@@ -42,6 +42,118 @@ function rad2deg(angle) {
   return angle * 57.29577951308232; // angle / Math.PI * 180
 }
 
+function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
+	var centerWidget = null;
+	var lastPosition = null;
+
+	var i, a, x, z;
+
+	if (centerWidget == null) {
+		var centerColors = [];
+		var centerVertices = []
+
+		for (i = 0; i <= 36; ++i) {
+			a = deg2rad(i*10);
+			x = Math.sin(a);
+			z = Math.cos(a);
+
+			centerVertices.push(x, 0, z);
+			centerColors.push(0, 255, 0);
+		}
+
+		var circleBuffer0 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffer0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerVertices), gl.STATIC_DRAW);
+		circleBuffer0.itemSize = 3;
+		circleBuffer0.numItems = 37;
+
+		var colorBuffer0 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer0);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerColors), gl.STATIC_DRAW);
+		colorBuffer0.itemSize = 3;
+		colorBuffer0.numItems = 37;
+
+
+		centerVertices = [];
+		centerColors = [];
+
+		for (i = 0; i <= 36; ++i) {
+			a = deg2rad(i*10);
+			x = Math.sin(a);
+			y = Math.cos(a);
+
+			centerVertices.push(x, y, 0);
+			centerColors.push(0, 0, 255);
+		}
+
+		var circleBuffer1 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffer1);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerVertices), gl.STATIC_DRAW);
+		circleBuffer1.itemSize = 3;
+		circleBuffer1.numItems = 37;
+
+		var colorBuffer1 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer1);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerColors), gl.STATIC_DRAW);
+		colorBuffer1.itemSize = 3;
+		colorBuffer1.numItems = 37;
+
+
+		centerVertices = [];
+		centerColors = [];
+
+		for (i = 0; i <= 36; ++i) {
+			a = deg2rad(i*10);
+			y = Math.sin(a);
+			z = Math.cos(a);
+
+			centerVertices.push(0, y, z);
+			centerColors.push(255, 0, 0);
+		}
+
+		var circleBuffer2 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffer2);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerVertices), gl.STATIC_DRAW);
+		circleBuffer2.itemSize = 3;
+		circleBuffer2.numItems = 37;
+
+		var colorBuffer2 = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer2);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(centerColors), gl.STATIC_DRAW);
+		colorBuffer2.itemSize = 3;
+		colorBuffer2.numItems = 37;
+
+
+		centerWidget = { vertexBuffer: [circleBuffer0, circleBuffer1, circleBuffer2], colorBuffer: [colorBuffer0, colorBuffer1, colorBuffer2], primType:gl.LINES };
+		//console.print("Created new camera widget, " + centerWidget);
+	}
+	else 
+		console.print("Found camera widget: " + centerWidget);
+
+
+	var modelViewMatrix = mat4.create();
+	mat4.translate(modelViewMatrix, modelViewMatrix, camera.target);
+	mat4.multiply(modelViewMatrix, viewMatrix, modelViewMatrix);
+
+
+  	gl.useProgram(shader);
+	gl.uniformMatrix4fv(shader.projMatrixUniform, false, projMatrix);
+  	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, modelViewMatrix);
+
+  	gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
+  	gl.enableVertexAttribArray(gridShader.vertexColorAttribute);
+
+  	for (i = 0; i < 3; ++i) {
+	  	gl.bindBuffer(gl.ARRAY_BUFFER, centerWidget.vertexBuffer[i]);
+	  	gl.vertexAttribPointer(shader.vertexPositionAttribute, centerWidget.vertexBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
+	  	gl.bindBuffer(gl.ARRAY_BUFFER, centerWidget.colorBuffer[i]);
+	  	gl.vertexAttribPointer(shader.vertexColorAttribute, centerWidget.colorBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
+	  	gl.drawArrays(gl.LINE_LOOP, 0, centerWidget.vertexBuffer[i].numItems);
+	}
+  	
+}
+
+
 function createCamera() {
 
 	var pos = [5.0, 5.0, 2.0];
@@ -51,7 +163,7 @@ function createCamera() {
 	// fovy has to be in radians
 	var fov = 60.0 * Math.PI / 180.0;
 
-	camera = {fovy:fov, aspect:1.3, near:0.1, far:100.0, position:pos, target:tgt, up:up, mode:"orbit", velocity:[0,0,0]};
+	camera = {fovy:fov, aspect:1.3, near:0.1, far:100.0, position:pos, target:tgt, up:up};
 	return camera;
 }
 
@@ -75,7 +187,6 @@ function getPolarCoordinates(camera) {
 function clampAngles(sphericalCoords) {
 	sphericalCoords.phi = Math.max( sphericalCoords.phi, deg2rad(-85));
 	sphericalCoords.phi = Math.min( sphericalCoords.phi, deg2rad( 85));
-
 
 	if (sphericalCoords.theta < 0)
 		sphericalCoords.theta += (2*Math.PI);
@@ -116,10 +227,8 @@ function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
 	
 	if (typeof camera.angles == 'undefined') {
 		camera.angles = getPolarCoordinates(camera);
-		console.print("Creating camera angles:" + camera.angles);
+		//camera.angleV = [theta:deltaTheta, phi:deltaPhi];
 	}
-
-	//console.log("pc: " + rad2deg(angles.theta) + " d" + rad2deg(deltaTheta));
 
 	camera.angles.theta -= deltaTheta;
 	camera.angles.phi += deltaPhi;
@@ -220,28 +329,10 @@ function moveRight(camera, amount) {
 }
 
 
-function setCameraMode(camera, mode) {
-	camera.mode = mode;
-
-	if (mode == "orbit") {
-		camera.velocity = [0,0,0];
-	}
-	else {
-		camera.angles = undefined;
-	}
-
-	console.log("Set camera mode to " + camera.mode);
-
-}
-
-
 function updateCamera(camera, dt) {
-	if (camera.mode == "orbit")
- 		return;
 
-
+	/*	
  	const MAX_SPEED = 10.0;
-
 
  	var speed = vec3.length(camera.velocity);
  	speed = Math.max(speed, -MAX_SPEED);
@@ -249,8 +340,7 @@ function updateCamera(camera, dt) {
 
  	if (speed < Math.abs(0.1)) {
  		speed = 0;
- 		return;
- 	}
+ 		return; 	}
 
 
  	// let speed decay over time
@@ -262,5 +352,5 @@ function updateCamera(camera, dt) {
  	vec3.scale(v, v, dt);
 
  	moveCamera(camera, v);
-
+	*/
 }

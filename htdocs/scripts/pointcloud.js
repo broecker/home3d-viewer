@@ -107,13 +107,13 @@ function loadPoints(gl, blob, pointCount) {
 
 }
 
-function loadPoints2(gl, blob, pointCount) {
+function loadPoints2(gl, blob, pointCount, placement) {
 	var i;
 
 	var reader = new FileReader();
 	const littleEndian = true;
 
-	console.assert(blob != 'undefined');
+	console.assert(blob != undefined);
 
 
 
@@ -169,24 +169,50 @@ function loadPoints2(gl, blob, pointCount) {
 
     var bbox = calculateAABB(points);
 
-    // center the object
-    var c = getCentroid(bbox);
+    if (placement == "on ground") { 
+      // place the object on the ground
+      console.log("Placing object on ground plane")
+      var c = getCentroid(bbox);
 
-    for (i = 0; i < pointCount; ++i)  {
-      points[i*3+0] -= c[0];
-      points[i*3+1] -= c[1];
-      points[i*3+2] -= c[2];
+      for (i = 0; i < pointCount; ++i)  {
+        points[i*3+0] -= c[0];
+        points[i*3+1] -= bbox.min[1];
+        points[i*3+2] -= c[2];
+      }
+
+
+      // update bbox
+      bbox.min[0] -= c[0];
+      bbox.min[2] -= c[2];
+
+      bbox.max[0] -= c[0];
+      bbox.max[2] -= c[2];
+
+      bbox.max[1] -= bbox.min[1];
+      bbox.min[1] = 0.0;
+
+
     }
+    else { 
+      console.log("Centering point cloud");
+      // center the object
+      var c = getCentroid(bbox);
 
-    // update bbox
-    bbox.min[0] -= c[0];
-    bbox.min[1] -= c[1];
-    bbox.min[2] -= c[2];
+      for (i = 0; i < pointCount; ++i)  {
+        points[i*3+0] -= c[0];
+        points[i*3+1] -= c[1];
+        points[i*3+2] -= c[2];
+      }
 
-    bbox.max[0] -= c[0];
-    bbox.max[1] -= c[1];
-    bbox.max[2] -= c[2];
+      // update bbox
+      bbox.min[0] -= c[0];
+      bbox.min[1] -= c[1];
+      bbox.min[2] -= c[2];
 
+      bbox.max[0] -= c[0];
+      bbox.max[1] -= c[1];
+      bbox.max[2] -= c[2];
+    }
 
 
 		var pointsBuffer = gl.createBuffer();
@@ -217,7 +243,7 @@ function createTestBlob(numPoints) {
   var positionBuffer = new Float32Array(3*numPoints);
   var colorBuffer = new Uint8Array(3*numPoints);
   
-  for (var i = 0; i < numPoints*3; i += 3) {
+  for (var i = 0; i < numPoints*3;i += 3) {
     
     var x = Math.random() * 2.0 - 1.0;
     var y = Math.random() * 2.0 - 1.0;
