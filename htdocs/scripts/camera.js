@@ -42,10 +42,9 @@ function rad2deg(angle) {
   return angle * 57.29577951308232; // angle / Math.PI * 180
 }
 
-function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
-	var centerWidget = null;
-	var lastPosition = null;
+var centerWidget = null;
 
+function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
 	var i, a, x, z;
 
 	if (centerWidget == null) {
@@ -125,10 +124,8 @@ function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
 
 
 		centerWidget = { vertexBuffer: [circleBuffer0, circleBuffer1, circleBuffer2], colorBuffer: [colorBuffer0, colorBuffer1, colorBuffer2], primType:gl.LINES };
-		//console.print("Created new camera widget, " + centerWidget);
+		console.log("Created new camera widget, " + centerWidget);
 	}
-	else 
-		console.print("Found camera widget: " + centerWidget);
 
 
 	var modelViewMatrix = mat4.create();
@@ -166,24 +163,6 @@ function createOrbitalCamera() {
 	return camera;
 }
 
-
-// returns the polar coordinates of the camera in relation to its target
-function getPolarCoordinates(camera) {
-	var angles = {theta:0.0, phi:0.0, radius:0.0};
-
-	var delta = vec3.create();
-	vec3.sub(delta, camera.position, camera.target);
-	
-	angles.radius = vec3.length(delta);
-	vec3.scale(delta, delta, 1.0/angles.radius);
-
-	angles.phi = Math.atan2(delta[1], delta[0]);
-	angles.theta = Math.acos(delta[2]/angles.radius);
-
-
-	return angles;
-}
-
 // calculates the camera's position from its angles and target
 function getPosition(camera) { 
 	var pos = vec3.create();
@@ -196,9 +175,8 @@ function getPosition(camera) {
 
 
 function clampAngles(sphericalCoords) {
-	sphericalCoords.theta = Math.max( sphericalCoords.theta, 0.05);
-	sphericalCoords.theta = Math.min( sphericalCoords.theta, Math.PI-0.05);
-
+	sphericalCoords.theta = Math.max( sphericalCoords.theta, deg2rad(1));
+	sphericalCoords.theta = Math.min( sphericalCoords.theta, deg2rad(179));
 
 	return sphericalCoords;
 
@@ -216,8 +194,8 @@ function panCamera(camera, deltaX, deltaY) {
 	var up = vec3.create();
 	vec3.cross(up, forward, right);
 
-	vec3.scale(up, up, deltaY);
-	vec3.scale(right, right, deltaX);
+	vec3.scale(up, up, deltaY );
+	vec3.scale(right, right, deltaX );
 
 	vec3.add(camera.target, camera.target, up);
 	vec3.add(camera.target, camera.target, right); 
@@ -231,11 +209,17 @@ function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
 	camera.phi += deltaPhi;
 	
 	clampAngles(camera);
-
-
-	console.log("theta: " + rad2deg(camera.theta) + " phi: " + rad2deg(camera.phi));
 }
 
+function moveCameraTowardsTarget(camera, delta) { 
+	camera.radius += delta;
+
+	camera.radius = Math.max(0.2, camera.radius);
+	camera.radius = Math.min(100, camera.radius);
+
+	console.log("camera.radius:" + camera.radius);
+
+}
 
 function setProjectionMatrix(camera, projMatrix) {
 

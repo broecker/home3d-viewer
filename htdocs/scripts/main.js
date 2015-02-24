@@ -45,6 +45,7 @@ var mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 
 var enableGrid = true;
+var enableBBox = false;
 
 function initWebGL(canvas) {
   gl = null;
@@ -304,18 +305,10 @@ function render() {
   
   if (pointcloud) {
 
-    if (render.prevPointcloud != pointcloud) {
-      render.prevPointcloud = pointcloud;
-
-      //console.log(getCentroid(pointcloud.aabb));
-      camera.target = getCentroid(pointcloud.aabb);
-      
-      console.log("Setting camera target to " + camera.target)
-
-    }
-
     drawPointcloud(gl, pointcloud, pointcloudShader);
-    //drawAABB(pointcloud.aabb, gridShader);
+
+    if (enableBBox)
+      drawAABB(pointcloud.aabb, gridShader);
   
   }
   
@@ -354,19 +347,28 @@ function loop() {
 
 
 // loads a blob from an address and displays it
-function loadBlob(url, callback) {
+function loadBlob(url) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.responseType = "blob";
+
   xhr.onload = function() {
 
     if (this.status == 200) {
       var myBlob = this.response;
-      loadPoints2(gl, myBlob, 0, 'on ground');
+      pointcloud = createPointcloudFromBlob(gl, myBlob, 0, 'on ground');
+    
+      if (pointcloud != undefined)
+        camera.target = getCentroid(pointcloud.aabb);
+  
     }
   }
+
+
   xhr.send(null);
 }
+
+
 
 // mouse callback functions follow .... 
 function handleMouseDown(event) {
@@ -396,8 +398,12 @@ function handleMouseMotion(event) {
       rotateCameraAroundTarget(camera, deltaY*Math.PI, deltaX*Math.PI);
   }
 
+  else if (mouse.button[1]) {
+    moveCameraTowardsTarget(camera, deltaY*10);
+  }
+
   else if (mouse.button[2]) {
-    panCamera(camera, deltaX, -deltaY);
+    panCamera(camera, deltaX*4.0, -deltaY*4.0);
 
 
   }
@@ -410,8 +416,7 @@ function handleMouseMotion(event) {
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
-  //moveCameraToTarget(camera, delta);  
-
+  moveCameraTowardsTarget(camera, delta);
 }
 
 
@@ -475,11 +480,16 @@ function toggleGrid() {
   enableGrid = !enableGrid;
 }
 
+function toggleBBox() { 
+  enableBBox = !enableBBox;
+}
+
 
 function showBlob(blobAddress) {
   init();
 
   pointcloud = loadBlob(blobAddress);
+ 
 
   loop();
 }

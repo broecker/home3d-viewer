@@ -28,6 +28,9 @@ function drawPointcloud(gl, pointcloud, shader)  {
   
   if (!pointcloud)
     return;
+
+  if (pointcloud.numPoints == 0)
+    return;
   
   gl.useProgram(shader);
   
@@ -45,79 +48,111 @@ function drawPointcloud(gl, pointcloud, shader)  {
   
 }
 
-// loads a pointcloud from a blob
-/**
- * @param gl WebGL context
- * @param blob blob to read from
- * @param pointCount number of points
- */
-function loadPoints(gl, blob, pointCount) {
-  var i;
-  
-  // extract arrays from blob
-  var reader = new FileReader();
-  const littleEndian = true;
+// 3 floats + 4 uint8 = 4*3 + 4 bytes
+const POINT_SIZE = 4*4;
 
-  var vertices = new Float32Array(pointCount*3);
-  var colors = new Uint8Array(pointCount*3);
-  
-  console.log("Reading ", pointCount, " points from blob.");
-  
-  // first four bytes (=uint32) hold the number of points
-  reader.readAsArrayBuffer(blob);
-  reader.onload = function(e) {
-    var buffer = reader.result;
+function initializePointcloud(gl) { 
 
-  
-    var posView = new DataView(buffer, 0);
-    for (i = 0; i < pointCount*3; ++i) {
-      vertices[i] = posView.getFloat32(4*i, littleEndian);
-    }
-    
-    //console.log("Read vertices: ", vertices);
-    console.assert(vertices.length > 0, "Empty vertex array");
-    
-    var clrView = new DataView(buffer, 4*3*pointCount);
-    for (i = 0; i < pointCount*3; ++i) {
-      colors[i] = clrView.getUint8(i, littleEndian);
-    }
-    
-    //console.log("Read colors: ", colors);
-    console.assert(colors.length > 0, "Empty color array");
+    var points = new Float32Array([0,0,0]);
+    var colors = new Float32Array([0,0,0]);
 
     var pointsBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-    
+    gl.bufferData(gl.ARRAY_BUFFER, points, gl.DYNAMIC_DRAW);
+
     var colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-  
-  
-    
-    var bbox = calculateAABB(vertices);
-  
-    pointcloud = {points:pointsBuffer, colors:colorBuffer, numPoints:pointCount, aabb:bbox, loaded:true};
+    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.DYNAMIC_DRAW);
+
+    var bbox = {min:[0,0,0], max:[0,0,0]};
+
+    pointcloud = {points:pointsBuffer, colors:colorBuffer, numPoints:0, aabb:bbox, loaded:true};
     console.log(pointcloud);
-  
+
     return pointcloud;
-    
+}
+
+function updatePointcloud(gl, pointcloud, blob) { 
+  var reader = new FileReader();
+  const littleEndian = true;
+
+  console.assert(blob != undefined);
+  console.assert(pointcloud != undefined);
+
+  var maxPoints = Math.floor(blob.size / POINT_SIZE);
+
+  if (maxPoints <= pointcloud.numPoints)
+    return;
+
+  pointCount = maxPoints;
+
+  reader.readAsArrayBuffer(blob);
+  reader.onload = function(e) {
+      var buffer = reader.result;
+
+      var points = new Float32Array(3*pointCount);
+      var colors = new Uint8Array(3*pointCount);
+
+      var dataView = new DataView(buffer, 0);
+      
+      for (i = 0; i < pointCount; ++i) {
+
+        var index = i*POINT_SIZE;
+
+        var x = dataView.getFloat32(index+0, littleEndian);
+        var y = dataView.getFloat32(index+4, littleEndian);
+        var z = dataView.getFloat32(index+8, littleEndian);
+
+        var r = dataView.getUint8(index+12, littleEndian);
+        var g = dataView.getUint8(index+13, littleEndian);
+        var b = dataView.getUint8(index+14, littleEndian);
+        var a = dataView.getUint8(index+15, littleEndian);
+
+
+        points[i*3+0] = x;
+        points[i*3+1] = y;
+        points[i*3+2] = z;
+
+        colors[i*3+0] = r;
+        colors[i*3+1] = g;
+        colors[i*3+2] = b;
+
+      }
+
+
+      var bbox = calculateAABB(points);
+      var c = getCentroid(bbox);
+
+      for (i = 0; i < pointCount; ++i)  {
+        points[i*3+0] -= c[0];
+        points[i*3+1] -= c[1];
+        points[i*3+2] -= c[2];
+      }
+
+
+      pointcloud.aabb = bbox;
+      pointcloud.numPoints = maxPoints;
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, pointcloud.points);
+      gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, pointcloud.colors);
+      gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+
   }
+
+  console.log("Read " + pointCount + " points.");
 
 }
 
-function loadPoints2(gl, blob, pointCount, placement) {
+
+function createPointcloudFromBlob(gl, blob, pointCount, placement) {
 	var i;
 
 	var reader = new FileReader();
 	const littleEndian = true;
 
 	console.assert(blob != undefined);
-
-
-
-	// 3 floats + 4 uint8 = 4*3 + 4 bytes
-	const POINT_SIZE = 4*4;
 
 	var maxPoints = blob.size / POINT_SIZE;
 	if (pointCount > maxPoints) { 
@@ -224,7 +259,7 @@ function loadPoints2(gl, blob, pointCount, placement) {
 		var colorBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-		
+	
 
 		pointcloud = {points:pointsBuffer, colors:colorBuffer, numPoints:pointCount, aabb:bbox, loaded:true};
 		console.log(pointcloud);
@@ -236,37 +271,5 @@ function loadPoints2(gl, blob, pointCount, placement) {
 
 
 
-}
-
-
-function createTestBlob(numPoints) {
-  console.log("Building temp. blob ... ");
-
-  var positionBuffer = new Float32Array(3*numPoints);
-  var colorBuffer = new Uint8Array(3*numPoints);
-  
-  for (var i = 0; i < numPoints*3;i += 3) {
-    
-    var x = Math.random() * 2.0 - 1.0;
-    var y = Math.random() * 2.0 - 1.0;
-    var z = Math.random() * 2.0 - 1.0;
-    positionBuffer[i+0] = x;
-    positionBuffer[i+1] = y;
-    positionBuffer[i+2] = z;
-    
-    //console.log("vertex: ", x, y, z);
-    
-    var r = Math.random() * 255;
-    var g = Math.random() * 255;
-    var b = 255 - (r+g);
-    colorBuffer[i+0] = r;
-    colorBuffer[i+1] = g;
-    colorBuffer[i+2] = b;
-     
-    
-  }
-  
-  // Now get the blob from the builder, specifying a made-up MIME type
-  return new Blob([positionBuffer, colorBuffer], {type:"x-optional/pointcloud-XYZRGB"});
 }
 

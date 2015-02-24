@@ -3,6 +3,8 @@
 <head>
 	<title>Hello Pointcloud!!</title>
 
+	<!-- look here: http://css3buttongenerator.com/ -->
+
 	<style>
 	html, body {
 		padding: 0px;
@@ -11,10 +13,41 @@
 		height: 100%;
 		overflow: hidden;
 	}
-	canvas {
-		width: 100%;
-		height: 90%;
+
+	.btn {
+		background:rgba(52, 152,219, 0.4);
+		font-family: Arial;
+		color: #ffffff;
+		font-size: 15px;
+		border: solid #c40c40 0px;
+		padding: 6px 20px 6px 20px;
 	}
+
+	.btn:hover {
+		background:rgba(60,176,253, 0.9);
+		text-decoration: none;
+	}
+
+	.buttonBar { 
+		float:left;
+		position: absolute;
+		left: 10px;
+		top: 10px;
+		z-index: 100;
+	}
+
+
+	
+	canvas {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+	}
+	
+	
+
+
 	</style>
 
 	<meta charset="UTF-8">
@@ -32,10 +65,7 @@
 
 		void main()
 		{
-			mat4 HACK_transform = mat4(1.0);
-			HACK_transform[1].y = -1.0;
-
-			gl_Position = projMatrix * viewMatrix * HACK_transform * vec4(positionIn, 1.0);
+			gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
 			gl_PointSize = 2.0;
 			color = colorIn;
 		}
@@ -117,8 +147,13 @@
 
 
 <body onload="showBlob('http://10.129.29.173:8000/shell2_medium.blob')">
-	<canvas id="canvas" width="800" height="600"></canvas>
+	<canvas id="canvas" width="800" height="600"> 
+	</canvas>
 
-	<button type="button" onclick="toggleGrid()">Toggle Grid</button>
+	<div class="buttonBar">
+		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
+		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button>
+	</div>
+
 </body>
 </html>
