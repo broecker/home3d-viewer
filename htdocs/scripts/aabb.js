@@ -144,7 +144,7 @@ function drawAABB(bbox, shader) {
       
     drawAABB.vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, drawAABB.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(8*3), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(8*3), gl.STREAM_DRAW);
     
     drawAABB.indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawAABB.indexBuffer);
@@ -156,7 +156,7 @@ function drawAABB(bbox, shader) {
   // update vertex data
   var vertices = extractVertices(bbox);
   gl.bindBuffer(gl.ARRAY_BUFFER, drawAABB.vertexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
  
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawAABB.indexBuffer);
@@ -166,10 +166,7 @@ function drawAABB(bbox, shader) {
   gl.enableVertexAttribArray(shader.vertexPositionAttribute);
   
   
-  
-  
-  
-  gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.2);
+  //gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.2);
   gl.uniformMatrix4fv(shader.projMatrixUniform, false, projMatrix);
   gl.uniformMatrix4fv(shader.viewMatrixUniform, false, viewMatrix);
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);

@@ -35,6 +35,7 @@ var grid = null;
 var plane = null;
 
 var pointcloud = null;
+var octree = null;
 
 var projMatrix;
 var viewMatrix;
@@ -312,6 +313,19 @@ function render() {
   
   }
   
+  if (octree) { 
+
+    gl.useProgram(gridShader);
+    gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
+
+    gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.0);
+    gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
+    gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
+
+    drawOctree(octree, gridShader);
+  }
+
+
 }
 
 
@@ -466,9 +480,7 @@ function init() {
   pointcloud = loadPoints(gl, blob, 100);
   
   */
-  pointcloud = loadBlob('http://10.129.29.215:8000/shell2_medium.blob');
-
-  //pointcloud = loadBlob('https://blogs.discovery.wisc.edu/public/demos/sandwich.webgl/sandwich2.blob');
+  //pointcloud = loadBlob('http://10.129.29.215:8000/shell2_medium.blob');
 
 
  //loop();
@@ -490,6 +502,15 @@ function showBlob(blobAddress) {
 
   pointcloud = loadBlob(blobAddress);
  
+
+  loop();
+}
+
+
+function showOctree(treeJson) {
+  init();
+
+  octree = parseOctree(treeJson);
 
   loop();
 }

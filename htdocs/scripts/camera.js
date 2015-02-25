@@ -217,7 +217,7 @@ function moveCameraTowardsTarget(camera, delta) {
 	camera.radius = Math.max(0.2, camera.radius);
 	camera.radius = Math.min(100, camera.radius);
 
-	console.log("camera.radius:" + camera.radius);
+	//console.log("camera.radius:" + camera.radius);
 
 }
 
