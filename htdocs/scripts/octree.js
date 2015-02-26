@@ -15,13 +15,32 @@ function loadOctree(node) {
 
 }
 
-function drawOctree(tree, shader) {
+function drawOctree(tree, shader, matrix) {
+
+	if (matrix == undefined) { 
+		matrix = mat4.create();
+		mat4.multiply(matrix, projMatrix, viewMatrix);
+
+	}
+
+	
+
+
+	var clip = clipBox(tree.bbox, matrix);
+
+	if (clip == 0)
+		gl.uniform3f(gridShader.colorUniform, 0.7, 0, 0);
+	else if (clip == 1)
+		gl.uniform3f(gridShader.colorUniform, 0.0, 0.7, 0.0);
+	else
+		gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.0);
+
 	drawAABB(tree.bbox, shader);
 
 	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) {
 			if (tree.children[i] != null) 
-				drawOctree( tree.children[i], shader );
+				drawOctree( tree.children[i], shader, matrix );
 		}
 	}
 

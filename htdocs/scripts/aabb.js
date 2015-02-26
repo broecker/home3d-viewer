@@ -101,35 +101,67 @@ function getSpanLength(bbox) {
   
 }
 
-function isVisible(bbox, projMatrix, viewMatrix) {
+
+function isVisible(bbox, matrix) { 
+  return clipBox(bbox, matrix) > 0;
+}
+
+
+// clips the box against the frustum specified by the matrix (proj*modelview)
+// returns 0 if box is completely outside, 1 if completely inside, 2 if partially inside 
+function clipBox(bbox, matrix) {
   var vertices = extractVertices(bbox);
   
-  clipVertices = new Float32Array(8*3);
+  var clipVertices = [];
+
+
   
+  var mat = mat4.create();
+  mat4.multiply(mat, projMatrix, viewMatrix);
+
+
   for (var i = 0; i < 8; ++i) {
-    
-    var clipPos = projMatrix * viewMatrix * v;
-    
-    clipVertices[i*3+0] = clipPos[0] / clipPos[3];
-    clipVertices[i*3+1] = clipPos[1] / clipPos[3];
-    clipVertices[i*3+2] = clipPos[2] / clipPos[3];
+
+    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+
+    var clipPos = vec4.create();
+    vec4.transformMat4(clipPos, v, mat);
+
+    // homogenous transform
+    vec4.scale(clipPos, clipPos, 1.0 / clipPos[3]);
+    clipVertices.push(clipPos);
   }
   
-  var visible = false;
   // note: this fails if the bounding box spans the whole fov and the individual
   // points fall outside the frustum! 
-  for (i = 0; i < 8*3; i += 3) {
-    if (clipVertices[i+0] >= -1.0 && clipVertices[i+0] <= 1.0 &&
-        clipVertices[i+1] >= -1.0 && clipVertices[i+1] <= 1.0 &&
-        clipVertices[i+2] >= -1.0 && clipVertices[i+2] <= 1.0) {
-          visible = true;
-          break;
-        }
-    
+
+  const planes = [vec4.fromValues(-1,0,0,1), vec4.fromValues(1,0,0,1), vec4.fromValues(0,-1,0,1), vec4.fromValues(0,1,0,1), vec4.fromValues(0,0,-1,1), vec4.fromValues(0,0,1,1)];
+
+
+  var inside = [false, false, false, false, false, false, false, false];
+
+
+
+
+
+  for (i = 0; i < 8; ++i) { 
+
+    if (clipVertices[i][0] >= -clipVertices[i][3] && clipVertices[i][0] <= clipVertices[i][3] && 
+        clipVertices[i][1] >= -clipVertices[i][3] && clipVertices[i][1] <= clipVertices[i][3] && 
+        clipVertices[i][2] >= -clipVertices[i][3] && clipVertices[i][2] <= clipVertices[i][3]) {
+
+      inside[i] = true;
+    }
   }
-  
-  
-  return visible;
+
+  if (inside.every( function isFalse(element, index, array) { return element == false; }))
+    return 0;
+
+  if (inside.every( function isTrue(element, index, array) { return element == true; }))
+    return 1;
+
+  return 2;
+
 }
 
 function drawAABB(bbox, shader) {
