@@ -24,8 +24,8 @@ THE SOFTWARE.
 
 function calculateAABB(pointcloud) {
   
-  const HUGE = 50000;
-  const smal = -50000;
+  const HUGE = 5000000;
+  const smal = -HUGE;
   
   var minVal = [HUGE, HUGE, HUGE];
   var maxVal = [smal, smal, smal];
@@ -248,6 +248,8 @@ function drawAABB(bbox, shader) {
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   
 }
+
+
 
 
 

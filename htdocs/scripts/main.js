@@ -46,7 +46,7 @@ var mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 
 var enableGrid = true;
-var enableBBox = false;
+var enableBBox = true;
 
 function initWebGL(canvas) {
   gl = null;
@@ -313,7 +313,7 @@ function render() {
   
   }
   
-  if (octree) { 
+  if (octree && enableBBox) { 
 
     gl.useProgram(gridShader);
     gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
@@ -322,7 +322,7 @@ function render() {
     gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
     gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
 
-    drawOctree(octree, gridShader);
+    drawAndClipOctree(octree, gridShader);
   }
 
 

@@ -1,3 +1,27 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Markus Broecker <broecker@wisc.edu>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 
 function findOctree(nodes, name) {
 	var result = nodes.filter(function(obj) {
@@ -15,7 +39,26 @@ function loadOctree(node) {
 
 }
 
-function drawOctree(tree, shader, matrix) {
+function drawOctree(tree, shader, matrix) { 
+
+	if (matrix == undefined) { 
+		matrix = mat4.create();
+		mat4.multiply(matrix, projMatrix, viewMatrix);
+
+	}
+
+	drawAABB(tree.bbox, shader);
+
+	if (tree.children != null) {
+		for (var i = 0; i < tree.children.length; ++i) {
+			if (tree.children[i] != null) 
+				drawOctree( tree.children[i], shader, matrix );
+		}
+	}
+
+}
+
+function drawAndClipOctree(tree, shader, matrix) {
 
 	if (matrix == undefined) { 
 		matrix = mat4.create();
@@ -39,12 +82,14 @@ function drawOctree(tree, shader, matrix) {
 
 	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) {
-			if (tree.children[i] != null) 
-				drawOctree( tree.children[i], shader, matrix );
+			if (tree.children[i] != null) {
+				if (clip == 1)
+					drawAndClipOctree( tree.children[i], shader, matrix);
+				else if (clip == 2)
+					drawOctree( tree.children[i], shader, matrix );
+			}
 		}
 	}
-
-
 }
 
 
@@ -95,6 +140,7 @@ function parseOctree(jsonUrl) {
 
 				// set loaded flag to false
 				node.loaded = false;
+				node.blob = null;
 
 			}
 

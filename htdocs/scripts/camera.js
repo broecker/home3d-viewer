@@ -190,6 +190,7 @@ function panCamera(camera, deltaX, deltaY) {
 
 	var right = vec3.create();
 	vec3.cross(right, forward, camera.up)
+	vec3.normalize(right, right);
 
 	var up = vec3.create();
 	vec3.cross(up, forward, right);
