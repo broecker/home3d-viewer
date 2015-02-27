@@ -30,7 +30,7 @@ function drawOctree(tree, shader, matrix) {
 
 	if (clip == 0)
 		gl.uniform3f(gridShader.colorUniform, 0.7, 0, 0);
-	else if (clip == 1)
+	else if (clip == 2)
 		gl.uniform3f(gridShader.colorUniform, 0.0, 0.7, 0.0);
 	else
 		gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.0);

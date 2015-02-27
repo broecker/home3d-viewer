@@ -102,30 +102,18 @@ function getSpanLength(bbox) {
 }
 
 
+// simple clip-space approach to frustum testing. Fails if _all_ vertices are outside the frustum
 function isVisible(bbox, matrix) { 
-  return clipBox(bbox, matrix) > 0;
-}
 
-
-// clips the box against the frustum specified by the matrix (proj*modelview)
-// returns 0 if box is completely outside, 1 if completely inside, 2 if partially inside 
-function clipBox(bbox, matrix) {
-  var vertices = extractVertices(bbox);
-  
   var clipVertices = [];
-
-
-  
-  var mat = mat4.create();
-  mat4.multiply(mat, projMatrix, viewMatrix);
-
+ 
 
   for (var i = 0; i < 8; ++i) {
 
     var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
 
     var clipPos = vec4.create();
-    vec4.transformMat4(clipPos, v, mat);
+    vec4.transformMat4(clipPos, v, matrix);
 
     // homogenous transform
     vec4.scale(clipPos, clipPos, 1.0 / clipPos[3]);
@@ -135,33 +123,89 @@ function clipBox(bbox, matrix) {
   // note: this fails if the bounding box spans the whole fov and the individual
   // points fall outside the frustum! 
 
-  const planes = [vec4.fromValues(-1,0,0,1), vec4.fromValues(1,0,0,1), vec4.fromValues(0,-1,0,1), vec4.fromValues(0,1,0,1), vec4.fromValues(0,0,-1,1), vec4.fromValues(0,0,1,1)];
-
-
   var inside = [false, false, false, false, false, false, false, false];
-
-
-
-
-
   for (i = 0; i < 8; ++i) { 
 
     if (clipVertices[i][0] >= -clipVertices[i][3] && clipVertices[i][0] <= clipVertices[i][3] && 
         clipVertices[i][1] >= -clipVertices[i][3] && clipVertices[i][1] <= clipVertices[i][3] && 
         clipVertices[i][2] >= -clipVertices[i][3] && clipVertices[i][2] <= clipVertices[i][3]) {
-
-      inside[i] = true;
+          inside[i] = true;
     }
   }
 
   if (inside.every( function isFalse(element, index, array) { return element == false; }))
-    return 0;
+    return false;
+  else
+    return true;
+}
 
-  if (inside.every( function isTrue(element, index, array) { return element == true; }))
-    return 1;
 
+// clips the box against the frustum specified by the matrix (proj*modelview)
+// returns 0 if box is completely outside, 1 if partially inside, 2 if fully inside 
+function clipBox(bbox, matrix) {
+  var vertices = extractVertices(bbox);
+ 
+
+  /* the six planes, based on manually extracting the mvp columns from clip space coordinates, as seen here:
+    http://www.lighthouse3d.com/tutorials/view-frustum-culling/clip-space-approach-extracting-the-planes/
+    Note that the article's matrix is in row-major format and therefore has to be switched. See also:
+    http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
+  */
+
+  function row(matrix, i) { 
+    return vec4.fromValues(matrix[i+0], matrix[i+4], matrix[i+8], matrix[i+12]);
+  }
+  
+  function neg(vec4) { 
+    vec4[0] *= -1;
+    vec4[1] *= -1;
+    vec4[2] *= -1;
+    vec4[3] *= -1;
+    return vec4;
+  }
+
+  var row3 = row(matrix, 3);
+  var planes = [ row(matrix, 0), neg(row(matrix, 0)), row(matrix, 1), neg(row(matrix, 1)), row(matrix, 2), neg(row(matrix, 2)) ];
+
+  var vvertices = []
+  
+  for (var i = 0; i < 8; ++i) {
+    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+    vvertices.push(v);
+  }
+
+
+  // add the third row
+  for (var i = 0; i < planes.length; ++i) { 
+    vec4.add(planes[i], planes[i], row3);
+  }
+  
+  for (var i = 0; i < 6; ++i)
+  {
+    var outside = 0;
+    var inside = 0;
+
+    for (var j = 0; j < 8; ++j)
+    {
+      var d = vec4.dot(planes[i], vvertices[j]);
+      
+      if (d < 0)
+        ++outside;
+      else
+        ++inside;
+    }
+
+    // fully outside
+    if (inside == 0)
+      return 0;
+
+    // partially inside
+    else if (outside > 0)
+      return 1;
+  }
+
+  // fully inside
   return 2;
-
 }
 
 function drawAABB(bbox, shader) {
