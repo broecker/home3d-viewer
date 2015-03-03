@@ -243,8 +243,8 @@ function drawAABB(bbox, shader) {
   
   
   //gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.2);
-  gl.uniformMatrix4fv(shader.projMatrixUniform, false, projMatrix);
-  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, viewMatrix);
+  gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
+  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   
 }

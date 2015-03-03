@@ -305,12 +305,12 @@ function render() {
   
   if (geometry.octree && global.enableBBox) { 
 
-    gl.useProgram(gridShader);
-    gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
+    gl.useProgram(shaders.gridShader);
+    gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
 
-    gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.0);
-    gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
-    gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
+    gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
+    gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
+    gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
 
     drawAndClipOctree(geometry.octree, shaders.gridShader);
   }

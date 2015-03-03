@@ -72,11 +72,11 @@ function drawAndClipOctree(tree, shader, matrix) {
 	var clip = clipBox(tree.bbox, matrix);
 
 	if (clip == 0)
-		gl.uniform3f(gridShader.colorUniform, 0.7, 0, 0);
+		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);
 	else if (clip == 2)
-		gl.uniform3f(gridShader.colorUniform, 0.0, 0.7, 0.0);
+		gl.uniform3f(shader.colorUniform, 0.0, 0.7, 0.0);
 	else
-		gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.0);
+		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
 
 	drawAABB(tree.bbox, shader);
 
@@ -163,10 +163,12 @@ function parseOctree(jsonUrl) {
 
 
 			// global 
-			octree = root;
+			geometry.octree = root;
 
 			// always load the root node
 			loadOctree(root);
+
+			return root;
 		}
 	}
 
