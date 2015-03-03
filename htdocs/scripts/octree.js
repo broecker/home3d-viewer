@@ -23,21 +23,9 @@ THE SOFTWARE.
 */
 
 
-function findOctree(nodes, name) {
-	var result = nodes.filter(function(obj) {
-		return obj.file == name;
-	})[0];
-
-	return result;
+function loadOctree(tree) { 
 }
 
-function loadOctree(node) {
-	if (node.loaded)
-		return;
-
-
-
-}
 
 function drawOctree(tree, shader, matrix) { 
 
@@ -117,6 +105,13 @@ function parseOctree(jsonUrl) {
 			var relinkStart = performance.now();
 			console.log("Read " + nodes.length + " nodes, relinking tree ... ");
 
+
+			// create an associative container to speed up searching for nodes
+			var nodeDict = {};
+			for (var i = 0; i < nodes.length; ++i)
+				nodeDict[nodes[i].file] = nodes[i];
+
+
 			for (var i = 0; i < nodes.length; ++i) {
 				var node = nodes[i];
 
@@ -127,9 +122,7 @@ function parseOctree(jsonUrl) {
 					for (var j = 0; j < 8; ++j) {
 						if (node.children[j] != null && typeof node.children[j] == "string") {
 
-							//console.log("looking for child " + j + ": " + node.children[j]);
-							var n = findOctree(nodes, node.children[j]);
-
+							var n = nodeDict[node.children[j]];
 							console.assert(n != undefined);
 							node.children[j] = n;
 							n.parent = node;
@@ -148,7 +141,6 @@ function parseOctree(jsonUrl) {
 			var relinkEnd = performance.now();
 			console.log("Relink time: " + (relinkEnd-relinkStart) + " ms")
 
-
 			// append the full path to all file names
 			var basename = jsonUrl.substring(0, jsonUrl.lastIndexOf("/")+1);
 
@@ -157,9 +149,8 @@ function parseOctree(jsonUrl) {
 
 
 			// find the root node
-			var root = findOctree(nodes, basename+"node-root");
+			var root = nodeDict["node-root"];
 			console.log("Loaded tree.");
-
 
 
 			// global 
