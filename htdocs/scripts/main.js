@@ -34,10 +34,12 @@ global.enableBBox = true;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
+global.updateVisibility = false;
 
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 
+global.stats = null;
 
 // store shaders
 var shaders = shaders || {};
@@ -47,6 +49,8 @@ var geometry = geometry || {};
 geometry.grid = null;
 geometry.pointcloud = null;
 geometry.octree = null;
+
+
 
 
 // initializes the canvas and webgl
@@ -285,7 +289,22 @@ function render() {
   //  setup the camera matrices
   setProjectionMatrix(camera, global.projMatrix);
   setViewMatrix(camera, global.viewMatrix);
-  
+ 
+
+  if (global.updateVisibility) { 
+
+    var mat = mat4.create();
+    mat4.multiply(mat, global.projMatrix, global.viewMatrix);
+
+    if (geometry.octree) {  
+      resetVisibility(geometry.octree);
+      updateVisibility(geometry.octree, mat);
+    }
+
+
+    global.updateVisibility = false;
+  }
+
 
   if (global.enableGrid)
     drawGrid();
@@ -312,7 +331,9 @@ function render() {
     gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
     gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
 
-    drawAndClipOctree(geometry.octree, shaders.gridShader);
+    drawBBoxOctree(geometry.octree, shaders.gridShader);
+
+    //drawAndClipOctreeBBoxes(geometry.octree, shaders.gridShader);
   }
 
 
@@ -342,12 +363,16 @@ function tick() {
 }
 
 function loop() {
-  
-  window.requestAnimationFrame(loop);
-  
+  global.stats.begin();
+
   tick();
   render();
-}
+ 
+  global.stats.end();
+
+  window.requestAnimationFrame(loop);
+    
+} 
 
 
 // loads a blob from an address and displays it
@@ -381,7 +406,6 @@ function handleMouseDown(event) {
   global.mouse.button[event.button] = true;
   global.mouse.lastPosition = [event.clientX, event.clientY];
 
-
 }
 
 function handleMouseUp(event) {
@@ -414,13 +438,15 @@ function handleMouseMotion(event) {
 
 
   global.mouse.lastPosition = mousePosition;
-
+  global.updateVisibility = true;
 }
 
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
   moveCameraTowardsTarget(global.camera, delta);
+
+  global.updateVisibility = true;
 }
 
 
@@ -459,6 +485,7 @@ function handleKeydown(event) {
 
   }
 
+  global.updateVisibility = true;
 }
 
 function handleKeyup(event) {
@@ -480,7 +507,7 @@ function init() {
   document.onmousewheel = handleMouseWheel;
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
-   
+
   // disables the right-click menu
   document.oncontextmenu = function() {
     return false;
@@ -490,18 +517,29 @@ function init() {
 
   loadShaders();
   createGridBuffer();
-  
+
+
+  // create FPS meter
+  global.stats = new Stats();
+  global.stats.setMode(1);
+  global.stats.domElement.style.position = 'absolute';
+  global.stats.domElement.style.right = '5px';
+  global.stats.domElement.style.top = '5px';
+  document.body.appendChild(global.stats.domElement);
+
+
+
 
   /*  
   var blob = createTestBlob(100);
   pointcloud = loadPoints(gl, blob, 100);
-  
+
   */
   //pointcloud = loadBlob('http://10.129.29.215:8000/shell2_medium.blob');
 
 
- //loop();
-  
+  //loop();
+
 
 }
 

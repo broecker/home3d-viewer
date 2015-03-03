@@ -27,7 +27,78 @@ function loadOctree(tree) {
 }
 
 
-function drawOctree(tree, shader, matrix) { 
+
+function drawOctree(tree, shader, matrix) {
+
+
+
+
+}
+
+
+function setVisible(tree) { 
+	tree.visible = 2;
+	
+	if (tree.children != null) 
+		for (var i = 0; i < 8; ++i)
+			if (tree.children[i] != null)
+				setVisible(tree.children[i]);
+
+}
+
+function updateVisibility(tree, matrix) { 
+
+	tree.visible = clipBox(tree.bbox, matrix);
+
+	if (tree.children != null) {
+		for (var i = 0; i < tree.children.length; ++i) {
+			if (tree.children[i] != null) {
+				if (tree.visible == 1)
+					updateVisibility(tree.children[i], matrix);
+		
+				
+				// recursively set everything visible
+				if (tree.visible == 2)
+					setVisible(tree.children[i]);
+				
+			}
+		}
+	}
+}
+
+
+function resetVisibility(tree) { 
+	tree.visible = 0;
+
+	if (tree.children != null) 
+		for (var i = 0; i < tree.children.length; ++i)
+			if (tree.children[i] != null)
+				resetVisibility(tree.children[i]);
+
+	//console.log("Resetting visibility for tree " + tree);
+}
+
+
+function drawBBoxOctree(tree, shader) {
+
+
+	if (tree.visible == 0)
+		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);
+	else if (tree.visible == 2)
+		gl.uniform3f(shader.colorUniform, 0.0, 0.7, 0.0);
+	else
+		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
+
+	drawAABB(tree.bbox, shader);
+
+	if (tree.children)
+		for (var i = 0; i < 8; ++i) 
+			if (tree.children[i]) 
+				drawBBoxOctree(tree.children[i], shader);
+
+}
+
+function drawOctreeBBoxes(tree, shader, matrix) { 
 
 	if (matrix == undefined) { 
 		matrix = mat4.create();
@@ -37,16 +108,17 @@ function drawOctree(tree, shader, matrix) {
 
 	drawAABB(tree.bbox, shader);
 
+
 	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) {
 			if (tree.children[i] != null) 
-				drawOctree( tree.children[i], shader, matrix );
+				drawOctreeBBoxes( tree.children[i], shader, matrix );
 		}
 	}
 
 }
 
-function drawAndClipOctree(tree, shader, matrix) {
+function drawAndClipOctreeBBoxes(tree, shader, matrix) {
 
 	if (matrix == undefined) { 
 		matrix = mat4.create();
@@ -72,9 +144,9 @@ function drawAndClipOctree(tree, shader, matrix) {
 		for (var i = 0; i < tree.children.length; ++i) {
 			if (tree.children[i] != null) {
 				if (clip == 1)
-					drawAndClipOctree( tree.children[i], shader, matrix);
+					drawAndClipOctreeBBoxes( tree.children[i], shader, matrix);
 				else if (clip == 2)
-					drawOctree( tree.children[i], shader, matrix );
+					drawOctreeBBoxes( tree.children[i], shader, matrix );
 			}
 		}
 	}
@@ -155,6 +227,10 @@ function parseOctree(jsonUrl) {
 
 			// global 
 			geometry.octree = root;
+
+
+			// reset visibility
+			resetVisibility(root);
 
 			// always load the root node
 			loadOctree(root);
