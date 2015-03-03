@@ -24,21 +24,7 @@ THE SOFTWARE.
 
 
 var canvas;
-var gl; // A global variable for the WebGL context
-
-
-var grid = null;
-var plane = null;
-
-var pointcloud = null;
-var octree = null;
-
-
-var camera = null;
-
-var mouse = {button:[false, false, false], lastPosition:[0,0]};
-
-
+var gl = null; // A global variable for the WebGL context
 
 
 // store global variables
@@ -49,19 +35,22 @@ global.enableBBox = true;
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
 
+global.camera = null;
+global.mouse = {button:[false, false, false], lastPosition:[0,0]};
+
 
 // store shaders
 var shaders = shaders || {};
-shaders.pointcloudShader = null;
-shaders.gridShader = null;
-shaders.objectShader = null;
+
+// store what we want to render
+var geometry = geometry || {};
+geometry.grid = null;
+geometry.pointcloud = null;
+geometry.octree = null;
 
 
-
-
-function initWebGL(canvas) {
-  gl = null;
-  
+// initializes the canvas and webgl
+function initWebGL(canvas) {  
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
     gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -96,8 +85,8 @@ function resizeCanvas(canvas) {
 
 
 
-
-function getShader(gl, id) {
+// loads a shader with the given id from the DOM
+function getShader(id) {
     var shaderScript = document.getElementById(id);
     if (!shaderScript) {
         return null;
@@ -132,11 +121,12 @@ function getShader(gl, id) {
     return shader;
 }
 
+// loads all shaders in the DOM
 function loadShaders() {
   
   // load the point cloud shader
-  var fragmentShader = getShader(gl, "pointVS");
-  var vertexShader = getShader(gl, "pointFS");
+  var fragmentShader = getShader("pointVS");
+  var vertexShader = getShader("pointFS");
 
   var pointcloudShader = gl.createProgram();
   gl.attachShader(pointcloudShader, vertexShader);
@@ -156,8 +146,8 @@ function loadShaders() {
 
   
   // load the grid shader
-  fragmentShader = getShader(gl, "gridVS");
-  vertexShader = getShader(gl, "gridFS");
+  fragmentShader = getShader("gridVS");
+  vertexShader = getShader("gridFS");
   
   var gridShader = gl.createProgram();
   gl.attachShader(gridShader, vertexShader);
@@ -176,8 +166,8 @@ function loadShaders() {
   
 
   // load the object shader
-  fragmentShader = getShader(gl, "objectVS");
-  vertexShader = getShader(gl, "objectFS");
+  fragmentShader = getShader("objectVS");
+  vertexShader = getShader("objectFS");
 
   var objectShader = gl.createProgram();
   gl.attachShader(objectShader, vertexShader);
@@ -195,6 +185,7 @@ function loadShaders() {
   shaders.objectShader = objectShader;
 }
 
+// creates the geometry of a single plane
 function createPlaneBuffer(gl) { 
   var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
   var planeNormals = [0,1,0, 0,1,0, 0,1,0, 0,1,0 ];
@@ -229,7 +220,8 @@ function createPlaneBuffer(gl) {
 
 }
 
-function createGridBuffer(gl){
+// creates the geometry and vertex buffer for a grid on the Y=0 plane
+function createGridBuffer(){
 
   var gridVertices = [];
   for (var i = -10; i <= 10; ++i) {
@@ -256,25 +248,27 @@ function createGridBuffer(gl){
   gridVertexPositionBuffer.itemSize = 3;
   gridVertexPositionBuffer.numItems = 84;
 
-  grid = {buffer:gridVertexPositionBuffer, primType:gl.LINES};
+  geometry.grid = {buffer:gridVertexPositionBuffer, primType:gl.LINES};
   
 }
 
+// draws the grid
 function drawGrid() {
   
   gl.useProgram(shaders.gridShader);
   gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
   
-  gl.bindBuffer(gl.ARRAY_BUFFER, grid.buffer);
-  gl.vertexAttribPointer(shaders.gridShader.vertexPositionAttribute, grid.buffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, geometry.grid.buffer);
+  gl.vertexAttribPointer(shaders.gridShader.vertexPositionAttribute, geometry.grid.buffer.itemSize, gl.FLOAT, false, 0, 0);
   
   gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.7);
   gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
   gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
-  gl.drawArrays(gl.LINES, 0, grid.buffer.numItems);
+  gl.drawArrays(gl.LINES, 0, geometry.grid.buffer.numItems);
 }
 
 
+// main render function 
 function render() {
   
   // update the canvas, viewport and camera
@@ -297,19 +291,19 @@ function render() {
     drawGrid();
   
   
-  if (mouse.button[0] || mouse.button[2])
+  if (global.mouse.button[0] || global.mouse.button[2])
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
   
-  if (pointcloud) {
+  if (geometry.pointcloud) {
 
-    drawPointcloud(gl, pointcloud, pointcloudShader);
+    drawPointcloud(gl, geometry.pointcloud, shaders.pointcloudShader);
 
     if (global.enableBBox)
-      drawAABB(pointcloud.aabb, gridShader);
+      drawAABB(pointcloud.aabb, shaders.gridShader);
   
   }
   
-  if (octree && global.enableBBox) { 
+  if (geometry.octree && global.enableBBox) { 
 
     gl.useProgram(gridShader);
     gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
@@ -318,7 +312,7 @@ function render() {
     gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
     gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
 
-    drawAndClipOctree(octree, gridShader);
+    drawAndClipOctree(geometry.octree, shaders.gridShader);
   }
 
 
@@ -333,7 +327,7 @@ function tick() {
   if (lastTime !== 0) {
     var dt = (time - lastTime) / 1000.0;
 
-    if (mouse.down == false ) {
+    if (global.mouse.down == false ) {
 
       // animate the camera here
       var speed = 0.0;
@@ -384,49 +378,49 @@ function loadBlob(url) {
 function handleMouseDown(event) {
   event.preventDefault();
 
-  mouse.button[event.button] = true;
-  mouse.lastPosition = [event.clientX, event.clientY];
+  global.mouse.button[event.button] = true;
+  global.mouse.lastPosition = [event.clientX, event.clientY];
 
 
 }
 
 function handleMouseUp(event) {
-  mouse.button[event.button] = false;
+  global.mouse.button[event.button] = false;
 }
 
 function handleMouseMotion(event) {
   var mousePosition = [event.clientX, event.clientY];
 
-  var deltaX = (mousePosition[0] - mouse.lastPosition[0]) / canvas.clientWidth;
-  var deltaY = (mousePosition[1] - mouse.lastPosition[1]) / canvas.clientHeight;
+  var deltaX = (mousePosition[0] - global.mouse.lastPosition[0]) / canvas.clientWidth;
+  var deltaY = (mousePosition[1] - global.mouse.lastPosition[1]) / canvas.clientHeight;
  
   // scale to -1..1
  // deltaY *= 180.0 / Math.PI;
   
 
-  if (mouse.button[0]) {
-      rotateCameraAroundTarget(camera, deltaY*Math.PI, deltaX*Math.PI);
+  if (global.mouse.button[0]) {
+      rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
   }
 
-  else if (mouse.button[1]) {
-    moveCameraTowardsTarget(camera, deltaY*10);
+  else if (global.mouse.button[1]) {
+    moveCameraTowardsTarget(global.camera, deltaY*10);
   }
 
-  else if (mouse.button[2]) {
-    panCamera(camera, deltaX*4.0, -deltaY*4.0);
+  else if (global.mouse.button[2]) {
+    panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
 
 
   }
 
 
-  mouse.lastPosition = mousePosition;
+  global.mouse.lastPosition = mousePosition;
 
 }
 
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
-  moveCameraTowardsTarget(camera, delta);
+  moveCameraTowardsTarget(global.camera, delta);
 }
 
 
@@ -462,13 +456,10 @@ function init() {
     return false;
   }
 
-  projMatrix = mat4.create();
-  viewMatrix = mat4.create();
-
-  camera = createOrbitalCamera();
+  global.camera = createOrbitalCamera();
 
   loadShaders();
-  createGridBuffer(gl);
+  createGridBuffer();
   
 
   /*  
@@ -496,7 +487,7 @@ function toggleBBox() {
 function showBlob(blobAddress) {
   init();
 
-  pointcloud = loadBlob(blobAddress);
+  geometry.pointcloud = loadBlob(blobAddress);
  
 
   loop();
@@ -506,7 +497,7 @@ function showBlob(blobAddress) {
 function showOctree(treeJson) {
   init();
 
-  octree = parseOctree(treeJson);
+  geometry.octree = parseOctree(treeJson);
 
   loop();
 }
