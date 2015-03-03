@@ -137,8 +137,8 @@ function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
 	gl.uniformMatrix4fv(shader.projMatrixUniform, false, projMatrix);
   	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, modelViewMatrix);
 
-  	gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
-  	gl.enableVertexAttribArray(gridShader.vertexColorAttribute);
+  	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+  	gl.enableVertexAttribArray(shader.vertexColorAttribute);
 
   	for (i = 0; i < 3; ++i) {
 	  	gl.bindBuffer(gl.ARRAY_BUFFER, centerWidget.vertexBuffer[i]);

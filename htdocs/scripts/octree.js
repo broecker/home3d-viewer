@@ -43,7 +43,7 @@ function drawOctree(tree, shader, matrix) {
 
 	if (matrix == undefined) { 
 		matrix = mat4.create();
-		mat4.multiply(matrix, projMatrix, viewMatrix);
+		mat4.multiply(matrix, global.projMatrix, global.viewMatrix);
 
 	}
 
@@ -62,7 +62,7 @@ function drawAndClipOctree(tree, shader, matrix) {
 
 	if (matrix == undefined) { 
 		matrix = mat4.create();
-		mat4.multiply(matrix, projMatrix, viewMatrix);
+		mat4.multiply(matrix, global.projMatrix, global.viewMatrix);
 
 	}
 
@@ -114,6 +114,7 @@ function parseOctree(jsonUrl) {
 			}
 			*/
 
+			var relinkStart = performance.now();
 			console.log("Read " + nodes.length + " nodes, relinking tree ... ");
 
 			for (var i = 0; i < nodes.length; ++i) {
@@ -144,6 +145,8 @@ function parseOctree(jsonUrl) {
 
 			}
 
+			var relinkEnd = performance.now();
+			console.log("Relink time: " + (relinkEnd-relinkStart) + " ms")
 
 
 			// append the full path to all file names

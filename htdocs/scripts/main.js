@@ -27,26 +27,37 @@ var canvas;
 var gl; // A global variable for the WebGL context
 
 
-// shader stuff
-var pointcloudShader, gridShader;
-var objectShader;
-
 var grid = null;
 var plane = null;
 
 var pointcloud = null;
 var octree = null;
 
-var projMatrix;
-var viewMatrix;
 
 var camera = null;
 
 var mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 
-var enableGrid = true;
-var enableBBox = true;
+
+
+// store global variables
+var global = global || {};
+global.enableGrid = true;
+global.enableBBox = true;
+
+global.viewMatrix = mat4.create();
+global.projMatrix = mat4.create();
+
+
+// store shaders
+var shaders = shaders || {};
+shaders.pointcloudShader = null;
+shaders.gridShader = null;
+shaders.objectShader = null;
+
+
+
 
 function initWebGL(canvas) {
   gl = null;
@@ -127,7 +138,7 @@ function loadShaders() {
   var fragmentShader = getShader(gl, "pointVS");
   var vertexShader = getShader(gl, "pointFS");
 
-  pointcloudShader = gl.createProgram();
+  var pointcloudShader = gl.createProgram();
   gl.attachShader(pointcloudShader, vertexShader);
   gl.attachShader(pointcloudShader, fragmentShader);
   gl.linkProgram(pointcloudShader);
@@ -141,14 +152,14 @@ function loadShaders() {
   pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
   pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
   pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
-  
-  
+  shaders.pointcloudShader = pointcloudShader;
+
   
   // load the grid shader
   fragmentShader = getShader(gl, "gridVS");
   vertexShader = getShader(gl, "gridFS");
   
-  gridShader = gl.createProgram();
+  var gridShader = gl.createProgram();
   gl.attachShader(gridShader, vertexShader);
   gl.attachShader(gridShader, fragmentShader);
   gl.linkProgram(gridShader);
@@ -161,14 +172,14 @@ function loadShaders() {
   gridShader.projMatrixUniform = gl.getUniformLocation(gridShader, "projMatrix");
   gridShader.viewMatrixUniform = gl.getUniformLocation(gridShader, "viewMatrix");
   gridShader.colorUniform = gl.getUniformLocation(gridShader, "color");
-  
+  shaders.gridShader = gridShader;
   
 
   // load the object shader
   fragmentShader = getShader(gl, "objectVS");
   vertexShader = getShader(gl, "objectFS");
 
-  objectShader = gl.createProgram();
+  var objectShader = gl.createProgram();
   gl.attachShader(objectShader, vertexShader);
   gl.attachShader(objectShader, fragmentShader);
   gl.linkProgram(objectShader);
@@ -181,7 +192,8 @@ function loadShaders() {
   objectShader.vertexColorAttribute = gl.getAttribLocation(objectShader, "colorIn");
   objectShader.projMatrixUniform = gl.getUniformLocation(objectShader, "projMatrix");
   objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
- }
+  shaders.objectShader = objectShader;
+}
 
 function createPlaneBuffer(gl) { 
   var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
@@ -250,32 +262,16 @@ function createGridBuffer(gl){
 
 function drawGrid() {
   
-  gl.useProgram(gridShader);
-  gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
+  gl.useProgram(shaders.gridShader);
+  gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
   
   gl.bindBuffer(gl.ARRAY_BUFFER, grid.buffer);
-  gl.vertexAttribPointer(gridShader.vertexPositionAttribute, grid.buffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(shaders.gridShader.vertexPositionAttribute, grid.buffer.itemSize, gl.FLOAT, false, 0, 0);
   
-  gl.uniform3f(gridShader.colorUniform, 0.7, 0.7, 0.7);
-  gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
-  gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
+  gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.7);
+  gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
+  gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
   gl.drawArrays(gl.LINES, 0, grid.buffer.numItems);
-}
-
-function drawPlane() {
-  gl.useProgram(objectShader);
-  gl.enableVertexAttribArray(objectShader.vertexPositionAttribute);
-  gl.enableVertexAttribArray(objectShader.vertexColorAttribute);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, plane.vertexBuffer);
-  gl.vertexAttribPointer(planeShader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, plane.colorBuffer);
-  gl.vertexAttribPointer(planeShader.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.uniformMatrix4fv(gridShader.projMatrixUniform, false, projMatrix);
-  gl.uniformMatrix4fv(gridShader.viewMatrixUniform, false, viewMatrix);
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 
@@ -293,27 +289,27 @@ function render() {
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
   //  setup the camera matrices
-  setProjectionMatrix(camera, projMatrix);
-  setViewMatrix(camera, viewMatrix);
+  setProjectionMatrix(camera, global.projMatrix);
+  setViewMatrix(camera, global.viewMatrix);
   
 
-  if (enableGrid)
+  if (global.enableGrid)
     drawGrid();
   
   
   if (mouse.button[0] || mouse.button[2])
-    drawCameraFocus(gl, objectShader, projMatrix, viewMatrix, camera);
+    drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
   
   if (pointcloud) {
 
     drawPointcloud(gl, pointcloud, pointcloudShader);
 
-    if (enableBBox)
+    if (global.enableBBox)
       drawAABB(pointcloud.aabb, gridShader);
   
   }
   
-  if (octree && enableBBox) { 
+  if (octree && global.enableBBox) { 
 
     gl.useProgram(gridShader);
     gl.enableVertexAttribArray(gridShader.vertexPositionAttribute);
@@ -438,7 +434,7 @@ function handleKeydown(event) {
 
   // 'g'
   if (event.keyCode == 71)
-    enableGrid = !enableGrid;
+    global.enableGrid = !global.enableGrid;
 }
 
 function handleKeyup(event) {
@@ -489,11 +485,11 @@ function init() {
 }
 
 function toggleGrid() { 
-  enableGrid = !enableGrid;
+  global.enableGrid = !global.enableGrid;
 }
 
 function toggleBBox() { 
-  enableBBox = !enableBBox;
+  global.enableBBox = !global.enableBBox;
 }
 
 

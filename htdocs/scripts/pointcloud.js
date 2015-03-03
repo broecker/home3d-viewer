@@ -42,8 +42,8 @@ function drawPointcloud(gl, pointcloud, shader)  {
   gl.bindBuffer(gl.ARRAY_BUFFER, pointcloud.colors);
   gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
   
-  gl.uniformMatrix4fv(shader.projMatrixUniform, false, projMatrix);
-  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, viewMatrix);
+  gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
+  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
   gl.drawArrays(gl.POINTS, 0, pointcloud.numPoints);
   
 }
