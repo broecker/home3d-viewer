@@ -429,6 +429,36 @@ function handleKeydown(event) {
   // 'g'
   if (event.keyCode == 71)
     global.enableGrid = !global.enableGrid;
+
+  // up
+  if (event.keyCode == 38)
+    panCamera(global.camera, 0, 0, -2.0);
+
+  // down
+  if (event.keyCode == 40) 
+    panCamera(global.camera, 0, 0, 2.0);
+
+  // left
+  if (event.keyCode == 37)
+    panCamera(global.camera, 2.0, 0, 0);
+
+  // right
+  if (event.keyCode == 39)
+    panCamera(global.camera, -2, 0, 0);
+
+  // page down
+  if (event.keyCode == 34)
+    panCamera(global.camera, 0, -2, 0);
+  //page up
+  if (event.keyCode == 33)
+    panCamera(global.camera, 0, 2, 0);
+
+  // 'c' - center camera
+  if (event.keyCode == 67) {
+    camera.target = vec3.fromValues(0,0,0);
+
+  }
+
 }
 
 function handleKeyup(event) {
@@ -450,7 +480,7 @@ function init() {
   document.onmousewheel = handleMouseWheel;
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
-  
+   
   // disables the right-click menu
   document.oncontextmenu = function() {
     return false;
