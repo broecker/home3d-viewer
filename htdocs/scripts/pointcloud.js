@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 
 
-function drawPointcloud(gl, pointcloud, shader)  {
+function drawPointcloud(pointcloud, shader)  {
   
   if (!pointcloud)
     return;
@@ -51,7 +51,7 @@ function drawPointcloud(gl, pointcloud, shader)  {
 // 3 floats + 4 uint8 = 4*3 + 4 bytes
 const POINT_SIZE = 4*4;
 
-function createPointcloudFromBlob(gl, blob, pointCount, placement) {
+function createPointcloudFromBlob(blob, pointCount, placement) {
 	var i;
 
 	var reader = new FileReader();
@@ -110,7 +110,8 @@ function createPointcloudFromBlob(gl, blob, pointCount, placement) {
 
     if (placement == "on ground") { 
       // place the object on the ground
-      console.log("Placing object on ground plane")
+      console.log("Placing object on ground plane");
+
       var c = getCentroid(bbox);
 
       for (i = 0; i < pointCount; ++i)  {
@@ -135,7 +136,7 @@ function createPointcloudFromBlob(gl, blob, pointCount, placement) {
 
 
     }
-    else { 
+    else if (placement == "centered") { 
       console.log("Centering point cloud");
       // center the object
       var c = getCentroid(bbox);
@@ -157,6 +158,7 @@ function createPointcloudFromBlob(gl, blob, pointCount, placement) {
     }
 
 
+
 		var pointsBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
@@ -166,11 +168,10 @@ function createPointcloudFromBlob(gl, blob, pointCount, placement) {
 		gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 	
 
-		pointcloud = {points:pointsBuffer, colors:colorBuffer, numPoints:pointCount, aabb:bbox, loaded:true};
+		var pointcloud = {points:pointsBuffer, colors:colorBuffer, numPoints:pointCount, aabb:bbox, loaded:true};
 		console.log(pointcloud);
 
 		return pointcloud;
-
 
 	}
 

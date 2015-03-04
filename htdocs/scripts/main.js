@@ -315,28 +315,34 @@ function render() {
   
   if (geometry.pointcloud) {
 
-    drawPointcloud(gl, geometry.pointcloud, shaders.pointcloudShader);
+    drawPointcloud(geometry.pointcloud, shaders.pointcloudShader);
 
     if (global.enableBBox)
       drawAABB(pointcloud.aabb, shaders.gridShader);
   
   }
   
-  if (geometry.octree && global.enableBBox) { 
+  if (geometry.octree) { 
 
-    gl.useProgram(shaders.gridShader);
-    gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
+    if (global.enableBBox) {
+      gl.useProgram(shaders.gridShader);
+      gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
 
-    gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
-    gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
-    gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
+      gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
+      gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
+      gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
 
-    drawBBoxOctree(geometry.octree, shaders.gridShader);
+      drawBBoxOctree(geometry.octree, shaders.gridShader);
+    }
 
-    //drawAndClipOctreeBBoxes(geometry.octree, shaders.gridShader);
+    // draw the points
+    gl.useProgram(shaders.pointcloudShader);
+
+    gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
+    gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
+
+    drawOctree(geometry.octree, shaders.pointcloudShader);
   }
-
-
 }
 
 
@@ -385,7 +391,7 @@ function loadBlob(url) {
 
     if (this.status == 200) {
       var myBlob = this.response;
-      pointcloud = createPointcloudFromBlob(gl, myBlob, 0, 'on ground');
+      pointcloud = createPointcloudFromBlob(myBlob, 0, 'on ground');
     
       if (pointcloud != undefined)
         camera.target = getCentroid(pointcloud.aabb);
@@ -521,25 +527,13 @@ function init() {
 
   // create FPS meter
   global.stats = new Stats();
-  global.stats.setMode(1);
+  global.stats.setMode(0);
   global.stats.domElement.style.position = 'absolute';
   global.stats.domElement.style.right = '5px';
   global.stats.domElement.style.top = '5px';
   document.body.appendChild(global.stats.domElement);
 
-
-
-
-  /*  
-  var blob = createTestBlob(100);
-  pointcloud = loadPoints(gl, blob, 100);
-
-  */
-  //pointcloud = loadBlob('http://10.129.29.215:8000/shell2_medium.blob');
-
-
-  //loop();
-
+  global.updateVisibility = true;
 
 }
 
