@@ -54,6 +54,7 @@
 	<meta name="viewport" content="width=device-width">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
+
 	<script id="pointVS" type="x-shader/x-vertex">
 		attribute vec3 positionIn;
 		attribute vec3 colorIn;
@@ -65,6 +66,8 @@
 
 		void main()
 		{
+			mat4 HACK_transform = mat4(1.0);
+
 			gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
 			gl_PointSize = 2.0;
 			color = colorIn;
@@ -106,8 +109,6 @@
 	    gl_FragColor = vec4(color, 1.0);
 	  }
 	</script>
-	
-
 
 	<script id="objectVS" type="x-shader/x-vertex">
 	  attribute vec3 positionIn;
@@ -134,8 +135,7 @@
 	  {
 	    gl_FragColor = vec4(color, 1.0);
 	  }
-	</script>
-	
+	</script>	
 
 
 	<script src="scripts/gl-matrix.js"></script>
@@ -147,12 +147,10 @@
 	<script src="scripts/stats.js"></script>
 	<script src="scripts/main.js"></script>
 
-
-
 </head>
 	<!--body onload="showBlob('http://10.129.29.173:8000/shell2_medium.blob')"> --> 
 	<!--body onload="showOctree('http://10.129.29.205:8000/monkey1_medium.json')" -->
-	<body onload="showOctree('http://10.129.29.110:8000/office/office.json')" >
+	<body onload="showOctree('http://10.129.29.110:8000/ambassador/ambassador.json')" >
 	<canvas id="canvas" width="800" height="600"> 
 	</canvas>
 

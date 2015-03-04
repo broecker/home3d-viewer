@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+// loads the blob referenced by a tree node's file attribute and generates
+// the vertex buffers.
 function loadOctree(tree) {
 
 	if (!tree.loaded) { 
@@ -99,8 +101,6 @@ function loadOctree(tree) {
 					gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 					tree.loaded = true;
 					
-
-					debugger;
 				}
 			
 
@@ -118,7 +118,7 @@ function loadOctree(tree) {
 
 
 
-function drawOctree(tree, shader) {
+function drawOctree(tree, shader, maxRecursion) {
 
 	if (tree.loaded == true && tree.points > 0) { 
 		
@@ -142,20 +142,23 @@ function drawOctree(tree, shader) {
 	}
 
 
-	/*
-	// recurse
-	if (tree.children != null) { 
-		for (var i = 0; i < 8; ++i) { 
-			if (tree.children[i] != null && tree.children[i].visible > 0)
-				drawOctree(tree.children[i], shader);
+	if (maxRecursion > 0) { 
+		if (tree.children != null) { 
+			for (var i = 0; i < 8; ++i) { 
+				if (tree.children[i] != null && tree.children[i].visible > 0)
+					drawOctree(tree.children[i], shader, maxRecursion-1);
+			}
+
 		}
-
+	
 	}
-	*/
 
+	
+	
 }
 
 
+// sets a whole tree to be visible
 function setVisible(tree) { 
 	tree.visible = 2;
 	
@@ -187,6 +190,7 @@ function updateVisibility(tree, matrix) {
 }
 
 
+// sets a whole tree to be invisible
 function resetVisibility(tree) { 
 	tree.visible = 0;
 

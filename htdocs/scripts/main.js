@@ -30,7 +30,7 @@ var gl = null; // A global variable for the WebGL context
 // store global variables
 var global = global || {};
 global.enableGrid = true;
-global.enableBBox = true;
+global.enableBBox = false;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
@@ -40,6 +40,8 @@ global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 global.stats = null;
+
+global.octreeRecursionLevel = 2;
 
 // store shaders
 var shaders = shaders || {};
@@ -51,7 +53,17 @@ geometry.pointcloud = null;
 geometry.octree = null;
 
 
-
+/*
+// for various info
+var renderStats = renderStats || {};
+renderStats.nodes.total = 0;
+renderStats.nodes.loaded = 0;
+renderStats.nodes.visible = 0;
+renderStats.nodes.clipped = 0;
+renderStats.nodes.invisible = 0;
+renderStats.lastFrame.points = 0;
+renderStats.lastFrame.recursion = 0;
+*/
 
 // initializes the canvas and webgl
 function initWebGL(canvas) {  
@@ -125,13 +137,36 @@ function getShader(id) {
     return shader;
 }
 
+function loadShader(sourcePath) { 
+  var XHR = new XMLHttpRequest();
+  XHR.open("GET", sourcePath, false);
+   
+  if(XHR.overrideMimeType){
+    XHR.overrideMimeType("text/plain");
+  }
+   
+  try{
+    XHR.send(null);
+  }catch(e){
+    this.println('Error reading file "' + path + '"');
+  }
+   
+  return XHR.responseText;
+}
+
+
 // loads all shaders in the DOM
-function loadShaders() {
+function loadShaders(basePath) {
   
   // load the point cloud shader
+  
   var fragmentShader = getShader("pointVS");
   var vertexShader = getShader("pointFS");
-
+  
+  /*
+  var fragmentShader = loadShader(basePath + "/points.vert");
+  var vertexShader = loadShader(basePath + "/points.frag");
+  */
   var pointcloudShader = gl.createProgram();
   gl.attachShader(pointcloudShader, vertexShader);
   gl.attachShader(pointcloudShader, fragmentShader);
@@ -150,9 +185,13 @@ function loadShaders() {
 
   
   // load the grid shader
+  
   fragmentShader = getShader("gridVS");
   vertexShader = getShader("gridFS");
-  
+  /*
+  fragmentShader = loadShader(basePath + "/grid.vert");
+  vertexShader = loadShader(basePath + "/grid.frag");
+  */
   var gridShader = gl.createProgram();
   gl.attachShader(gridShader, vertexShader);
   gl.attachShader(gridShader, fragmentShader);
@@ -170,8 +209,13 @@ function loadShaders() {
   
 
   // load the object shader
+  
   fragmentShader = getShader("objectVS");
   vertexShader = getShader("objectFS");
+  /*/
+  fragmentShader = loadShader(basePath + "/object.vert");
+  vertexShader = loadShader(basePath + "/object.frag");
+  */
 
   var objectShader = gl.createProgram();
   gl.attachShader(objectShader, vertexShader);
@@ -301,7 +345,6 @@ function render() {
       updateVisibility(geometry.octree, mat);
     }
 
-
     global.updateVisibility = false;
   }
 
@@ -341,8 +384,10 @@ function render() {
     gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
-    drawOctree(geometry.octree, shaders.pointcloudShader);
+
+    drawOctree(geometry.octree, shaders.pointcloudShader, global.octreeRecursionLevel);
   }
+
 }
 
 
@@ -353,15 +398,6 @@ function tick() {
   
   if (lastTime !== 0) {
     var dt = (time - lastTime) / 1000.0;
-
-    if (global.mouse.down == false ) {
-
-      // animate the camera here
-      var speed = 0.0;
-      //rotateCameraAroundTarget(camera, dt*speed, 0.0);
-   
-
-    }
 
   }
   lastTime = time;
@@ -442,7 +478,6 @@ function handleMouseMotion(event) {
 
   }
 
-
   global.mouse.lastPosition = mousePosition;
   global.updateVisibility = true;
 }
@@ -491,6 +526,22 @@ function handleKeydown(event) {
 
   }
 
+  // a
+  if (event.keyCode == 65) {
+    ++global.octreeRecursionLevel
+    console.log("octree recursion level: " + global.octreeRecursionLevel);
+  }
+
+  // z
+  if (event.keyCode == 90) {
+    global.octreeRecursionLevel = Math.max(0, --global.octreeRecursionLevel);
+    console.log("octree recursion level: " + global.octreeRecursionLevel);
+  }
+
+  // b
+  if (event.keyCode == 66)
+    global.enableBBox = !global.enableBBox;
+
   global.updateVisibility = true;
 }
 
@@ -499,7 +550,7 @@ function handleKeyup(event) {
 
 
 
-function init() {
+function init(basepath) {
   
     
   canvas = document.getElementById("canvas");
@@ -521,7 +572,7 @@ function init() {
 
   global.camera = createOrbitalCamera();
 
-  loadShaders();
+  loadShaders(basepath + "shaders/");
   createGridBuffer();
 
 
@@ -546,8 +597,19 @@ function toggleBBox() {
 }
 
 
+function getBasePath(address) { 
+  var basepath = address.substring(0, address.lastIndexOf("/"));
+  basepath = basepath.substring(0, basepath.lastIndexOf("/")+1);
+
+  return basepath;
+}
+
+
+
 function showBlob(blobAddress) {
-  init();
+  var basepath = getBasePath(bloblAddress);
+
+  init(basepath);
 
   geometry.pointcloud = loadBlob(blobAddress);
  
@@ -557,7 +619,9 @@ function showBlob(blobAddress) {
 
 
 function showOctree(treeJson) {
-  init();
+  var basepath = getBasePath(treeJson);
+
+  init(basepath);
 
   geometry.octree = parseOctree(treeJson);
 
