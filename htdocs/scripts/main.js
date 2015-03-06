@@ -51,21 +51,8 @@ var shaders = shaders || {};
 // store what we want to render
 var geometry = geometry || {};
 geometry.grid = null;
-geometry.pointcloud = null;
 geometry.octree = null;
 
-
-/*
-// for various info
-var renderStats = renderStats || {};
-renderStats.nodes.total = 0;
-renderStats.nodes.loaded = 0;
-renderStats.nodes.visible = 0;
-renderStats.nodes.clipped = 0;
-renderStats.nodes.invisible = 0;
-renderStats.lastFrame.points = 0;
-renderStats.lastFrame.recursion = 0;
-*/
 
 // initializes the canvas and webgl
 function initWebGL(canvas) {  
@@ -227,15 +214,6 @@ function render() {
   if (global.mouse.button[0] || global.mouse.button[2])
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
   
-  if (geometry.pointcloud) {
-
-    drawPointcloud(geometry.pointcloud, shaders.pointcloudShader);
-
-    if (global.enableBBox)
-      drawAABB(pointcloud.aabb, shaders.gridShader);
-  
-  }
-  
   if (geometry.octree) { 
 
     if (global.enableBBox) {
@@ -286,30 +264,6 @@ function loop() {
   window.requestAnimationFrame(loop);
     
 } 
-
-
-// loads a blob from an address and displays it
-function loadBlob(url) {
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.responseType = "blob";
-
-  xhr.onload = function() {
-
-    if (this.status == 200) {
-      var myBlob = this.response;
-      pointcloud = createPointcloudFromBlob(myBlob, 0, 'on ground');
-    
-      if (pointcloud != undefined)
-        camera.target = getCentroid(pointcloud.aabb);
-  
-    }
-  }
-
-
-  xhr.send(null);
-}
-
 
 
 // mouse callback functions follow .... 
@@ -396,19 +350,6 @@ function handleKeydown(event) {
     camera.target = vec3.fromValues(0,0,0);
 
   }
-
-  // a
-  if (event.keyCode == 65) {
-    ++global.octreeRecursionLevel
-    console.log("octree recursion level: " + global.octreeRecursionLevel);
-  }
-
-  // z
-  if (event.keyCode == 90) {
-    global.octreeRecursionLevel = Math.max(0, --global.octreeRecursionLevel);
-    console.log("octree recursion level: " + global.octreeRecursionLevel);
-  }
-
   // b
   if (event.keyCode == 66)
     global.enableBBox = !global.enableBBox;
@@ -477,20 +418,7 @@ function getBasePath(address) {
 }
 
 
-
-function showBlob(blobAddress) {
-  var basepath = getBasePath(bloblAddress);
-
-  init(basepath);
-
-  geometry.pointcloud = loadBlob(blobAddress);
- 
-
-  loop();
-}
-
-
-function showOctree(treeJson) {
+function main(treeJson) {
   var basepath = getBasePath(treeJson);
 
   init(basepath);
