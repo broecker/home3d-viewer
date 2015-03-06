@@ -100,139 +100,6 @@ function resizeCanvas(canvas) {
 }
 
 
-
-// loads a shader with the given id from the DOM
-function getShader(id) {
-    var shaderScript = document.getElementById(id);
-    if (!shaderScript) {
-        return null;
-    }
-
-    var str = "";
-    var k = shaderScript.firstChild;
-    while (k) {
-        if (k.nodeType == 3) {
-            str += k.textContent;
-        }
-        k = k.nextSibling;
-    }
-
-    var shader;
-    if (shaderScript.type == "x-shader/x-fragment") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-    } else if (shaderScript.type == "x-shader/x-vertex") {
-        shader = gl.createShader(gl.VERTEX_SHADER);
-    } else {
-        return null;
-    }
-
-    gl.shaderSource(shader, str);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
-        return null;
-    }
-
-    return shader;
-}
-
-function loadShader(sourcePath) { 
-  var XHR = new XMLHttpRequest();
-  XHR.open("GET", sourcePath, false);
-   
-  if(XHR.overrideMimeType){
-    XHR.overrideMimeType("text/plain");
-  }
-   
-  try{
-    XHR.send(null);
-  }catch(e){
-    this.println('Error reading file "' + path + '"');
-  }
-   
-  return XHR.responseText;
-}
-
-
-// loads all shaders in the DOM
-function loadShaders(basePath) {
-  
-  // load the point cloud shader
-  
-  var fragmentShader = getShader("pointVS");
-  var vertexShader = getShader("pointFS");
-  
-  /*
-  var fragmentShader = loadShader(basePath + "/points.vert");
-  var vertexShader = loadShader(basePath + "/points.frag");
-  */
-  var pointcloudShader = gl.createProgram();
-  gl.attachShader(pointcloudShader, vertexShader);
-  gl.attachShader(pointcloudShader, fragmentShader);
-  gl.linkProgram(pointcloudShader);
-
-  if (!gl.getProgramParameter(pointcloudShader, gl.LINK_STATUS)) {
-      alert("Could not initialize point cloud shader");
-  }
-  
-  pointcloudShader.vertexPositionAttribute = gl.getAttribLocation(pointcloudShader, "positionIn");
-  pointcloudShader.vertexColorAttribute = gl.getAttribLocation(pointcloudShader, "colorIn");
-  pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
-  pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
-  pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
-  shaders.pointcloudShader = pointcloudShader;
-
-  
-  // load the grid shader
-  
-  fragmentShader = getShader("gridVS");
-  vertexShader = getShader("gridFS");
-  /*
-  fragmentShader = loadShader(basePath + "/grid.vert");
-  vertexShader = loadShader(basePath + "/grid.frag");
-  */
-  var gridShader = gl.createProgram();
-  gl.attachShader(gridShader, vertexShader);
-  gl.attachShader(gridShader, fragmentShader);
-  gl.linkProgram(gridShader);
-  
-  if (!gl.getProgramParameter(gridShader, gl.LINK_STATUS)) {
-      alert("Could not initialize grid shader");
-  }
-  
-  gridShader.vertexPositionAttribute = gl.getAttribLocation(gridShader, "positionIn");
-  gridShader.projMatrixUniform = gl.getUniformLocation(gridShader, "projMatrix");
-  gridShader.viewMatrixUniform = gl.getUniformLocation(gridShader, "viewMatrix");
-  gridShader.colorUniform = gl.getUniformLocation(gridShader, "color");
-  shaders.gridShader = gridShader;
-  
-
-  // load the object shader
-  
-  fragmentShader = getShader("objectVS");
-  vertexShader = getShader("objectFS");
-  /*/
-  fragmentShader = loadShader(basePath + "/object.vert");
-  vertexShader = loadShader(basePath + "/object.frag");
-  */
-
-  var objectShader = gl.createProgram();
-  gl.attachShader(objectShader, vertexShader);
-  gl.attachShader(objectShader, fragmentShader);
-  gl.linkProgram(objectShader);
-  
-  if (!gl.getProgramParameter(objectShader, gl.LINK_STATUS)) {
-      alert("Could not initialize grid shader");
-  }
-  
-  objectShader.vertexPositionAttribute = gl.getAttribLocation(objectShader, "positionIn");
-  objectShader.vertexColorAttribute = gl.getAttribLocation(objectShader, "colorIn");
-  objectShader.projMatrixUniform = gl.getUniformLocation(objectShader, "projMatrix");
-  objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
-  shaders.objectShader = objectShader;
-}
-
 // creates the geometry of a single plane
 function createPlaneBuffer(gl) { 
   var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
@@ -342,7 +209,9 @@ function render() {
 
     if (geometry.octree) {  
       resetVisibility(geometry.octree);
+  
       updateVisibility(geometry.octree, mat);
+      updateLOD(geometry.octree, getPosition(global.camera));
     }
 
     global.updateVisibility = false;

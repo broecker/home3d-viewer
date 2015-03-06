@@ -120,27 +120,31 @@ function loadOctree(tree) {
 
 function drawOctree(tree, shader, maxRecursion) {
 
-	if (tree.loaded == true && tree.points > 0) { 
-		
-		//debugger;
+	if (tree.lodDistance < 10.0 || tree.parent == null) {
 
-		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+		if (tree.loaded == true && tree.points > 0) { 
+			
+			//debugger;
 
-		gl.enableVertexAttribArray(shader.vertexColorAttribute);
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-		gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+			gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+			gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+			gl.enableVertexAttribArray(shader.vertexColorAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+			gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
 
-		gl.drawArrays(gl.POINTS, 0, tree.points);
+			gl.drawArrays(gl.POINTS, 0, tree.points);
 
 
-	} else { 
-		loadOctree( tree);
-	
+		} else {
+			loadOctree( tree);
+		} 
 	}
 
+
+	
 
 	if (maxRecursion > 0) { 
 		if (tree.children != null) { 
@@ -152,7 +156,6 @@ function drawOctree(tree, shader, maxRecursion) {
 		}
 	
 	}
-
 	
 	
 }
@@ -187,6 +190,20 @@ function updateVisibility(tree, matrix) {
 			}
 		}
 	}
+}
+
+// updates the distance of tree nodes from the camera. 
+function updateLOD(tree, cameraPosition) { 
+
+	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+	tree.lod = 10.0 / tree.lodDistance;
+
+	if (tree.children != null)
+		for (var i = 0; i < 8; ++i) { 
+			if (tree.children[i] != null && tree.children[i].visible > 0) { 
+				updateLOD(tree.children[i], cameraPosition);
+			}
+		}
 }
 
 
