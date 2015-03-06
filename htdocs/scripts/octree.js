@@ -118,13 +118,15 @@ function loadOctree(tree) {
 
 
 
-function drawOctree(tree, shader, maxRecursion) {
+function drawOctree(tree, shader, recursion) {
 
-	if (tree.lodDistance < 10.0 || tree.parent == null) {
+	recursion = recursion || 16;
 
-		if (tree.loaded == true && tree.points > 0) { 
-			
-			//debugger;
+
+	if (tree.lod <= recursion || tree.parent === null) {
+		if (tree.loaded === true && tree.points > 0) { 
+
+			gl.uniform1f(shader.lodUniform, recursion);
 
 			gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 			gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
@@ -139,23 +141,21 @@ function drawOctree(tree, shader, maxRecursion) {
 
 
 		} else {
-			loadOctree( tree);
-		} 
-	}
+			loadOctree(tree);
+		}
 
-
-	
-
-	if (maxRecursion > 0) { 
 		if (tree.children != null) { 
 			for (var i = 0; i < 8; ++i) { 
 				if (tree.children[i] != null && tree.children[i].visible > 0)
-					drawOctree(tree.children[i], shader, maxRecursion-1);
+					drawOctree(tree.children[i], shader, recursion/1.7);
 			}
 
 		}
-	
+
 	}
+
+
+
 	
 	
 }
@@ -196,7 +196,7 @@ function updateVisibility(tree, matrix) {
 function updateLOD(tree, cameraPosition) { 
 
 	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
-	tree.lod = 10.0 / tree.lodDistance;
+	tree.lod = tree.lodDistance / global.lodScale;
 
 	if (tree.children != null)
 		for (var i = 0; i < 8; ++i) { 
@@ -258,41 +258,6 @@ function drawOctreeBBoxes(tree, shader, matrix) {
 	}
 
 }
-
-function drawAndClipOctreeBBoxes(tree, shader, matrix) {
-
-	if (matrix == undefined) { 
-		matrix = mat4.create();
-		mat4.multiply(matrix, global.projMatrix, global.viewMatrix);
-
-	}
-
-	
-
-
-	var clip = clipBox(tree.bbox, matrix);
-
-	if (clip == 0)
-		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);
-	else if (clip == 2)
-		gl.uniform3f(shader.colorUniform, 0.0, 0.7, 0.0);
-	else
-		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
-
-	drawAABB(tree.bbox, shader);
-
-	if (tree.children != null) {
-		for (var i = 0; i < tree.children.length; ++i) {
-			if (tree.children[i] != null) {
-				if (clip == 1)
-					drawAndClipOctreeBBoxes( tree.children[i], shader, matrix);
-				else if (clip == 2)
-					drawOctreeBBoxes( tree.children[i], shader, matrix );
-			}
-		}
-	}
-}
-
 
 function parseOctree(jsonUrl) {
 	
@@ -367,6 +332,8 @@ function parseOctree(jsonUrl) {
 			var root = nodeDict["node-root"];
 			console.log("Loaded tree.");
 
+			// load the root node
+			loadOctree(root);
 
 			// global 
 			geometry.octree = root;

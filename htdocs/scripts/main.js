@@ -41,7 +41,9 @@ global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 
 global.stats = null;
 
-global.octreeRecursionLevel = 2;
+
+global.lodScale = 2.0;
+
 
 // store shaders
 var shaders = shaders || {};
@@ -254,7 +256,7 @@ function render() {
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
 
-    drawOctree(geometry.octree, shaders.pointcloudShader, global.octreeRecursionLevel);
+    drawOctree(geometry.octree, shaders.pointcloudShader);
   }
 
 }
@@ -440,6 +442,7 @@ function init(basepath) {
   }
 
   global.camera = createOrbitalCamera();
+  global.camera.radius = 20.0;
 
   loadShaders(basepath + "shaders/");
   createGridBuffer();

@@ -117,6 +117,7 @@ function loadShaders(basePath) {
 	pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
 	pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
 	pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
+	pointcloudShader.lodUniform = gl.getUniformLocation(pointcloudShader, "lodLevel");
 	shaders.pointcloudShader = pointcloudShader;
 
 
