@@ -29,7 +29,7 @@ var gl = null; // A global variable for the WebGL context
 
 // store global variables
 var global = global || {};
-global.enableGrid = true;
+global.enableGrid = false;
 global.enableBBox = false;
 
 global.viewMatrix = mat4.create();
@@ -42,8 +42,11 @@ global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.stats = null;
 
 
-global.lodScale = 2.0;
+global.octree = {}
+global.octree.recursionStart = 30.0;
+global.octree.recursionFactor = 2.0;
 
+global.pointSize = 2.0;
 
 // store shaders
 var shaders = shaders || {};
@@ -191,17 +194,14 @@ function render() {
   setViewMatrix(camera, global.viewMatrix);
  
 
-  if (global.updateVisibility) { 
+  // if needed, updated view-frustum culling and LOD information
+  if (global.updateVisibility && geometry.octree) { 
 
     var mat = mat4.create();
     mat4.multiply(mat, global.projMatrix, global.viewMatrix);
-
-    if (geometry.octree) {  
-      resetVisibility(geometry.octree);
   
-      updateVisibility(geometry.octree, mat);
-      updateLOD(geometry.octree, getPosition(global.camera));
-    }
+    updateVisibility(geometry.octree, mat);
+    updateLOD(geometry.octree, getPosition(global.camera));
 
     global.updateVisibility = false;
   }
@@ -230,6 +230,9 @@ function render() {
     // draw the points
     gl.useProgram(shaders.pointcloudShader);
 
+
+    gl.uniform1f(shaders.pointcloudShader.pointSizeUniform, global.pointSize);
+    
     gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
@@ -394,10 +397,19 @@ function init(basepath) {
   global.stats.setMode(0);
   global.stats.domElement.style.position = 'absolute';
   global.stats.domElement.style.right = '5px';
-  global.stats.domElement.style.top = '5px';
+  global.stats.domElement.style.bottom = '5px';
   document.body.appendChild(global.stats.domElement);
 
   global.updateVisibility = true;
+
+
+  // create gui
+  global.gui = new dat.GUI();  
+  var octreeGui = global.gui.addFolder('Octree');
+  octreeGui.add(global, 'pointSize', 1.0, 6.0);
+
+  octreeGui.add(global.octree, 'recursionStart', 10.0, 100.0);
+  octreeGui.add(global.octree, 'recursionFactor', 1.0, 3.0);
 
 }
 

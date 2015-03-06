@@ -88,10 +88,6 @@ function loadOctree(tree) {
 
 					}
 
-					tree.loaded = true;
-		
-
-
 					tree.pointBuffer = gl.createBuffer();
 					gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 					gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
@@ -120,11 +116,13 @@ function loadOctree(tree) {
 
 function drawOctree(tree, shader, recursion) {
 
-	recursion = recursion || 12;
+	recursion = recursion || global.octree.recursionStart;
+
+	var lod = tree.lodDistance / 2.0;
 
 
-	if (tree.lod <= recursion || tree.parent === null) {
-		if (tree.loaded === true && tree.points > 0) { 
+	if (lod <= recursion || tree.parent === null) {
+		if (tree.loaded === true) { 
 
 			gl.uniform1f(shader.lodUniform, recursion);
 
@@ -147,12 +145,14 @@ function drawOctree(tree, shader, recursion) {
 		if (tree.children != null) { 
 			for (var i = 0; i < 8; ++i) { 
 				if (tree.children[i] != null && tree.children[i].visible > 0)
-					drawOctree(tree.children[i], shader, recursion/1.7);
+					drawOctree(tree.children[i], shader, recursion/global.octree.recursionFactor);
 			}
 
 		}
 
 	}
+
+	console.log(tree.lodDistance);
 
 
 
@@ -172,13 +172,28 @@ function setVisible(tree) {
 
 }
 
+// sets a whole tree to be invisible
+function setInvisible(tree) { 
+	tree.visible = 0;
+
+	if (tree.children != null) 
+		for (var i = 0; i < tree.children.length; ++i)
+			if (tree.children[i] != null)
+				setInvisible(tree.children[i]);
+}
+
+// performs view-frustum culling recursively on the tre
 function updateVisibility(tree, matrix) { 
+
+	setInvisible(tree);
 
 	tree.visible = clipBox(tree.bbox, matrix);
 
 	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) {
 			if (tree.children[i] != null) {
+
+				// clipping -- test children individually
 				if (tree.visible == 1)
 					updateVisibility(tree.children[i], matrix);
 		
@@ -196,7 +211,6 @@ function updateVisibility(tree, matrix) {
 function updateLOD(tree, cameraPosition) { 
 
 	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
-	tree.lod = tree.lodDistance / global.lodScale;
 
 	if (tree.children != null)
 		for (var i = 0; i < 8; ++i) { 
@@ -204,19 +218,6 @@ function updateLOD(tree, cameraPosition) {
 				updateLOD(tree.children[i], cameraPosition);
 			}
 		}
-}
-
-
-// sets a whole tree to be invisible
-function resetVisibility(tree) { 
-	tree.visible = 0;
-
-	if (tree.children != null) 
-		for (var i = 0; i < tree.children.length; ++i)
-			if (tree.children[i] != null)
-				resetVisibility(tree.children[i]);
-
-	//console.log("Resetting visibility for tree " + tree);
 }
 
 
@@ -340,7 +341,7 @@ function parseOctree(jsonUrl) {
 
 
 			// reset visibility
-			resetVisibility(root);
+			setInvisible(root);
 
 			return root;
 		}

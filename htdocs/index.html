@@ -66,14 +66,12 @@
 
 		uniform float lodLevel;
 
-		const float minPointSize = 2.0;
-		const float maxPointSize = 5.0;
+		uniform float pointSize;
 
 		void main()
 		{
 			gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
 			
-			float pointSize = max(minPointSize, min(lodLevel, maxPointSize));
 			gl_PointSize = pointSize;
 			color = colorIn;
 		
@@ -160,6 +158,7 @@
 	<script src="scripts/ray.js"></script>
 	<script src="scripts/stats.js"></script>
 	<script src="scripts/shader.js"></script>
+	<script src="scripts/dat-gui.js"></script>
 	<script src="scripts/main.js"></script>
 
 </head>
@@ -170,6 +169,8 @@
 	<div class="buttonBar">
 		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
 		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button>
+
+		<div id="slider"></div>
 	</div>
 
 </body>
