@@ -120,7 +120,7 @@ function loadOctree(tree) {
 
 function drawOctree(tree, shader, recursion) {
 
-	recursion = recursion || 16;
+	recursion = recursion || 12;
 
 
 	if (tree.lod <= recursion || tree.parent === null) {
