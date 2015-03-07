@@ -38,9 +38,15 @@ global.updateVisibility = false;
 
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
+global.touches = null;
+
 
 global.stats = null;
 
+
+global.clearColor = [0.0, 0.2, 0.6, 0.0];
+
+global.hammertime = null;
 
 global.octree = {}
 global.octree.recursionStart = 30.0;
@@ -184,7 +190,7 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
 
-  gl.clearColor(0.0, 0.0, 0.1, 1.0);
+  gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], global.clearColor[3]);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -319,6 +325,107 @@ function handleMouseWheel(event) {
 }
 
 
+// touch callback functions follow .... 
+function handleTouchStart(event) {
+  event.preventDefault();
+
+  global.mouse.button[0] = true;
+  var touch = event.targetTouches[0];
+
+  global.touches = event.targetTouches;
+  global.prevTouchDelta = undefined;
+
+  global.mouse.lastPosition = [canvas.clientWidth-touch.pageX, touch.pageY];
+
+  global.clearColor = [0.0, 1.0, 0.0, 1.0];
+
+}
+
+function handleTouchEnd(event) {
+  global.mouse.button[event.button] = false;
+
+  global.touches = event.targetTouches;
+
+  global.updateVisibility = true;
+  global.clearColor = [1.0, 0.0, 0.0, 1.0];
+
+}
+
+function handleTouchMove(event) {
+
+
+  // panning
+  if (event.targetTouches.length == 1) {
+
+    var touch = event.targetTouches[0];
+
+
+    var mousePosition = [canvas.clientWidth-touch.pageX, touch.pageY];
+
+
+    var deltaX = (mousePosition[0] - global.mouse.lastPosition[0]) / canvas.clientWidth;
+    var deltaY = (mousePosition[1] - global.mouse.lastPosition[1]) / canvas.clientHeight;
+   
+    // scale to -1..1
+   // deltaY *= 180.0 / Math.PI;
+    
+
+    if (global.mouse.button[0]) {
+        rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
+    }
+
+    else if (global.mouse.button[1]) {
+      moveCameraTowardsTarget(global.camera, deltaY*10);
+    }
+
+    else if (global.mouse.button[2]) {
+      panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
+
+
+    }
+  } else {
+
+    var center =  {minx:event.targetTouches[0].pageX, maxx:event.targetTouches[0].pageX, miny:event.targetTouches[0].pageY, maxy:event.targetTouches[0].pageY};
+    for (var i = 1; i < event.targetTouches.length; ++i) {
+      
+      center.minx = Math.min(center.minx, event.targetTouches[i].pageX);
+      center.maxx = Math.max(center.maxx, event.targetTouches[i].pageX);
+      center.miny = Math.min(center.miny, event.targetTouches[i].pageY);
+      center.maxy = Math.max(center.maxy, event.targetTouches[i].pageY);
+    }
+
+    var delta = [center.maxx-center.minx, center.maxy-center.miny];
+    delta = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1]);
+
+
+    if (global.prevTouchDelta != undefined) { 
+
+      var factor = global.prevTouchDelta-delta;
+      moveCameraTowardsTarget(global.camera, factor*0.01);
+
+
+    }
+
+
+    global.prevTouchDelta = delta;
+
+    
+
+  }
+
+
+
+  global.clearColor = [1.0, 1.0, 0.0, 1.0];
+
+
+
+  global.touches = event.targetTouches;
+  global.mouse.lastPosition = mousePosition;
+  global.updateVisibility = true;
+}
+
+
+
 function handleKeydown(event) { 
 
   // 'g'
@@ -363,6 +470,8 @@ function handleKeydown(event) {
 function handleKeyup(event) {
 }
 
+function handlePan(event) { 
+}
 
 
 function init(basepath) {
@@ -379,6 +488,10 @@ function init(basepath) {
   document.onmousewheel = handleMouseWheel;
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
+
+  document.addEventListener("touchstart", handleTouchStart, false);
+  document.addEventListener("touchmove", handleTouchMove, false);
+  document.addEventListener("touchend", handleTouchEnd, false);
 
   // disables the right-click menu
   document.oncontextmenu = function() {
@@ -402,7 +515,11 @@ function init(basepath) {
 
   global.updateVisibility = true;
 
-
+  /*
+  global.hammertime = new Hammer(myElement, myOptions);
+  global.hammertime.on('pan', handlePan);
+  */
+  
   // create gui
   global.gui = new dat.GUI();  
   var octreeGui = global.gui.addFolder('Octree');
@@ -410,7 +527,7 @@ function init(basepath) {
 
   octreeGui.add(global.octree, 'recursionStart', 10.0, 100.0);
   octreeGui.add(global.octree, 'recursionFactor', 1.0, 3.0);
-
+  
 }
 
 function toggleGrid() { 

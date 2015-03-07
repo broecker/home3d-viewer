@@ -139,7 +139,9 @@ function drawOctree(tree, shader, recursion) {
 
 
 		} else {
-			loadOctree(tree);
+
+			if (!global.updateVisibility)
+				loadOctree(tree);
 		}
 
 		if (tree.children != null) { 
@@ -151,11 +153,6 @@ function drawOctree(tree, shader, recursion) {
 		}
 
 	}
-
-	console.log(tree.lodDistance);
-
-
-
 	
 	
 }
