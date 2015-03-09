@@ -22,106 +22,166 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// loads the blob referenced by a tree node's file attribute and generates
-// the vertex buffers.
-function loadOctree(tree) {
-
-	if (!tree.loaded) { 
-		tree.loaded = 'ongoing';
-
-		var xhr = new XMLHttpRequest();
-		//console.log(xhr);
-		
 
 
 
-		xhr.onload = function() {
+// adds a tree to the load queue. It will be loaded concurrently at the next time
+function loadQueueAdd(tree) {
+	loadQueueAdd.queue = loadQueueAdd.queue || [];
 
-			if (this.status == 200) {
+	if (loadQueueAdd.queue.indexOf(tree) > -1) {
+		/*
+		console.error("Tree  " + tree.file + " already exists in load queue!");
+		debugger;
+		*/
+		return;
+	}
 
-				console.log('loaded blob ' + tree.file + '.blob');
+	tree.loaded = 'in queue';
+	loadQueueAdd.queue.push(tree);
+}
 
-				var blob = this.response;
+// updates the loading queue, removes old items and makes sure new ones get loaded
+// Gets automatically called as soon as a node finishes loading.
+function loadQueueUpdate() { 
+	var queue = loadQueueAdd.queue;
+	var i;
 
-				var reader = new FileReader();
-				const littleEndian = true;
-
-				console.assert(blob != undefined);
-
-
-				const POINT_SIZE = 4*4;
-
-				var pointCount = blob.size / POINT_SIZE;
-				
-				reader.readAsArrayBuffer(blob);
-				reader.onload = function(e) {
-				
-
-					var buffer = reader.result;
-
-
-					var points = new Float32Array(3*pointCount);
-					var colors = new Uint8Array(3*pointCount);
-
-					var dataView = new DataView(buffer, 0);
-
-					for (i = 0; i < pointCount; ++i) {
-
-						var index = i*POINT_SIZE;
-
-						var x = dataView.getFloat32(index+0, littleEndian);
-						var y = dataView.getFloat32(index+4, littleEndian);
-						var z = dataView.getFloat32(index+8, littleEndian);
-
-						var r = dataView.getUint8(index+12, littleEndian);
-						var g = dataView.getUint8(index+13, littleEndian);
-						var b = dataView.getUint8(index+14, littleEndian);
-						var a = dataView.getUint8(index+15, littleEndian);
-
-
-						points[i*3+0] = x;
-						points[i*3+1] = y;
-						points[i*3+2] = z;
-
-						colors[i*3+0] = r;
-						colors[i*3+1] = g;
-						colors[i*3+2] = b;
-
-					}
-
-					tree.pointBuffer = gl.createBuffer();
-					gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-					gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
-
-					tree.colorBuffer = gl.createBuffer();
-					gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-					gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-					tree.loaded = true;
-					
-				}
-			
-
-			}
-
+	// remove all nodes already loaded or not visible anymore
+	for (i = queue.length-1; i >= 0; --i) { 
+		if (queue[i].loaded === true || queue.visible === 0) { 
+			queue.splice(i, 1);
 		}
 
+	}
 
-		xhr.open("GET", tree.file + ".blob");
-		xhr.responseType = "blob";
-		xhr.send();
+	const MAX_CONCURRENT_LOADS = 15;
+
+	// start loading all nodes in the queue
+	for (i = 0; i < Math.min(MAX_CONCURRENT_LOADS, queue.length); ++i) { 
+		if (queue[i].loaded == 'in queue') {
+			loadOctreeBlob(queue[i]);
+		}
 	}
 
 
 }
 
 
+function loadOctree(tree) { 
+	loadQueueAdd(tree);
+	loadQueueUpdate();
+}
+
+
+// loads the blob referenced by a tree node's file attribute and generates
+// the vertex buffers.
+function loadOctreeBlob(tree) {
+
+	if (tree.loaded == 'ongoing' || tree.loaded === true)
+		return;
+
+
+	tree.loaded = 'ongoing';
+
+	var xhr = new XMLHttpRequest();
+	//console.log(xhr);
+	
+
+
+
+	xhr.onload = function() {
+
+		if (this.status == 200) {
+
+			console.log('loaded blob ' + tree.file + '.blob');
+
+			var blob = this.response;
+
+			var reader = new FileReader();
+			const littleEndian = true;
+
+			console.assert(blob != undefined);
+
+
+			const POINT_SIZE = 4*4;
+
+			var pointCount = blob.size / POINT_SIZE;
+			
+			reader.readAsArrayBuffer(blob);
+			reader.onload = function(e) {
+			
+
+				var buffer = reader.result;
+
+
+				var points = new Float32Array(3*pointCount);
+				var colors = new Uint8Array(3*pointCount);
+
+				var dataView = new DataView(buffer, 0);
+
+				for (i = 0; i < pointCount; ++i) {
+
+					var index = i*POINT_SIZE;
+
+					var x = dataView.getFloat32(index+0, littleEndian);
+					var y = dataView.getFloat32(index+4, littleEndian);
+					var z = dataView.getFloat32(index+8, littleEndian);
+
+					var r = dataView.getUint8(index+12, littleEndian);
+					var g = dataView.getUint8(index+13, littleEndian);
+					var b = dataView.getUint8(index+14, littleEndian);
+					var a = dataView.getUint8(index+15, littleEndian);
+
+
+					points[i*3+0] = x;
+					points[i*3+1] = y;
+					points[i*3+2] = z;
+
+					colors[i*3+0] = r;
+					colors[i*3+1] = g;
+					colors[i*3+2] = b;
+
+				}
+
+				tree.pointBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+
+				tree.colorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+				tree.loaded = true;
+
+
+				loadQueueUpdate();
+				
+			}
+		
+
+		}
+
+	}
+
+
+	xhr.open("GET", tree.file + ".blob");
+	xhr.responseType = "blob";
+	xhr.send();
+
+
+
+}
+
 
 function drawOctree(tree, shader, recursion) {
 
 	recursion = recursion || global.octree.recursionStart;
-
+	
 	var lod = tree.lodDistance / 2.0;
 
+
+	if (tree.depth > global.octree.maxRecursion)
+		return;
 
 	if (lod <= recursion || tree.parent === null) {
 		if (tree.loaded === true) { 
@@ -140,7 +200,7 @@ function drawOctree(tree, shader, recursion) {
 			gl.drawArrays(gl.POINTS, 0, tree.points);
 
 
-		} else {
+		} else if (tree.loaded === false) {
 
 			if (!global.updateVisibility)
 				loadOctree(tree);
@@ -204,6 +264,26 @@ function updateVisibility(tree, matrix) {
 			}
 		}
 	}
+}
+
+// returns a list of all visible nodes. Must be run after updateVisibility
+function getVisibleNode(tree, list) { 
+	list = list || [];
+
+	if (tree.visible > 0) {
+		list.push(tree);
+
+		if (tree.children != null) { 
+			for (var i = 0; i < 8; ++i) { 
+				if (tree.children[i] != null)
+					getVisibleNode(tree.children[i], list);
+			}
+
+		}
+
+	}
+
+	return list;
 }
 
 // updates the distance of tree nodes from the camera. 
@@ -315,6 +395,7 @@ function parseOctree(jsonUrl) {
 				node.blob = null;
 				node.pointBuffer = null;
 				node.colorBuffer = null;
+				node.depth = getDepth(node);
 
 			}
 
@@ -338,7 +419,6 @@ function parseOctree(jsonUrl) {
 			// global 
 			geometry.octree = root;
 
-
 			// reset visibility
 			setInvisible(root);
 
@@ -351,3 +431,9 @@ function parseOctree(jsonUrl) {
 	
 }
 
+function getDepth(tree) { 
+	if (tree.parent === null)
+		return 0;
+	else 
+		return 1 + getDepth(tree.parent);
+}

@@ -51,7 +51,7 @@ global.hammertime = null;
 global.octree = {}
 global.octree.recursionStart = 30.0;
 global.octree.recursionFactor = 2.0;
-
+global.octree.maxRecursion = 3;
 global.pointSize = 2.0;
 
 // store shaders
@@ -518,7 +518,7 @@ function init(basepath) {
   global.hammertime = new Hammer(myElement, myOptions);
   global.hammertime.on('pan', handlePan);
   
-  
+  */
   // create gui
   global.gui = new dat.GUI();  
   var octreeGui = global.gui.addFolder('Octree');
@@ -526,7 +526,8 @@ function init(basepath) {
 
   octreeGui.add(global.octree, 'recursionStart', 10.0, 100.0);
   octreeGui.add(global.octree, 'recursionFactor', 1.0, 3.0);
-  */
+  octreeGui.add(global.octree, 'maxRecursion', 1.0).max(10).step(1);
+  
 }
 
 function toggleGrid() { 
