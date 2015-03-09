@@ -68,6 +68,7 @@ function loadQueueUpdate() {
 }
 
 
+// loads an octree by putting it onto the loading queue
 function loadOctree(tree) { 
 	loadQueueAdd(tree);
 	loadQueueUpdate();
@@ -267,7 +268,7 @@ function updateVisibility(tree, matrix) {
 }
 
 // returns a list of all visible nodes. Must be run after updateVisibility
-function getVisibleNode(tree, list) { 
+function getVisibleNodes(tree, list) { 
 	list = list || [];
 
 	if (tree.visible > 0) {
@@ -276,7 +277,7 @@ function getVisibleNode(tree, list) {
 		if (tree.children != null) { 
 			for (var i = 0; i < 8; ++i) { 
 				if (tree.children[i] != null)
-					getVisibleNode(tree.children[i], list);
+					getVisibleNodes(tree.children[i], list);
 			}
 
 		}
@@ -298,6 +299,7 @@ function updateLOD(tree, cameraPosition) {
 			}
 		}
 }
+
 
 
 function drawBBoxOctree(tree, shader) {
