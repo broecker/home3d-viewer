@@ -30,7 +30,8 @@ function loadOctree(tree) {
 		tree.loaded = 'ongoing';
 
 		var xhr = new XMLHttpRequest();
-		xhr.responseType = "blob";
+		//console.log(xhr);
+		
 
 
 
@@ -106,6 +107,7 @@ function loadOctree(tree) {
 
 
 		xhr.open("GET", tree.file + ".blob");
+		xhr.responseType = "blob";
 		xhr.send();
 	}
 

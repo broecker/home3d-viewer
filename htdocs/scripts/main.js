@@ -29,7 +29,7 @@ var gl = null; // A global variable for the WebGL context
 
 // store global variables
 var global = global || {};
-global.enableGrid = false;
+global.enableGrid = true;
 global.enableBBox = false;
 
 global.viewMatrix = mat4.create();
@@ -44,7 +44,7 @@ global.touches = null;
 global.stats = null;
 
 
-global.clearColor = [0.0, 0.2, 0.6, 0.0];
+global.clearColor = [0.0, 0.0, 0.2, 0.0];
 
 global.hammertime = null;
 
@@ -336,9 +336,7 @@ function handleTouchStart(event) {
   global.prevTouchDelta = undefined;
 
   global.mouse.lastPosition = [canvas.clientWidth-touch.pageX, touch.pageY];
-
-  global.clearColor = [0.0, 1.0, 0.0, 1.0];
-
+ 
 }
 
 function handleTouchEnd(event) {
@@ -347,8 +345,7 @@ function handleTouchEnd(event) {
   global.touches = event.targetTouches;
 
   global.updateVisibility = true;
-  global.clearColor = [1.0, 0.0, 0.0, 1.0];
-
+  
 }
 
 function handleTouchMove(event) {
@@ -414,8 +411,6 @@ function handleTouchMove(event) {
   }
 
 
-
-  global.clearColor = [1.0, 1.0, 0.0, 1.0];
 
 
 
@@ -489,9 +484,11 @@ function init(basepath) {
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
 
+  /*
   document.addEventListener("touchstart", handleTouchStart, false);
   document.addEventListener("touchmove", handleTouchMove, false);
   document.addEventListener("touchend", handleTouchEnd, false);
+  */
 
   // disables the right-click menu
   document.oncontextmenu = function() {
@@ -505,6 +502,7 @@ function init(basepath) {
   createGridBuffer();
 
 
+  
   // create FPS meter
   global.stats = new Stats();
   global.stats.setMode(0);
@@ -512,13 +510,14 @@ function init(basepath) {
   global.stats.domElement.style.right = '5px';
   global.stats.domElement.style.bottom = '5px';
   document.body.appendChild(global.stats.domElement);
+  
 
   global.updateVisibility = true;
 
   /*
   global.hammertime = new Hammer(myElement, myOptions);
   global.hammertime.on('pan', handlePan);
-  */
+  
   
   // create gui
   global.gui = new dat.GUI();  
@@ -527,7 +526,7 @@ function init(basepath) {
 
   octreeGui.add(global.octree, 'recursionStart', 10.0, 100.0);
   octreeGui.add(global.octree, 'recursionFactor', 1.0, 3.0);
-  
+  */
 }
 
 function toggleGrid() { 
