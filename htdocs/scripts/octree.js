@@ -24,6 +24,26 @@ THE SOFTWARE.
 
 
 
+// Fisher-Yates shuffle
+// see: http://bost.ocks.org/mike/shuffle/
+function shuffle(array) {
+	var m = array.length, t, i;
+
+	// While there remain elements to shuffle…
+	while (m) {
+
+		// Pick a remaining element…
+		i = Math.floor(Math.random() * m--);
+
+		// And swap it with the current element.
+		t = array[m];
+		array[m] = array[i];
+		array[i] = t;
+	}
+
+	return array;
+}
+
 
 // adds a tree to the load queue. It will be loaded concurrently at the next time
 function loadQueueAdd(tree) {
@@ -174,49 +194,49 @@ function loadOctreeBlob(tree) {
 }
 
 
-function drawOctree(tree, shader, recursion) {
-
-	recursion = recursion || global.octree.recursionStart;
-	
-	var lod = tree.lodDistance / 2.0;
-
+function drawOctree(tree, shader) {
 
 	if (tree.depth > global.octree.maxRecursion)
 		return;
 
-	if (lod <= recursion || tree.parent === null) {
-		if (tree.loaded === true) { 
+	if (global.pointsDrawn > global.maxPointsRendered)
+		return;
 
-			gl.uniform1f(shader.lodUniform, recursion);
+	if (tree.loaded === true) { 
+		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-			gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-			gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-			gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-			gl.enableVertexAttribArray(shader.vertexColorAttribute);
-			gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-			gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
-
-
-			gl.drawArrays(gl.POINTS, 0, tree.points);
+		gl.enableVertexAttribArray(shader.vertexColorAttribute);
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+		gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
 
-		} else if (tree.loaded === false) {
+		gl.drawArrays(gl.POINTS, 0, tree.points);
+		global.pointsDrawn += tree.points;
 
-			if (!global.updateVisibility)
-				loadOctree(tree);
-		}
+	} else if (tree.loaded === false) {
 
-		if (tree.children != null) { 
-			for (var i = 0; i < 8; ++i) { 
-				if (tree.children[i] != null && tree.children[i].visible > 0)
-					drawOctree(tree.children[i], shader, recursion/global.octree.recursionFactor);
-			}
+		if (!global.updateVisibility)
+			loadOctree(tree);
+	}
 
+	if (tree.children != null) { 
+
+		// sort the children based on their lod distance
+		tree.children.sort(function(a, b) { 
+			return a.lodDistance - b.lodDistance;
+		});
+
+
+
+		for (var i = 0; i < tree.children.length; ++i) { 
+			if (tree.children[i] != null && tree.children[i].visible > 0)
+				drawOctree(tree.children[i], shader);
 		}
 
 	}
-	
+
 	
 }
 
@@ -226,7 +246,7 @@ function setVisible(tree) {
 	tree.visible = 2;
 	
 	if (tree.children != null) 
-		for (var i = 0; i < 8; ++i)
+		for (var i = 0; i < tree.children.length; ++i)
 			if (tree.children[i] != null)
 				setVisible(tree.children[i]);
 
@@ -249,7 +269,7 @@ function updateVisibility(tree, matrix) {
 
 	tree.visible = clipBox(tree.bbox, matrix);
 
-	if (tree.children != null) {
+	if (tree.children != null && tree.depth < global.octree.maxRecursion) {
 		for (var i = 0; i < tree.children.length; ++i) {
 			if (tree.children[i] != null) {
 
@@ -275,7 +295,7 @@ function getVisibleNodes(tree, list) {
 		list.push(tree);
 
 		if (tree.children != null) { 
-			for (var i = 0; i < 8; ++i) { 
+			for (var i = 0; i < tree.children.length; ++i) { 
 				if (tree.children[i] != null)
 					getVisibleNodes(tree.children[i], list);
 			}
@@ -293,7 +313,7 @@ function updateLOD(tree, cameraPosition) {
 	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
 
 	if (tree.children != null)
-		for (var i = 0; i < 8; ++i) { 
+		for (var i = 0; i < tree.children.length; ++i) { 
 			if (tree.children[i] != null && tree.children[i].visible > 0) { 
 				updateLOD(tree.children[i], cameraPosition);
 			}
@@ -314,8 +334,8 @@ function drawBBoxOctree(tree, shader) {
 
 	drawAABB(tree.bbox, shader);
 
-	if (tree.children)
-		for (var i = 0; i < 8; ++i) 
+	if (tree.children && tree.depth < global.octree.maxRecursion)
+		for (var i = 0; i < tree.children.length; ++i) 
 			if (tree.children[i]) 
 				drawBBoxOctree(tree.children[i], shader);
 
@@ -390,6 +410,18 @@ function parseOctree(jsonUrl) {
 						}
 
 					}	
+
+
+					// remove all empty children
+					for (var j = 7; j >= 0; --j) { 
+						if (node.children[j] === null)
+							node.children.splice(j, 1);
+					}
+
+					// randomize the child order
+					shuffle(node.children);
+
+
 				}
 
 				// set loaded flag to false
@@ -414,6 +446,8 @@ function parseOctree(jsonUrl) {
 			// find the root node
 			var root = nodeDict["node-root"];
 			console.log("Loaded tree.");
+
+			root.numNodes = nodes.length;
 
 			// load the root node
 			loadOctree(root);

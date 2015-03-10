@@ -153,7 +153,8 @@ function clipBox(bbox, matrix) {
   */
 
   function row(matrix, i) { 
-    return vec4.fromValues(matrix[i+0], matrix[i+4], matrix[i+8], matrix[i+12]);
+    //return vec4.fromValues(matrix[i+0], matrix[i+4], matrix[i+8], matrix[i+12]);
+    return [matrix[i+0], matrix[i+4], matrix[i+8], matrix[i+12]];
   }
   
   function neg(vec4) { 
@@ -170,7 +171,8 @@ function clipBox(bbox, matrix) {
   var vvertices = []
   
   for (var i = 0; i < 8; ++i) {
-    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+    //var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+    var v = [vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0];
     vvertices.push(v);
   }
 

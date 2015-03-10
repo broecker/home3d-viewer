@@ -44,13 +44,13 @@ global.touches = null;
 global.stats = null;
 
 
-global.clearColor = [0.0, 0.0, 0.2, 0.0];
+global.clearColor = [0, 0, 20];
 
 
 global.octree = {}
-global.octree.recursionStart = 30.0;
-global.octree.recursionFactor = 2.0;
 global.octree.maxRecursion = 2;
+global.maxPointsRendered = 750000;
+global.pointsDrawn = 0;
 global.pointSize = 2.0;
 
 // store shaders
@@ -106,7 +106,7 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
 
-  gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], global.clearColor[3]);
+  gl.clearColor(global.clearColor[0]/255, global.clearColor[1]/255, global.clearColor[2]/255, 0);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -159,6 +159,8 @@ function render() {
     gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
+
+    global.pointsDrawn = 0;
 
     drawOctree(geometry.octree, shaders.pointcloudShader);
   }
@@ -438,13 +440,13 @@ function init(basepath) {
   */
   // create gui
   global.gui = new dat.GUI();  
-  var octreeGui = global.gui.addFolder('Octree');
-  octreeGui.add(global, 'pointSize', 1.0, 6.0);
+  global.gui.add(global.octree, 'maxRecursion', 1.0).max(6).step(1);
+  global.gui.add(global, 'pointSize', 1.0, 6.0);
+  global.gui.add(global, 'maxPointsRendered', 0, 10000000);
+  global.gui.add(global, 'pointsDrawn').listen();
 
-  octreeGui.add(global.octree, 'recursionStart', 10.0, 100.0);
-  octreeGui.add(global.octree, 'recursionFactor', 1.0, 3.0);
-  octreeGui.add(global.octree, 'maxRecursion', 1.0).max(10).step(1);
-  
+  //global.gui.add(global, 'clearColor');
+ 
 }
 
 function toggleGrid() { 
