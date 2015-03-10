@@ -194,7 +194,7 @@ function loadOctreeBlob(tree) {
 }
 
 
-function drawOctree(tree, shader) {
+function drawOctree(tree, shader, recurse) {
 
 	if (tree.depth > global.octree.maxRecursion)
 		return;
@@ -202,7 +202,10 @@ function drawOctree(tree, shader) {
 	if (global.pointsDrawn > global.maxPointsRendered)
 		return;
 
-	if (tree.loaded === true) { 
+	// shall we recurse automatically?
+	recurse = recurse || true;
+
+	if (tree.visible > 0 && tree.loaded === true) { 
 		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -221,7 +224,7 @@ function drawOctree(tree, shader) {
 			loadOctree(tree);
 	}
 
-	if (tree.children != null) { 
+	if (recurse === true && tree.children != null) { 
 
 		for (var i = 0; i < tree.children.length; ++i) { 
 			if (tree.children[i].visible > 0)
@@ -279,7 +282,6 @@ function updateVisibility(tree, matrix) {
 
 // returns a list of all visible nodes. Must be run after updateVisibility
 function getVisibleNodes(tree, list) { 
-	list = list || [];
 
 	if (tree.visible > 0) {
 		list.push(tree);
@@ -292,8 +294,6 @@ function getVisibleNodes(tree, list) {
 		}
 
 	}
-
-	return list;
 }
 
 // updates the distance of tree nodes from the camera. 

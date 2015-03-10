@@ -44,7 +44,7 @@ global.touches = null;
 global.stats = null;
 
 
-global.clearColor = [0, 0, 20];
+global.clearColor = [150, 150, 180];
 
 
 global.octree = {}
@@ -52,6 +52,7 @@ global.octree.maxRecursion = 2;
 global.maxPointsRendered = 750000;
 global.pointsDrawn = 0;
 global.pointSize = 2.0;
+global.visibleList = [];
 
 // store shaders
 var shaders = shaders || {};
@@ -106,7 +107,7 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
 
-  gl.clearColor(global.clearColor[0]/255, global.clearColor[1]/255, global.clearColor[2]/255, 0);
+  gl.clearColor(global.clearColor[0]/255, global.clearColor[1]/255, global.clearColor[2]/255, 1.0);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -125,6 +126,16 @@ function render() {
     updateVisibility(geometry.octree, mat);
     updateLOD(geometry.octree, getPosition(global.camera));
 
+ 
+
+    // build a new visible set
+    global.visibleList.length = 0;
+    getVisibleNodes(geometry.octree, global.visibleList);
+
+    // sort by lod distance
+    global.visibleList.sort(function(a,b){
+      return a.lodDistance - b.lodDistance;
+    });
 
     global.updateVisibility = false;
   }
@@ -161,8 +172,15 @@ function render() {
 
 
     global.pointsDrawn = 0;
+    
+    if (global.visibleList.length > 0) { 
+      for (var i = 0; i < global.visibleList.length; ++i) { 
+        drawOctree(global.visibleList[i], shaders.pointcloudShader, false);
+      }
+    }
+    else
+      drawOctree(geometry.octree, shaders.pointcloudShader);
 
-    drawOctree(geometry.octree, shaders.pointcloudShader);
   }
 
 }
@@ -445,7 +463,6 @@ function init(basepath) {
   global.gui.add(global, 'maxPointsRendered', 0, 10000000);
   global.gui.add(global, 'pointsDrawn').listen();
 
-  //global.gui.add(global, 'clearColor');
  
 }
 
