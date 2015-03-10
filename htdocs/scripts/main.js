@@ -140,13 +140,18 @@ function render() {
     if (!global.camera.isMoving)
       getVisibleNodes(geometry.octree, global.visibleList);
 
-    
-    // sort by lod distance _and_ lod level = depth in tree
+   
+     
+    // sort by lod distance, lod level = depth in tree and whether it's loaded
+    var scoreA, scoreB;
+
     global.visibleList.sort(function(a,b){
-      return (a.lodDistance*a.depth) - (b.lodDistance*b.depth);
+      scoreA = a.lodDistance * a.depth * (a.loaded === true?1:60000);
+      scoreB = b.lodDistance * b.depth * (b.loaded === true?1:60000);
+
+      return scoreA - scoreB;
     });
     
-
     //shuffle(global.visibleList);
 
     global.updateVisibility = false;
@@ -226,7 +231,7 @@ function loop() {
  
   global.stats.end();
 
-  window.requestAnimationFrame(loop);
+  window.requestAnimationFrame(loop, canvas);
     
 } 
 
@@ -434,8 +439,6 @@ function handlePan(event) {
 
 
 function init(basepath) {
-  
-    
   canvas = document.getElementById("canvas");
   gl = initWebGL(canvas);      // Initialize the GL context
   resizeCanvas(canvas);
@@ -489,7 +492,7 @@ function init(basepath) {
   global.gui.add(global, 'pointsDrawn').listen();
   global.gui.add(global.visibleList, 'length').listen();
 
-  window.requestAnimationFrame(loop);
+  window.requestAnimationFrame(loop, canvas);
   
 }
 
