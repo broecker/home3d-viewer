@@ -223,15 +223,8 @@ function drawOctree(tree, shader) {
 
 	if (tree.children != null) { 
 
-		// sort the children based on their lod distance
-		tree.children.sort(function(a, b) { 
-			return a.lodDistance - b.lodDistance;
-		});
-
-
-
 		for (var i = 0; i < tree.children.length; ++i) { 
-			if (tree.children[i] != null && tree.children[i].visible > 0)
+			if (tree.children[i].visible > 0)
 				drawOctree(tree.children[i], shader);
 		}
 
@@ -247,8 +240,7 @@ function setVisible(tree) {
 	
 	if (tree.children != null) 
 		for (var i = 0; i < tree.children.length; ++i)
-			if (tree.children[i] != null)
-				setVisible(tree.children[i]);
+			setVisible(tree.children[i]);
 
 }
 
@@ -258,8 +250,7 @@ function setInvisible(tree) {
 
 	if (tree.children != null) 
 		for (var i = 0; i < tree.children.length; ++i)
-			if (tree.children[i] != null)
-				setInvisible(tree.children[i]);
+			setInvisible(tree.children[i]);
 }
 
 // performs view-frustum culling recursively on the tre
@@ -270,20 +261,19 @@ function updateVisibility(tree, matrix) {
 	tree.visible = clipBox(tree.bbox, matrix);
 
 	if (tree.children != null && tree.depth < global.octree.maxRecursion) {
-		for (var i = 0; i < tree.children.length; ++i) {
-			if (tree.children[i] != null) {
 
-				// clipping -- test children individually
-				if (tree.visible == 1)
-					updateVisibility(tree.children[i], matrix);
-		
-				
-				// recursively set everything visible
-				if (tree.visible == 2)
-					setVisible(tree.children[i]);
-				
-			}
+		for (var i = 0; i < tree.children.length; ++i) {
+			// clipping -- test children individually
+			if (tree.visible == 1)
+				updateVisibility(tree.children[i], matrix);
+	
+			
+			// recursively set everything visible
+			if (tree.visible == 2)
+				setVisible(tree.children[i]);
+			
 		}
+
 	}
 }
 
@@ -296,8 +286,7 @@ function getVisibleNodes(tree, list) {
 
 		if (tree.children != null) { 
 			for (var i = 0; i < tree.children.length; ++i) { 
-				if (tree.children[i] != null)
-					getVisibleNodes(tree.children[i], list);
+				getVisibleNodes(tree.children[i], list);
 			}
 
 		}
@@ -311,12 +300,21 @@ function getVisibleNodes(tree, list) {
 function updateLOD(tree, cameraPosition) { 
 
 	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+	const MAX_LOD_DISTANCE = 50000;
 
 	if (tree.children != null)
 		for (var i = 0; i < tree.children.length; ++i) { 
-			if (tree.children[i] != null && tree.children[i].visible > 0) { 
+			if (tree.children[i].visible > 0) { 
 				updateLOD(tree.children[i], cameraPosition);
 			}
+			else
+				tree.children[i].lodDistance = MAX_LOD_DISTANCE;
+
+			// sort the children based on their lod distance
+			tree.children.sort(function(a, b) { 
+				return a.lodDistance - b.lodDistance;
+			});
+
 		}
 }
 
@@ -336,8 +334,7 @@ function drawBBoxOctree(tree, shader) {
 
 	if (tree.children && tree.depth < global.octree.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
-			if (tree.children[i]) 
-				drawBBoxOctree(tree.children[i], shader);
+			drawBBoxOctree(tree.children[i], shader);
 
 }
 
@@ -354,8 +351,7 @@ function drawOctreeBBoxes(tree, shader, matrix) {
 
 	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) {
-			if (tree.children[i] != null) 
-				drawOctreeBBoxes( tree.children[i], shader, matrix );
+			drawOctreeBBoxes( tree.children[i], shader, matrix );
 		}
 	}
 
