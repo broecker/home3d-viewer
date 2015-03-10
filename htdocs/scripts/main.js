@@ -132,9 +132,9 @@ function render() {
     global.visibleList.length = 0;
     getVisibleNodes(geometry.octree, global.visibleList);
 
-    // sort by lod distance
+    // sort by lod distance _and_ lod level = depth in tree
     global.visibleList.sort(function(a,b){
-      return a.lodDistance - b.lodDistance;
+      return (a.lodDistance*a.depth) - (b.lodDistance*b.depth);
     });
 
     global.updateVisibility = false;
