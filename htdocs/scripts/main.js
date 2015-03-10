@@ -67,9 +67,10 @@ geometry.octree = null;
 function initWebGL(canvas) {  
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl", {preserveDrawingBuffer: true}) || canvas.getContext("experimental-webgl");
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
+
   }
   catch(e) {}
   
@@ -110,7 +111,13 @@ function render() {
   gl.clearColor(global.clearColor[0]/255, global.clearColor[1]/255, global.clearColor[2]/255, 1.0);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
-  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
+  if (global.camera.isMoving)
+        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
+  
+
+  //gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
   //  setup the camera matrices
   setProjectionMatrix(camera, global.projMatrix);
@@ -130,12 +137,17 @@ function render() {
 
     // build a new visible set
     global.visibleList.length = 0;
-    getVisibleNodes(geometry.octree, global.visibleList);
+    if (!global.camera.isMoving)
+      getVisibleNodes(geometry.octree, global.visibleList);
 
+    
     // sort by lod distance _and_ lod level = depth in tree
     global.visibleList.sort(function(a,b){
       return (a.lodDistance*a.depth) - (b.lodDistance*b.depth);
     });
+    
+
+    //shuffle(global.visibleList);
 
     global.updateVisibility = false;
   }
@@ -173,11 +185,18 @@ function render() {
 
     global.pointsDrawn = 0;
     
+    // if we have a visible list -- use it
     if (global.visibleList.length > 0) { 
-      for (var i = 0; i < global.visibleList.length; ++i) { 
-        drawOctree(global.visibleList[i], shaders.pointcloudShader, false);
+      var i  = 0;
+      for (i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
+        drawOctreeNode(global.visibleList[i], shaders.pointcloudShader);
       }
+
+      // remove all rendered nodes
+      global.visibleList.splice(0, i);
+
     }
+    // draw recursively
     else
       drawOctree(geometry.octree, shaders.pointcloudShader);
 
@@ -223,6 +242,7 @@ function handleMouseDown(event) {
 
 function handleMouseUp(event) {
   global.mouse.button[event.button] = false;
+  global.camera.isMoving = false;
 }
 
 function handleMouseMotion(event) {
@@ -237,17 +257,24 @@ function handleMouseMotion(event) {
 
   if (global.mouse.button[0]) {
       rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
+      global.camera.isMoving = true;
   }
 
   else if (global.mouse.button[1]) {
     moveCameraTowardsTarget(global.camera, deltaY*10);
+
+    global.camera.isMoving = true;
+
   }
 
   else if (global.mouse.button[2]) {
     panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
 
+    global.camera.isMoving = true;
 
   }
+
+
 
   global.mouse.lastPosition = mousePosition;
   global.updateVisibility = true;
@@ -439,16 +466,14 @@ function init(basepath) {
   createGridBuffer();
 
 
-  
-  // create FPS meter
+   // create FPS meter
   global.stats = new Stats();
   global.stats.setMode(0);
   global.stats.domElement.style.position = 'absolute';
   global.stats.domElement.style.right = '5px';
   global.stats.domElement.style.bottom = '5px';
   document.body.appendChild(global.stats.domElement);
-  
-
+ 
   global.updateVisibility = true;
 
   /*
@@ -462,8 +487,10 @@ function init(basepath) {
   global.gui.add(global, 'pointSize', 1.0, 6.0);
   global.gui.add(global, 'maxPointsRendered', 0, 10000000);
   global.gui.add(global, 'pointsDrawn').listen();
+  global.gui.add(global.visibleList, 'length').listen();
 
- 
+  window.requestAnimationFrame(loop);
+  
 }
 
 function toggleGrid() { 

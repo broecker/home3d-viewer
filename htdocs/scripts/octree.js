@@ -194,6 +194,21 @@ function loadOctreeBlob(tree) {
 }
 
 
+function drawOctreeNode(tree, shader) {
+	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+	gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+	gl.enableVertexAttribArray(shader.vertexColorAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+	gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+
+
+	gl.drawArrays(gl.POINTS, 0, tree.points);
+	global.pointsDrawn += tree.points;
+}
+
+
 function drawOctree(tree, shader, recurse) {
 
 	if (tree.depth > global.octree.maxRecursion)
@@ -206,18 +221,7 @@ function drawOctree(tree, shader, recurse) {
 	recurse = recurse || true;
 
 	if (tree.visible > 0 && tree.loaded === true) { 
-		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-		gl.enableVertexAttribArray(shader.vertexColorAttribute);
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-		gl.vertexAttribPointer(shader.vertexColorAttribute, 3, gl.UNSIGNED_BYTE, true, 0, 0);
-
-
-		gl.drawArrays(gl.POINTS, 0, tree.points);
-		global.pointsDrawn += tree.points;
-
+		drawOctreeNode(tree, shader);
 	} else if (tree.loaded === false) {
 
 		if (!global.updateVisibility)
