@@ -53,6 +53,26 @@ static void testForNormals(const char* filename)
 	
 }
 
+static inline void readXYZRGB(Point& p, const std::string& line)
+{
+	unsigned int r, g, b;
+	sscanf_s(line.c_str(), "%f %f %f %d %d %d", &p.x, &p.y, &p.z, &r, &g, &b);
+	p.r = r;
+	p.g = g;
+	p.b = b;
+}
+
+static inline void readXYZRGBNormal(Point& p, const std::string& line)
+{
+	float nx, ny, nz;
+
+	unsigned int r, g, b;
+	sscanf_s(line.c_str(), "%f %f %f %d %d %d %f %f %f", &p.x, &p.y, &p.z, &r, &g, &b, &nx, &ny, &nz);
+	p.r = r;
+	p.g = g;
+	p.b = b;
+}
+
 static Pointcloud loadXyz(const char* filename)
 {
 	std::ifstream file(filename);
@@ -65,25 +85,16 @@ static Pointcloud loadXyz(const char* filename)
 	
 	while (!file.eof())
 	{
-		Point p;
-		file >> p.x >> p.y >> p.z;
-		int r, g, b;
-		file >> r >> g >> b;
-
-		// normals are found in the AGI Photoscan exports
+		static std::string buffer;
+		std::getline(file, buffer);
+	
+		static Point p;
+		
 		if (option_hasNormals)
-		{
-			// normal and intensity -- ignore for now
-			Point n;
-			file >> n.x >> n.y >> n.z;
-			int i;
-			file >> i;
-		}
-
-		p.r = r;
-		p.g = g;
-		p.b = b;
-
+			readXYZRGBNormal(p, buffer);
+		else
+			readXYZRGB(p, buffer);
+			
 		points.push_back(p);
 
 		if (points.size() % 20000 == 0)
@@ -178,9 +189,9 @@ static void flipYZ(Pointcloud& points)
 {
 	for (size_t i = 0; i < points.size(); ++i)
 	{
-		float t = points[i].y;
+		float t = -points[i].y;
 		points[i].y = points[i].z;
-		points[i].z = -t;
+		points[i].z = t;
 	}
 }
 
@@ -249,9 +260,8 @@ int main(int argc, const char** argv)
 	assert(!points.empty());
 
 
-	if (option_pointCount > points.size())
+	if (option_pointCount > 0 && option_pointCount > points.size())
 		resamplePoints(points);
-
 
 
 
@@ -259,8 +269,7 @@ int main(int argc, const char** argv)
 		flipY(points);
 	else if (option_readMode == RM_SCENE)
 		flipYZ(points);
-
-
+	
 	if (option_centerPoints)
 		centerPoints(points);
 	

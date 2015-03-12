@@ -48,8 +48,8 @@ global.clearColor = [150, 150, 180];
 
 
 global.octree = {}
-global.octree.maxRecursion = 2;
-global.maxPointsRendered = 750000;
+global.octree.maxRecursion = 4;
+global.maxPointsRendered = 250000;
 global.pointsDrawn = 0;
 global.pointSize = 2.0;
 global.visibleList = [];
@@ -112,12 +112,9 @@ function render() {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
 
-  if (global.camera.isMoving)
-        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  if (global.updateVisibility)
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
-  
-
-  //gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
   //  setup the camera matrices
   setProjectionMatrix(camera, global.projMatrix);
@@ -137,22 +134,22 @@ function render() {
 
     // build a new visible set
     global.visibleList.length = 0;
-    if (!global.camera.isMoving)
-      getVisibleNodes(geometry.octree, global.visibleList);
+    getVisibleNodes(geometry.octree, global.visibleList);
 
    
      
     // sort by lod distance, lod level = depth in tree and whether it's loaded
     var scoreA, scoreB;
 
+    /*
     global.visibleList.sort(function(a,b){
       scoreA = a.lodDistance * a.depth * (a.loaded === true?1:60000);
       scoreB = b.lodDistance * b.depth * (b.loaded === true?1:60000);
 
       return scoreA - scoreB;
     });
-    
-    //shuffle(global.visibleList);
+    */
+    shuffle(global.visibleList);
 
     global.updateVisibility = false;
   }
@@ -194,7 +191,10 @@ function render() {
     if (global.visibleList.length > 0) { 
       var i  = 0;
       for (i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
-        drawOctreeNode(global.visibleList[i], shaders.pointcloudShader);
+
+
+        if (global.visibleList[i].loaded === true)
+          drawOctreeNode(global.visibleList[i], shaders.pointcloudShader);
       }
 
       // remove all rendered nodes
@@ -261,28 +261,24 @@ function handleMouseMotion(event) {
   
 
   if (global.mouse.button[0]) {
-      rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
-      global.camera.isMoving = true;
+    rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
+    global.updateVisibility = true;
   }
 
   else if (global.mouse.button[1]) {
     moveCameraTowardsTarget(global.camera, deltaY*10);
-
-    global.camera.isMoving = true;
-
+    global.updateVisibility = true;
   }
 
   else if (global.mouse.button[2]) {
     panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
-
-    global.camera.isMoving = true;
-
+    global.updateVisibility = true;
   }
 
 
 
+
   global.mouse.lastPosition = mousePosition;
-  global.updateVisibility = true;
 }
 
 function handleMouseWheel(event) {
