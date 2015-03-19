@@ -163,7 +163,7 @@ function loadShaders(basePath) {
 	gl.linkProgram(objectShader);
 
 	if (!gl.getProgramParameter(objectShader, gl.LINK_STATUS)) {
-		alert("Could not initialize grid shader");
+		alert("Could not initialize object shader");
 	}
 
 	objectShader.vertexPositionAttribute = gl.getAttribLocation(objectShader, "positionIn");
@@ -171,4 +171,24 @@ function loadShaders(basePath) {
 	objectShader.projMatrixUniform = gl.getUniformLocation(objectShader, "projMatrix");
 	objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
 	shaders.objectShader = objectShader;
+
+
+
+	// load the passthrough/quad shader
+	fragmentShader = getShader("quadFS");
+	vertexShader = getShader("quadVS");
+
+	var quadShader = gl.createProgram();
+	gl.attachShader(quadShader, vertexShader);
+	gl.attachShader(quadShader, fragmentShader);
+	gl.linkProgram(quadShader);
+
+	if (!gl.getProgramParameter(quadShader, gl.LINK_STATUS)) {
+		alert("Could not initialize quad shader");
+	}
+
+	quadShader.vertexPositionAttribute = gl.getAttribLocation(quadShader, "positionIn");
+	quadShader.colormapUniform = gl.getUniformLocation(quadShader, "colormap");
+	shaders.quadShader = quadShader;
+
 }

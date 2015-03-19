@@ -219,11 +219,6 @@ static void parseOptions(int argc, const char** argv)
 			std::cout << "[Option] Readmode: SCENE\n";
 		}
 
-		if (strcmp(argv[i], "-maxpoints") == 0)
-		{
-			option_pointCount = atoi(argv[++i]);
-			std::cout << "[Option] Subsampling to " << option_pointCount << " points.\n";
-		}
 		if (strcmp(argv[i], "-nodesize") == 0)
 		{
 			option_nodeSize = atoi(argv[++i]);
@@ -237,7 +232,7 @@ int main(int argc, const char** argv)
 {
 	if (argc == 1)
 	{
-		std::cerr << "Usage " << argv[0] << " <filename> [-agi (default) -scene] [-maxpoints <N> -nodesize <N> ]\n";
+		std::cerr << "Usage " << argv[0] << " <filename> [-agi (default) -scene] [-nodesize <N> ]\n";
 		std::cerr << "Note: drag'n'drop works in windows.\n";
 		return 2;
 	}
@@ -258,12 +253,7 @@ int main(int argc, const char** argv)
 
 	}
 	assert(!points.empty());
-
-
-	if (option_pointCount > 0 && option_pointCount > points.size())
-		resamplePoints(points);
-
-
+	
 
 	if (option_readMode == RM_PHOTOSCAN)
 		flipY(points);

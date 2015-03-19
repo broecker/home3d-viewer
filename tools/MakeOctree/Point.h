@@ -29,4 +29,18 @@ struct Point
 	
 };
 
+
+struct Normal8b
+{
+	char		x, y, z;
+		
+	operator glm::vec3 () const
+	{
+		return glm::vec3((float)x / 255.f, (float)y / 255.f, (float)z / 255.f);
+	}
+};
+
 typedef std::vector<Point>	Pointcloud;
+typedef std::vector<Normal8b> Normalcloud;
+
+typedef std::vector<unsigned int> Indexcloud;

@@ -37,7 +37,7 @@ function createPlaneBuffer(gl) {
 // creates the geometry and vertex buffer for a grid on the Y=0 plane
 function createGridBuffer(){
 
-var gridVertices = [];
+	var gridVertices = [];
 	for (var i = -10; i <= 10; ++i) {
 		gridVertices.push(i);
 		gridVertices.push(0);
@@ -79,4 +79,22 @@ function drawGrid() {
 	gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
 	gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
 	gl.drawArrays(gl.LINES, 0, geometry.grid.buffer.numItems);
+}
+
+
+
+function drawFullscreenQuad(shader) {
+	if (drawFullscreenQuad.vbo === undefined) {
+		var vertices = [0,1, 0,0, 1,1, 1,0 ];
+
+		drawFullscreenQuad.vbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, drawFullscreenQuad.vbo);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	}
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, drawFullscreenQuad.vbo);
+	gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
 }

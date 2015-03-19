@@ -151,6 +151,33 @@
 	</script>	
 
 
+	<script id="quadVS" type="x-shader/x-vertex">
+		attribute vec2 positionIn;
+		varying vec2 texcoords;
+
+		void main()
+		{
+			gl_Position = vec4(positionIn*2.0 - vec2(1.0), 0.0, 1.0);
+			texcoords = positionIn;
+		}
+	</script>
+
+	<script id = "quadFS" type="x-shader/x-fragment">
+		precision mediump float;
+		varying vec2 texcoords;
+
+		uniform sampler2D colormap;
+
+		void main()
+		{
+			vec3 color = texture2D(colormap, texcoords).rgb;
+			gl_FragColor = vec4(color, 1.0);
+		}
+
+	</script>
+
+
+
 	<script src="scripts/gl-matrix.js"></script>
 	<script src="scripts/aabb.js"></script>
 	<script src="scripts/camera.js"></script>
@@ -160,17 +187,17 @@
 	<script src="scripts/shader.js"></script>
 	<script src="scripts/geometry.js"></script>
 	<script src="scripts/dat-gui.js"></script>
+	<script src="scripts/framebuffer.js"></script>
 	<script src="scripts/main.js"></script>
 
 </head>
-	<body onload="main('http://10.129.29.227:8000/bear/bear4.json')" >
+	<body onload="main('http://10.129.29.220:8000//bear/bear4.json')" >
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<div class="buttonBar">
 		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
 		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button>
-
-		<div id="slider"></div>
+		<button type="button" class="btn" onclick="resetCamera()">Reset</button>
 	</div>
 
 </body>

@@ -5,6 +5,9 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <chrono>
+#include <random>
+
 #include <glm/gtx/io.hpp>
 
 
@@ -73,6 +76,25 @@ void Octree::build(const SplitConfig& config, const std::string& basename)
 
 }
 
+// Fisher-Yates shuffle, Sattolo Variant
+void Octree::shuffle()
+{
+	std::mt19937 rng; // ((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
+
+	size_t i = points.size() - 1;
+	while (i > 1)
+	{
+		--i;
+
+		unsigned int j = rng() % (unsigned int)points.size();
+		std::swap(points[i], points[j]);
+			
+		// TODO: move this out of the loop by saving the seed and  reinitializing the rng
+		if (!normals.empty())
+			std::swap(normals[i], normals[j]);
+	}		
+}
+
 
 void Octree::split(const SplitConfig& config)
 {
@@ -81,37 +103,37 @@ void Octree::split(const SplitConfig& config)
 
 	const glm::vec3 center = aabb.getCentroid();
 	
-	// the new sectors
-	Pointcloud	sectors[8];
+	// the new sectors, referenced by index
+	Indexcloud sectors[8];
 
 	
-	std::random_shuffle(points.begin(), points.end());
-
-	// select n points to keep in this node
-	
-	Pointcloud temp(points.begin() + config.maxNodeSize, points.end());
-	points.resize(config.maxNodeSize);
+	this->shuffle();
 
 
-	for (size_t i = 0; i < temp.size(); ++i)
+
+	// keep n points in the head node here ... 
+
+
+
+	for (unsigned i = config.maxNodeSize; i < points.size(); ++i)
 	{
-		const Point& p = temp[i];
+		const Point& p = points[i];
 
 		if (p.y > center.y)
 		{
 			if (p.x < center.x)
 			{
 				if (p.z < center.z)
-					sectors[0].push_back(p);
+					sectors[0].push_back(i);
 				else
-					sectors[1].push_back(p);
+					sectors[1].push_back(i);
 			}
 			else
 			{
 				if (p.z < center.z)
-					sectors[3].push_back(p);
+					sectors[3].push_back(i);
 				else
-					sectors[2].push_back(p);
+					sectors[2].push_back(i);
 
 			}
 		}
@@ -120,16 +142,16 @@ void Octree::split(const SplitConfig& config)
 			if (p.x < center.x)
 			{
 				if (p.z < center.z)
-					sectors[4].push_back(p);
+					sectors[4].push_back(i);
 				else
-					sectors[5].push_back(p);
+					sectors[5].push_back(i);
 			}
 			else
 			{
 				if (p.z < center.z)
-					sectors[7].push_back(p);
+					sectors[7].push_back(i);
 				else
-					sectors[6].push_back(p);
+					sectors[6].push_back(i);
 			}
 		}
 	}
@@ -140,6 +162,7 @@ void Octree::split(const SplitConfig& config)
 		std::cout << "sectors[" << i << "]: " << sectors[i].size() << std::endl;
 	*/
 
+	
 	int childCount = 0;
 	for (int i = 0; i < 8; ++i)
 	{
@@ -155,29 +178,13 @@ void Octree::split(const SplitConfig& config)
 			else
 			{
 				// if the child node has too few points, push them back onto the parent again
-				
 				points.insert(points.end(), sectors[i].begin(), sectors[i].end());
-				//std::cout << "Split resulted in node with too few points (" << sectors[i].size() << "), discarding ... \n";
-
+	
 			}
 		}
 	}
 
 	//std::cout << "Created " << childCount << " children.\n";
-}
-
-void Octree::subsample(unsigned int newSize)
-{
-	//std::cout << "Subsampling node to " << newSize << " points ... \n";
-
-	float ratio = (float)newSize / points.size();
-	size_t step = (size_t)(1.f / ratio);
-
-	Pointcloud tmp(points);
-	points.clear();
-
-	for (size_t i = 0; i < tmp.size(); i += step)
-		points.push_back(tmp[i]); 
 }
 
 void Octree::recurseSplit(Octree* node, const SplitConfig& config)
@@ -196,13 +203,26 @@ void Octree::recurseSplit(Octree* node, const SplitConfig& config)
 }
 void Octree::recurseSave(const Octree* node)
 {
-	std::string filename = node->getFilename() + ".blob";
+	std::string filename = node->getPointsFilename() + ".blob";
 
 	std::ofstream ofile(filename.c_str(), std::ios::binary | std::ios::trunc);
 	assert(ofile.is_open());
 
 	// write the data
 	ofile.write(reinterpret_cast<const char*>(&node->points[0]), sizeof(Point)*node->points.size());
+
+
+	if (node->hasNormals())
+	{
+		std::string filename = node->getNormalsFilename() + ".blob";
+
+		std::ofstream ofile(filename.c_str(), std::ios::binary | std::ios::trunc);
+		assert(ofile.is_open());
+
+		// write the data
+		ofile.write(reinterpret_cast<const char*>(&node->normals[0]), sizeof(Normal8b)*node->normals.size());
+	}
+
 
 
 	for (int i = 0; i < 8; ++i)
@@ -230,8 +250,7 @@ std::string Octree::recurseBuildJSON(const Octree* node)
 	return result;
 }
 
-
-std::string Octree::getFilename() const
+std::string Octree::getNodename() const
 {
 	// find path to parent and create name
 	std::vector<int> path;
@@ -273,6 +292,16 @@ std::string Octree::getFilename() const
 
 }
 
+std::string Octree::getNormalsFilename() const
+{
+	return "normals-" + getNodename().substr(5);
+}
+
+std::string Octree::getPointsFilename() const
+{
+	return "points-" + getNodename().substr(5);
+}
+
 std::string Octree::getJSONEntry() const
 {
 	std::stringstream ss;
@@ -280,11 +309,16 @@ std::string Octree::getJSONEntry() const
 	ss << "{\n";
 
 	// write the parent
-	ss << "\"parent\":" << (parent ? "\"" + parent->getFilename() + "\"" : "null") << ",\n";
+	ss << "\"parent\":" << (parent ? "\"" + parent->getNodename() + "\"" : "null") << ",\n";
 
-	ss << "\"file\":\"" << this->getFilename() << "\",\n";
+	ss << "\"points\":\"" << this->getPointsFilename() << "\",\n";
 
-	ss << "\"points\":" << points.size() << ",\n";
+	if (this->hasNormals())
+		ss << "\"normals\":" << this->getNormalsFilename() << ",\n";
+	else
+		ss << "\"normals\":null,\n";
+
+	ss << "\"numpoints\":" << points.size() << ",\n";
 
 	// write the bbox
 	ss << "\"bbox\":" << getJSONString(this->aabb) << ",\n";
@@ -297,7 +331,7 @@ std::string Octree::getJSONEntry() const
 		for (int i = 0; i < 8; ++i)
 		{
 			if (children[i])
-				ss << "\"" << children[i]->getFilename() << "\"";
+				ss << "\"" << children[i]->getNodename() << "\"";
 			else
 				ss << "null";
 

@@ -176,6 +176,7 @@ function loadOctreeBlob(tree) {
 
 
 				loadQueueUpdate();
+				global.updateVisibility = true;
 				
 			}
 		
@@ -361,6 +362,8 @@ function drawOctreeBBoxes(tree, shader, matrix) {
 
 }
 
+
+
 function parseOctree(jsonUrl) {
 	
 
@@ -382,7 +385,11 @@ function parseOctree(jsonUrl) {
 			}
 			*/
 
-			var relinkStart = performance.now();
+
+
+
+
+			//var relinkStart = 	performance.now();
 			console.log("Read " + nodes.length + " nodes, relinking tree ... ");
 
 
@@ -433,9 +440,10 @@ function parseOctree(jsonUrl) {
 
 			}
 
+			/*
 			var relinkEnd = performance.now();
 			console.log("Relink time: " + (relinkEnd-relinkStart) + " ms")
-
+			*/
 			// append the full path to all file names
 			var basename = jsonUrl.substring(0, jsonUrl.lastIndexOf("/")+1);
 
