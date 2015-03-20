@@ -49,8 +49,6 @@ global.renderTarget = null;
 global.clearColor = [0, 0, 0.2];
 
 
-global.octree = {}
-global.octree.maxRecursion = 2;
 global.maxPointsRendered = 25000;
 global.pointsDrawn = 0;
 global.pointSize = 2.0;
@@ -125,13 +123,7 @@ function resizeCanvas(canvas) {
 
 
 // main render function 
-function render() {
-  
-  // update the canvas, viewport and camera
-  resizeCanvas(canvas);
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-
-
+function drawFBO() {
   // display the fbo 
   gl.useProgram(shaders.quadShader);
   gl.activeTexture(gl.TEXTURE0);
@@ -145,17 +137,46 @@ function render() {
 }
 
 
+function initializeFBODrawing() {
+  // also clear the fbo
+  bindFBO(global.renderTarget);
+
+  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], 1.0); 
+
+  // draw all static elements ... 
+  if (global.enableGrid)
+    drawGrid();
+
+
+  if (global.mouse.button[0] || global.mouse.button[2])
+    drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
+
+
+  // the tree's bounding volumes 
+  if (global.enableBBox) {
+    gl.useProgram(shaders.gridShader);
+    gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
+
+    gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
+    gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
+    gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
+
+    octree.drawBBoxes(geometry.octree, shaders.gridShader);
+  }
+
+
+
+  disableFBO(global.renderTarget);
+}
+
+
 function updateFBO() {
 
   bindFBO(global.renderTarget);
 
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
-
-  //  setup the camera matrices
-  setProjectionMatrix(camera, global.projMatrix);
-  setViewMatrix(camera, global.viewMatrix);
-
 
   if (geometry.octree) { 
     // draw the points
@@ -166,32 +187,29 @@ function updateFBO() {
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
     global.pointsDrawn = 0;
+
+
+
+    console.log("updateFBO; visible list: " + global.visibleList.length);
     
-    // if we have a visible list -- use it
-    if (global.visibleList.length > 0) { 
-      var i  = 0;
 
-      while (global.pointsDrawn < global.maxPointsRendered && i < global.visibleList.length) {
-        if (global.visibleList[i].loaded === true) {
-          drawOctreeNode(global.visibleList[i], shaders.pointcloudShader);
-          global.visibleList.splice(i, 1);
-        }
-        else {
-          loadOctreeBlob(global.visibleList[i]);
-          ++i;
-        }
 
+    for (var i = 0; i < global.visibleList.length; ++i) { 
+      var node = global.visibleList[i];
+
+      if (node.loaded === true) {
+        octree.drawNode(node, shaders.pointcloudShader);
+        global.visibleList.splice(i, 1);
+      } else {
+        if (node.loaded === false && node.depth <= global.maxRecursion) {
+          octree.load(node);
+
+        }
       }
-
     }
-    // draw recursively
-    else
-      drawOctree(geometry.octree, shaders.pointcloudShader);
-    
   }
 
   disableFBO(global.renderTarget);
-
 
 }
 
@@ -208,93 +226,82 @@ function tick() {
   
 }
 
+function updateCamera() {
+  // update the canvas, viewport and camera
+  resizeCanvas(canvas);
+  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+
+  //  setup the camera matrices
+  setProjectionMatrix(camera, global.projMatrix);
+  setViewMatrix(camera, global.viewMatrix);
+}
+
+function updateVisibility() {
+  //debugger;
+
+  // build a new visible set
+  global.visibleList = [];
+
+  if (geometry.octree) {
+    
+    var mat = mat4.create();
+    mat4.multiply(mat, global.projMatrix, global.viewMatrix);
+
+    octree.setInvisible(geometry.octree);
+    octree.updateVisibility(geometry.octree, mat);
+    octree.updateLOD(geometry.octree, getPosition(global.camera));
+
+    octree.getVisibleNodes(geometry.octree, global.visibleList);
+  }
+
+
+  if (global.visibleList.length > 0) { 
+
+    // randomize order
+    shuffle(global.visibleList);
+
+
+    // sort by tree level -- lower ones go first
+    global.visibleList.sort(function(a,b){
+      return a.depth - b.depth;
+    });
+
+  }
+ 
+
+  global.updateVisibility = false;
+}
+
 function loop() {
   global.stats.begin();
 
   tick();
 
+  // start a new frame
+  if (global.updateVisibility) {
 
-  if (global.updateVisibility) { 
-    // if needed, updated view-frustum culling and LOD information
-    if (geometry.octree) { 
+    updateVisibility();
 
-      //  setup the camera matrices
-      setProjectionMatrix(camera, global.projMatrix);
-      setViewMatrix(camera, global.viewMatrix);
-
-      var mat = mat4.create();
-      mat4.multiply(mat, global.projMatrix, global.viewMatrix);
-    
-      updateVisibility(geometry.octree, mat);
-      updateLOD(geometry.octree, getPosition(global.camera));
-
-   
-
-      // build a new visible set
-      global.visibleList.length = 0;
-      getVisibleNodes(geometry.octree, global.visibleList);
-   
-       
-      // sort by lod distance, lod level = depth in tree and whether it's loaded
-      var scoreA, scoreB;
-
-      /*
-      global.visibleList.sort(function(a,b){
-        scoreA = a.lodDistance * a.depth * (a.loaded === true?1:60000);
-        scoreB = b.lodDistance * b.depth * (b.loaded === true?1:60000);
-
-        return scoreA - scoreB;
-      });
-      */
-      shuffle(global.visibleList);
-      global.updateVisibility = false;
-
-      // also clear the fbo
-      bindFBO(global.renderTarget);
-
-      gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], 1.0); 
-
-      // draw all static elements ... 
-      if (global.enableGrid)
-        drawGrid();
-
-
-      if (global.mouse.button[0] || global.mouse.button[2])
-        drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
-
-
-      // the tree's bounding volumes 
-      if (global.enableBBox) {
-        gl.useProgram(shaders.gridShader);
-        gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
-
-        gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
-        gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
-        gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
-
-        drawBBoxOctree(geometry.octree, shaders.gridShader);
-      }
-
-
-
-      disableFBO(global.renderTarget);
-
-    }
-
+    updateCamera();
+    initializeFBODrawing();
   }
 
+  // update the fbo
+  if (global.visibleList.length > 0) {
 
-  console.log("visible list: " + global.visibleList.length);
+      updateFBO();
+      
+  }
+    
 
-  if(global.visibleList.length > 0)
-    updateFBO();
-
-  render();
+  // display our current render target
+  drawFBO();
+  
  
   global.stats.end();
 
   window.requestAnimationFrame(loop, canvas);
+  
     
 } 
 
@@ -486,8 +493,20 @@ function handleKeydown(event) {
   // 'c' - center camera
   if (event.keyCode == 67) {
     camera.target = vec3.fromValues(0,0,0);
-
   }
+
+  // 'a' -- increase recursion level
+  if (event.keyCode == 65) {
+    global.maxRecursion++;
+    console.log("Max recursion: " + global.maxRecursion);
+  }
+
+  // 'z' -- decrease recursion level
+  if (event.keyCode == 90) {
+    global.maxRecursion = Math.max(--global.maxRecursion, 1);
+    console.log("Max recursion: " + global.maxRecursion);
+  }
+
   // b
   if (event.keyCode == 66)
     global.enableBBox = !global.enableBBox;
@@ -547,23 +566,23 @@ function init(basepath) {
     global.renderTarget = createFBO(512, 512);
     global.maxPointsRendered = 50000;
     global.clearColor = [0, 0, 0.2, 0.0]
-    global.maxRecursion = 2;
+    global.maxRecursion = 1;
 
   } else { 
     global.renderTarget = createFBO(1024, 1024);
-    global.maxPointsRendered = 500000;
+    global.maxPointsRendered = 250000;
     global.clearColor = [0, 0.2, 0, 0];
-    global.maxRecursion = 3;
+    global.maxRecursion = 2;
 
-    /*
-    // create gui
-    global.gui = new dat.GUI();  
-    global.gui.add(global.octree, 'maxRecursion', 3.0).max(6).step(1);
+    
+    // create gui 
+   global.gui = new dat.GUI();  
+    global.gui.add(global, 'maxRecursion', 3.0).max(6).step(1);
     global.gui.add(global, 'pointSize', 1.0, 6.0);
     global.gui.add(global, 'maxPointsRendered', 0, 10000000);
     global.gui.add(global, 'pointsDrawn').listen();
     global.gui.add(global.visibleList, 'length').listen();
-    */
+    
 
   }
 
@@ -592,7 +611,7 @@ function main(treeJson) {
 
   init(basepath);
 
-  geometry.octree = parseOctree(treeJson);
+  geometry.octree = octree.parseJSON(treeJson);
 
   loop();
 }

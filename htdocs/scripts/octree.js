@@ -45,11 +45,13 @@ function shuffle(array) {
 }
 
 
-// adds a tree to the load queue. It will be loaded concurrently at the next time
-function loadQueueAdd(tree) {
-	loadQueueAdd.queue = loadQueueAdd.queue || [];
+var octree = octree || {}
+octree._loadQueue = [];
 
-	if (loadQueueAdd.queue.indexOf(tree) > -1) {
+// adds a tree to the load queue. It will be loaded concurrently at the next time
+octree._loadQueueAdd = function (tree) {
+
+	if (octree._loadQueue.indexOf(tree) > -1) {
 		/*
 		console.error("Tree  " + tree.file + " already exists in load queue!");
 		debugger;
@@ -58,13 +60,13 @@ function loadQueueAdd(tree) {
 	}
 
 	tree.loaded = 'in queue';
-	loadQueueAdd.queue.push(tree);
+	octree._loadQueue.push(tree);
 }
 
 // updates the loading queue, removes old items and makes sure new ones get loaded
 // Gets automatically called as soon as a node finishes loading.
-function loadQueueUpdate() { 
-	var queue = loadQueueAdd.queue;
+octree._loadQueueUpdate = function() { 
+	var queue = octree._loadQueue;
 	var i;
 
 	// remove all nodes already loaded or not visible anymore
@@ -80,7 +82,7 @@ function loadQueueUpdate() {
 	// start loading all nodes in the queue
 	for (i = 0; i < Math.min(MAX_CONCURRENT_LOADS, queue.length); ++i) { 
 		if (queue[i].loaded == 'in queue') {
-			loadOctreeBlob(queue[i]);
+			octree.loadBlob(queue[i]);
 		}
 	}
 
@@ -89,15 +91,18 @@ function loadQueueUpdate() {
 
 
 // loads an octree by putting it onto the loading queue
-function loadOctree(tree) { 
-	loadQueueAdd(tree);
-	loadQueueUpdate();
+octree.load = function(tree) {
+
+	if (tree.loaded === false) { 
+		octree._loadQueueAdd(tree);
+		octree._loadQueueUpdate();
+	}
 }
 
 
 // loads the blob referenced by a tree node's file attribute and generates
 // the vertex buffers.
-function loadOctreeBlob(tree) {
+octree.loadBlob = function(tree) {
 
 	if (tree.loaded == 'ongoing' || tree.loaded === true)
 		return;
@@ -175,8 +180,8 @@ function loadOctreeBlob(tree) {
 				tree.loaded = true;
 
 
-				loadQueueUpdate();
-				global.updateVisibility = true;
+				octree._loadQueueUpdate();
+				//global.updateVisibility = true;
 				
 			}
 		
@@ -195,7 +200,7 @@ function loadOctreeBlob(tree) {
 }
 
 
-function drawOctreeNode(tree, shader) {
+octree.drawNode = function(tree, shader) {
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -210,7 +215,8 @@ function drawOctreeNode(tree, shader) {
 }
 
 
-function drawOctree(tree, shader, recurse) {
+// draws an octree recursivlely
+octree.draw = function(tree, shader, recurse) {
 
 	if (tree.depth > global.octree.maxRecursion)
 		return;
@@ -226,14 +232,14 @@ function drawOctree(tree, shader, recurse) {
 	} else if (tree.loaded === false) {
 
 		if (!global.updateVisibility)
-			loadOctree(tree);
+			octree.load(tree);
 	}
 
 	if (recurse === true && tree.children != null) { 
 
 		for (var i = 0; i < tree.children.length; ++i) { 
 			if (tree.children[i].visible > 0)
-				drawOctree(tree.children[i], shader);
+				octree.draw(tree.children[i], shader);
 		}
 
 	}
@@ -243,57 +249,54 @@ function drawOctree(tree, shader, recurse) {
 
 
 // sets a whole tree to be visible
-function setVisible(tree) { 
+octree.setVisible = function(tree) { 
 	tree.visible = 2;
 	
 	if (tree.children != null) 
 		for (var i = 0; i < tree.children.length; ++i)
-			setVisible(tree.children[i]);
+			octree.setVisible(tree.children[i]);
 
 }
 
 // sets a whole tree to be invisible
-function setInvisible(tree) { 
+octree.setInvisible = function(tree) { 
 	tree.visible = 0;
 
 	if (tree.children != null) 
 		for (var i = 0; i < tree.children.length; ++i)
-			setInvisible(tree.children[i]);
+			octree.setInvisible(tree.children[i]);
 }
 
 // performs view-frustum culling recursively on the tre
-function updateVisibility(tree, matrix) { 
-
-	setInvisible(tree);
-
+octree.updateVisibility = function(tree, matrix) { 
 	tree.visible = clipBox(tree.bbox, matrix);
 
-	if (tree.children != null && tree.depth < global.octree.maxRecursion) {
+	if (tree.children != null && tree.depth < global.maxRecursion) {
 
 		for (var i = 0; i < tree.children.length; ++i) {
 			// clipping -- test children individually
 			if (tree.visible == 1)
-				updateVisibility(tree.children[i], matrix);
+				octree.updateVisibility(tree.children[i], matrix);
 	
 			
 			// recursively set everything visible
 			if (tree.visible == 2)
-				setVisible(tree.children[i]);
+				octree.setVisible(tree.children[i]);
 			
 		}
 
 	}
 }
 
-// returns a list of all visible nodes. Must be run after updateVisibility
-function getVisibleNodes(tree, list) { 
+// returns a list of all visible nodes. Must be run after updateOctreeVisibility
+octree.getVisibleNodes = function(tree, list) { 
 
 	if (tree.visible > 0) {
 		list.push(tree);
 
-		if (tree.children != null) { 
+		if (tree.children != null && tree.depth < global.maxRecursion) { 
 			for (var i = 0; i < tree.children.length; ++i) { 
-				getVisibleNodes(tree.children[i], list);
+				octree.getVisibleNodes(tree.children[i], list);
 			}
 
 		}
@@ -302,7 +305,7 @@ function getVisibleNodes(tree, list) {
 }
 
 // updates the distance of tree nodes from the camera. 
-function updateLOD(tree, cameraPosition) { 
+octree.updateLOD = function(tree, cameraPosition) { 
 
 	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
 	const MAX_LOD_DISTANCE = 50000;
@@ -310,7 +313,7 @@ function updateLOD(tree, cameraPosition) {
 	if (tree.children != null)
 		for (var i = 0; i < tree.children.length; ++i) { 
 			if (tree.children[i].visible > 0) { 
-				updateLOD(tree.children[i], cameraPosition);
+				octree.updateLOD(tree.children[i], cameraPosition);
 			}
 			else
 				tree.children[i].lodDistance = MAX_LOD_DISTANCE;
@@ -324,8 +327,7 @@ function updateLOD(tree, cameraPosition) {
 }
 
 
-
-function drawBBoxOctree(tree, shader) {
+octree.drawBBoxes = function(tree, shader) {
 
 
 	if (tree.visible == 0)
@@ -337,34 +339,13 @@ function drawBBoxOctree(tree, shader) {
 
 	drawAABB(tree.bbox, shader);
 
-	if (tree.children && tree.depth < global.octree.maxRecursion)
+	if (tree.children != null && tree.depth < global.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
-			drawBBoxOctree(tree.children[i], shader);
+			octree.drawBBoxes(tree.children[i], shader);
 
 }
 
-function drawOctreeBBoxes(tree, shader, matrix) { 
-
-	if (matrix == undefined) { 
-		matrix = mat4.create();
-		mat4.multiply(matrix, global.projMatrix, global.viewMatrix);
-
-	}
-
-	drawAABB(tree.bbox, shader);
-
-
-	if (tree.children != null) {
-		for (var i = 0; i < tree.children.length; ++i) {
-			drawOctreeBBoxes( tree.children[i], shader, matrix );
-		}
-	}
-
-}
-
-
-
-function parseOctree(jsonUrl) {
+octree.parseJSON = function(jsonUrl) {
 	
 
 	var nodes = null;
@@ -379,15 +360,6 @@ function parseOctree(jsonUrl) {
 			
 			nodes = JSON.parse(tree);
 		
-			/*
-			for (var i = 0; i < nodes.length; ++i) {
-				console.log("nodes " + i + ": " + nodes[i].file);
-			}
-			*/
-
-
-
-
 
 			//var relinkStart = 	performance.now();
 			console.log("Read " + nodes.length + " nodes, relinking tree ... ");
@@ -433,10 +405,9 @@ function parseOctree(jsonUrl) {
 
 				// set loaded flag to false
 				node.loaded = false;
-				node.blob = null;
 				node.pointBuffer = null;
 				node.colorBuffer = null;
-				node.depth = getDepth(node);
+				node.depth = octree.getDepth(node);
 
 			}
 
@@ -458,13 +429,15 @@ function parseOctree(jsonUrl) {
 			root.numNodes = nodes.length;
 
 			// load the root node
-			loadOctree(root);
+			octree.load(root);
 
 			// global 
 			geometry.octree = root;
 
 			// reset visibility
-			setInvisible(root);
+			octree.setInvisible(root);
+
+			global.updateVisibility = true;
 
 			return root;
 		}
@@ -475,9 +448,16 @@ function parseOctree(jsonUrl) {
 	
 }
 
-function getDepth(tree) { 
-	if (tree.parent === null)
-		return 0;
-	else 
-		return 1 + getDepth(tree.parent);
+// returns the depth of a node in the tree
+octree.getDepth = function(tree) { 
+
+	if (tree.depth != undefined)
+		return tree.depth;
+	else {
+
+		if (tree.parent === null)
+			return 0;
+		else 
+			return 1 + octree.getDepth(tree.parent);
+	}
 }
