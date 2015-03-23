@@ -192,6 +192,9 @@
 	<script src="scripts/dat-gui.js"></script>
 	<script src="scripts/framebuffer.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src='scripts/nprogress.js'></script>
+
+	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
 	<body onload="main('http://10.129.29.219:8000/son/son.json')" >
@@ -200,7 +203,9 @@
 	<div class="buttonBar">
 		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
 		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button>
-		<button type="button" class="btn" onclick="resetCamera()">Reset</button>
+		<button type="button" class="btn" onclick="resetCamera()">Reset Camera</button>
+		<button type="button" class="btn" onclick="increaseRecursion()">Increase Detail</button>
+		<button type="button" class="btn" onclick="decreaseRecursion()">Decrease Detail</button>
 	</div>
 
 </body>

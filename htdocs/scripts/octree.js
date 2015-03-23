@@ -66,6 +66,10 @@ octree._loadQueueAdd = function (tree) {
 // updates the loading queue, removes old items and makes sure new ones get loaded
 // Gets automatically called as soon as a node finishes loading.
 octree._loadQueueUpdate = function() { 
+	if (global.camera.isMoving === true)
+		return;
+
+
 	var queue = octree._loadQueue;
 	var i;
 
@@ -77,13 +81,19 @@ octree._loadQueueUpdate = function() {
 
 	}
 
-	const MAX_CONCURRENT_LOADS = 5;
 
 	// start loading all nodes in the queue
-	for (i = 0; i < Math.min(MAX_CONCURRENT_LOADS, queue.length); ++i) { 
+	for (i = 0; i < Math.min(global.maxConcurrentLoads, queue.length); ++i) { 
 		if (queue[i].loaded == 'in queue') {
 			octree.loadBlob(queue[i]);
+			NProgress.set(0.5);
+			NProgress.inc();
 		}
+	}
+
+
+	if (queue.length == 0) { 
+		NProgress.done();
 	}
 
 
@@ -95,7 +105,12 @@ octree.load = function(tree) {
 
 	if (tree.loaded === false) { 
 		octree._loadQueueAdd(tree);
-		octree._loadQueueUpdate();
+		
+	}
+
+	// update
+	if (octree.load._updateTimer === undefined) { 
+		octree.load._updateTimer = setInterval(octree._loadQueueUpdate, 250);
 	}
 }
 
@@ -178,9 +193,6 @@ octree.loadBlob = function(tree) {
 				gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 				tree.loaded = true;
-
-				octree._loadQueueUpdate();
-				//global.updateVisibility = true;
 				
 			}
 		

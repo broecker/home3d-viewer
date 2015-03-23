@@ -43,6 +43,8 @@ global.touches = null;
 
 global.stats = null;
 
+global.maxConcurrentLoads = 20;
+
 global.renderTarget = null;
 global.renderTargetResolution = [1024, 1024];
 
@@ -199,10 +201,12 @@ function updateFBO() {
         octree.drawNode(node, shaders.pointcloudShader);
         global.visibleList.splice(i, 1);
       } else {
+
         if (node.loaded === false && node.depth <= global.maxRecursion) {
           octree.load(node);
 
         }
+
       }
     }
 
@@ -252,19 +256,16 @@ function updateVisibility() {
     octree.setInvisible(geometry.octree);
     octree.updateVisibility(geometry.octree, mat);
     octree.updateLOD(geometry.octree, getPosition(global.camera));
-
     octree.getVisibleNodes(geometry.octree, global.visibleList);
   }
 
 
   if (global.visibleList.length > 0) { 
 
-    if (global.visibleSort == 'hierarchical') { 
-      global.visibleList.sort(function(a,b) {
-        return a.depth*a.lodDistance - b.depth*b.lodDistance;
-      });
+    global.visibleList.sort(function(a,b) {
+      return a.lodDistance*a.depth - b.lodDistance*b.depth;
+    });
 
-    }
 
     
   }
@@ -405,7 +406,7 @@ function handleTouchMove(event) {
     // scale to -1..1
    // deltaY *= 180.0 / Math.PI;
     
-    rotateCameraAroundTarget(global.camera, deltaY*Math.PI, -deltaX*Math.PI);
+    rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
 
   } else {
 
@@ -428,7 +429,7 @@ function handleTouchMove(event) {
 
       var move = [center[0] - global.prevTouchCenter[0], center[1] - global.prevTouchCenter[1]]; 
       move[0] *= 0.1;
-      move[1] *= 0.1;
+      move[1] *= -0.1;
 
 
       panCamera(global.camera, move[0], move[1]);
@@ -461,8 +462,10 @@ function handleTouchMove(event) {
 
 function resetCamera() {
   
-  camera.target = vec3.fromValues(0,0,0);
   global.updateVisibility = true;
+
+  global.camera = createOrbitalCamera();
+  global.camera.radius = 20.0;
 }
 
 function startCameraMove() {
@@ -481,6 +484,23 @@ function stopCameraMove() {
   global.updateVisibility = true;
 }
 
+
+function decreaseRecursion() { 
+    global.maxRecursion = Math.max(--global.maxRecursion, 1);
+    console.log("Max recursion: " + global.maxRecursion);
+
+    if (global.gui) { 
+    }
+
+    global.updateVisibility = true;
+}
+
+function increaseRecursion() {
+  ++global.maxRecursion;
+  console.log("Max recursion: " + global.maxRecursion);
+
+  global.updateVisibility = true;
+}
 
 function handleKeydown(event) { 
 
@@ -518,14 +538,12 @@ function handleKeydown(event) {
 
   // 'a' -- increase recursion level
   if (event.keyCode == 65) {
-    global.maxRecursion++;
-    console.log("Max recursion: " + global.maxRecursion);
+    increaseRecursion();
   }
 
   // 'z' -- decrease recursion level
   if (event.keyCode == 90) {
-    global.maxRecursion = Math.max(--global.maxRecursion, 1);
-    console.log("Max recursion: " + global.maxRecursion);
+    decreaseRecursion();
   }
 
   // b
@@ -589,13 +607,16 @@ function init(basepath) {
     global.maxPointsRendered = 50000;
     global.clearColor = [0, 0, 0.2, 0.0]
     global.maxRecursion = 1;
+    global.maxConcurrentLoads = 5;
 
   } else { 
     global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 250000;
-    global.clearColor = [0, 0.2, 0, 0];
+    global.clearColor = [0.1, 0.2, 0.3, 0];
     global.maxRecursion = 2;
+    global.maxConcurrentLoads = 15;
 
+    /*
     
     // create gui 
    global.gui = new dat.GUI();  
@@ -604,7 +625,7 @@ function init(basepath) {
     global.gui.add(global, 'maxPointsRendered', 1, 2000000);
     global.gui.add(global, 'pointsDrawn').listen();
     global.gui.add(global.visibleList, 'length').listen();
-    global.gui.add(global, 'renderTargetResolution', ['256x256', '512x512', '1024x1024',  '2048x2048'] ).onFinishChange(function(value){
+    global.gui.add(global, 'renderTargetResolution', ['1024x1024', '256x256', '512x512', '2048x2048'] ).onFinishChange(function(value){
       switch (value) { 
         case '256x256':
           global.renderTargetResolution = [256, 256];
@@ -626,8 +647,14 @@ function init(basepath) {
       global.updateVisibility = true;
 
     });
+
+    */
+
   }
 
+
+  // create trickle progress bar
+  NProgress.start();
 
 }
 
