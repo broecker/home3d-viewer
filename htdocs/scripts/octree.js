@@ -461,3 +461,13 @@ octree.getDepth = function(tree) {
 			return 1 + octree.getDepth(tree.parent);
 	}
 }
+
+
+octree.calculateWeightedDistance = function(tree, cameraPosition, samples) { 
+	tree.weightedDistance = 0.0;
+	for (var i = 0; i < samples; ++i) { 
+		tree.weightedDistance += vec3.squaredDistance(getCentroid(tree.bbox), cameraPosition);
+	}
+	tree.weightedDistance /= samples;
+	tree.weightedDistance = Math.sqrt(tree.weightedDistance);
+}

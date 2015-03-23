@@ -44,7 +44,7 @@ global.touches = null;
 global.stats = null;
 
 global.renderTarget = null;
-
+global.renderTargetResolution = null;
 
 global.clearColor = [0, 0, 0.2];
 
@@ -53,6 +53,8 @@ global.maxPointsRendered = 25000;
 global.pointsDrawn = 0;
 global.pointSize = 2.0;
 global.visibleList = [];
+global.visibleSort = 'random';
+
 
 // store shaders
 var shaders = shaders || {};
@@ -111,9 +113,10 @@ function resizeCanvas(canvas) {
   
   if (canvas.width != width || canvas.height != height) {
 
-    // Change the size of the canvas to match the size it's being displayed
+    // Change the size of the canvas to match the size being displayed
     canvas.width = width;
     canvas.height = height;
+
   }  
 
   gl.viewport(0, 0, width, height);
@@ -190,11 +193,11 @@ function updateFBO() {
 
 
 
-    console.log("updateFBO; visible list: " + global.visibleList.length);
+    //console.log("updateFBO; visible list: " + global.visibleList.length);
     
 
 
-    for (var i = 0; i < global.visibleList.length; ++i) { 
+    for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
       var node = global.visibleList[i];
 
       if (node.loaded === true) {
@@ -257,15 +260,45 @@ function updateVisibility() {
 
   if (global.visibleList.length > 0) { 
 
-    // randomize order
-    shuffle(global.visibleList);
+    if (global.visibleSort == 'hierarchical') { 
+      global.visibleList.sort(function(a,b) {
+        return a.depth - b.depth;
+      });
+
+    }
+
+    if (global.visibleSort === 'random') {
+      // randomize order
+      shuffle(global.visibleList);
+
+      // sort by tree level -- lower ones go first
+      global.visibleList.sort(function(a,b){
+        return a.depth - b.depth;
+      });
+     
+    }
+
+    if (global.visibleSort === 'lod distance') {
+      global.visibleList.sort(function(a,b) {
+        return a.lodDistance - b.lodDistance;
+      });
 
 
-    // sort by tree level -- lower ones go first
-    global.visibleList.sort(function(a,b){
-      return a.depth - b.depth;
-    });
+    }
 
+    if (global.visibleSort === 'weighted distance') {
+      for (var i = 0; i < global.visibleList.length; ++i) { 
+        octree.calculateWeightedDistance(global.visibleList[i], getPosition(global.camera), 4);
+
+        global.visibleList.sort(function(a,b) { 
+          return a.weightedDistance - b.weightedDistance;
+        });
+
+      }
+    }
+
+
+    
   }
  
 
@@ -313,11 +346,16 @@ function handleMouseDown(event) {
   global.mouse.button[event.button] = true;
   global.mouse.lastPosition = [event.clientX, event.clientY];
 
+  startCameraMove();
 }
 
 function handleMouseUp(event) {
   global.mouse.button[event.button] = false;
   global.camera.isMoving = false;
+
+
+  stopCameraMove();
+
 }
 
 function handleMouseMotion(event) {
@@ -460,6 +498,22 @@ function resetCamera() {
   global.updateVisibility = true;
 }
 
+function startCameraMove() {
+  global.camera.isMoving = true;
+  global.renderTarget.oldResolution = [global.renderTarget.width, global.renderTarget.height];
+  resizeFBO(global.renderTarget, [global.renderTarget.width/2, global.renderTarget.height/2]);
+
+  global.updateVisibility = true;
+
+}
+
+function stopCameraMove() {
+  global.camera.isMoving = false;
+  resizeFBO(global.renderTarget, global.renderTarget.oldResolution);
+
+  global.updateVisibility = true;
+}
+
 
 function handleKeydown(event) { 
 
@@ -515,10 +569,9 @@ function handleKeydown(event) {
 }
 
 function handleKeyup(event) {
+
 }
 
-function handlePan(event) { 
-}
 
 
 function init(basepath) {
@@ -563,7 +616,7 @@ function init(basepath) {
 
   if (isMobile()) {
 
-    global.renderTarget = createFBO(512, 512);
+    global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 50000;
     global.clearColor = [0, 0, 0.2, 0.0]
     global.maxRecursion = 1;
@@ -579,10 +632,30 @@ function init(basepath) {
    global.gui = new dat.GUI();  
     global.gui.add(global, 'maxRecursion', 3.0).max(6).step(1);
     global.gui.add(global, 'pointSize', 1.0, 6.0);
-    global.gui.add(global, 'maxPointsRendered', 0, 10000000);
+    global.gui.add(global, 'maxPointsRendered', 1, 2000000);
     global.gui.add(global, 'pointsDrawn').listen();
     global.gui.add(global.visibleList, 'length').listen();
-    
+    global.gui.add(global, 'visibleSort', ['hierarchical', 'random', 'lod distance', 'weighted distance']);
+    global.gui.add(global, 'renderTargetResolution', ['256x256', '512x512', '1024x1024',  '2048x2048'] ).onFinishChange(function(value){
+      switch (value) { 
+        case '256x256':
+          resizeFBO(global.renderTarget, [256, 256])
+          break;
+        case '512x512':
+          resizeFBO(global.renderTarget, [512, 512]);
+          break;
+        case '1024x1024':
+          resizeFBO(global.renderTarget, [1024, 1024]);
+          break;
+
+        case '2048x2048':
+          resizeFBO(global.renderTarget, [2048, 2048]);
+          break;
+      }
+
+      global.updateVisibility = true;
+
+    });
 
   }
 
