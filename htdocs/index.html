@@ -62,12 +62,9 @@
 		uniform mat4 viewMatrix;
 		uniform mat4 projMatrix;
 
-		varying vec3 color;
-
-		uniform float lodLevel;
-
 		uniform float pointSize;
 
+		varying vec3 color;
 		void main()
 		{
 			gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
@@ -91,9 +88,15 @@
 
 		varying vec3 color;
 
+
 		
 		void main()
-		{			
+		{
+			// this enables round point sprites in OpenGL ES2			
+			vec2 pt = gl_PointCoord - vec2(0.5);
+			if(dot(pt, pt) > 0.25)
+    			discard;
+
 			gl_FragColor = vec4(color, 1.0);
 		}
 	</script>

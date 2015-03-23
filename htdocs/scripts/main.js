@@ -44,7 +44,7 @@ global.touches = null;
 global.stats = null;
 
 global.renderTarget = null;
-global.renderTargetResolution = null;
+global.renderTargetResolution = [1024, 1024];
 
 global.clearColor = [0, 0, 0.2];
 
@@ -53,8 +53,6 @@ global.maxPointsRendered = 25000;
 global.pointsDrawn = 0;
 global.pointSize = 2.0;
 global.visibleList = [];
-global.visibleSort = 'random';
-
 
 // store shaders
 var shaders = shaders || {};
@@ -105,9 +103,8 @@ function initWebGL(canvas) {
 }
 
 // resizes the canvas to fill the whole window
-function resizeCanvas(canvas) {
-  // only change the size of the canvas if the size it's being displayed
-  // has changed.
+function resizeCanvas() {
+
   var width = canvas.clientWidth;
   var height = canvas.clientHeight;
   
@@ -121,6 +118,8 @@ function resizeCanvas(canvas) {
 
   gl.viewport(0, 0, width, height);
   global.viewport = [0, 0, width, height];
+
+  console.log("Resizing canvas to " + width + "x" + height);
 
 }
 
@@ -193,10 +192,6 @@ function updateFBO() {
 
 
 
-    //console.log("updateFBO; visible list: " + global.visibleList.length);
-    
-
-
     for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
       var node = global.visibleList[i];
 
@@ -210,7 +205,11 @@ function updateFBO() {
         }
       }
     }
+
+
   }
+
+
 
   disableFBO(global.renderTarget);
 
@@ -231,7 +230,7 @@ function tick() {
 
 function updateCamera() {
   // update the canvas, viewport and camera
-  resizeCanvas(canvas);
+  //resizeCanvas();
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
   //  setup the camera matrices
@@ -262,41 +261,10 @@ function updateVisibility() {
 
     if (global.visibleSort == 'hierarchical') { 
       global.visibleList.sort(function(a,b) {
-        return a.depth - b.depth;
+        return a.depth*a.lodDistance - b.depth*b.lodDistance;
       });
 
     }
-
-    if (global.visibleSort === 'random') {
-      // randomize order
-      shuffle(global.visibleList);
-
-      // sort by tree level -- lower ones go first
-      global.visibleList.sort(function(a,b){
-        return a.depth - b.depth;
-      });
-     
-    }
-
-    if (global.visibleSort === 'lod distance') {
-      global.visibleList.sort(function(a,b) {
-        return a.lodDistance - b.lodDistance;
-      });
-
-
-    }
-
-    if (global.visibleSort === 'weighted distance') {
-      for (var i = 0; i < global.visibleList.length; ++i) { 
-        octree.calculateWeightedDistance(global.visibleList[i], getPosition(global.camera), 4);
-
-        global.visibleList.sort(function(a,b) { 
-          return a.weightedDistance - b.weightedDistance;
-        });
-
-      }
-    }
-
 
     
   }
@@ -410,16 +378,15 @@ function handleTouchStart(event) {
   global.prevTouchCenter = undefined;
 
   global.mouse.lastPosition = [canvas.clientWidth-touch.pageX, touch.pageY];
- 
+  startCameraMove();
 }
 
 function handleTouchEnd(event) {
   global.mouse.button[event.button] = false;
 
   global.touches = event.targetTouches;
-
-  //global.updateVisibility = true;
-  
+  stopCameraMove();
+    
 }
 
 function handleTouchMove(event) {
@@ -500,8 +467,8 @@ function resetCamera() {
 
 function startCameraMove() {
   global.camera.isMoving = true;
-  global.renderTarget.oldResolution = [global.renderTarget.width, global.renderTarget.height];
-  resizeFBO(global.renderTarget, [global.renderTarget.width/2, global.renderTarget.height/2]);
+  global.renderTargetResolution.old = global.renderTargetResolution;
+  resizeFBO(global.renderTarget, [global.renderTargetResolution[0]/2, global.renderTargetResolution[1]/2]);
 
   global.updateVisibility = true;
 
@@ -509,7 +476,7 @@ function startCameraMove() {
 
 function stopCameraMove() {
   global.camera.isMoving = false;
-  resizeFBO(global.renderTarget, global.renderTarget.oldResolution);
+  resizeFBO(global.renderTarget, global.renderTargetResolution.old);
 
   global.updateVisibility = true;
 }
@@ -577,21 +544,24 @@ function handleKeyup(event) {
 function init(basepath) {
   canvas = document.getElementById("canvas");
   gl = initWebGL(canvas);      // Initialize the GL context
-  resizeCanvas(canvas);
+  resizeCanvas();
 
   // register mouse functions
   canvas.onmousedown = handleMouseDown;
-  document.onmouseup = handleMouseUp;
-  document.onmousemove = handleMouseMotion;
-  document.onmousewheel = handleMouseWheel;
+  canvas.onmouseup = handleMouseUp;
+  canvas.onmousemove = handleMouseMotion;
+  canvas.onmousewheel = handleMouseWheel;
   document.addEventListener("keydown", handleKeydown, false);
   document.addEventListener("keyup", handleKeyup, false);
 
   
-  document.addEventListener("touchstart", handleTouchStart, false);
-  document.addEventListener("touchmove", handleTouchMove, false);
-  document.addEventListener("touchend", handleTouchEnd, false);
+  canvas.addEventListener("touchstart", handleTouchStart, false);
+  canvas.addEventListener("touchmove", handleTouchMove, false);
+  canvas.addEventListener("touchend", handleTouchEnd, false);
   
+
+  window.addEventListener("resize", resizeCanvas);
+
 
   // disables the right-click menu
   document.oncontextmenu = function() {
@@ -613,7 +583,6 @@ function init(basepath) {
   document.body.appendChild(global.stats.domElement);
   global.updateVisibility = true;
 
-
   if (isMobile()) {
 
     global.renderTarget = createFBO(1024, 1024);
@@ -630,33 +599,33 @@ function init(basepath) {
     
     // create gui 
    global.gui = new dat.GUI();  
-    global.gui.add(global, 'maxRecursion', 3.0).max(6).step(1);
-    global.gui.add(global, 'pointSize', 1.0, 6.0);
+    global.gui.add(global, 'maxRecursion', 1, 6).step(1).onFinishChange(function(value) { global.updateVisibility = true; });
+    global.gui.add(global, 'pointSize', 1.0, 6.0).onFinishChange(function(value) { global.updateVisibility = true; });
     global.gui.add(global, 'maxPointsRendered', 1, 2000000);
     global.gui.add(global, 'pointsDrawn').listen();
     global.gui.add(global.visibleList, 'length').listen();
-    global.gui.add(global, 'visibleSort', ['hierarchical', 'random', 'lod distance', 'weighted distance']);
     global.gui.add(global, 'renderTargetResolution', ['256x256', '512x512', '1024x1024',  '2048x2048'] ).onFinishChange(function(value){
       switch (value) { 
         case '256x256':
-          resizeFBO(global.renderTarget, [256, 256])
+          global.renderTargetResolution = [256, 256];
           break;
         case '512x512':
-          resizeFBO(global.renderTarget, [512, 512]);
+          global.renderTargetResolution = [512, 512];
           break;
         case '1024x1024':
-          resizeFBO(global.renderTarget, [1024, 1024]);
+          global.renderTargetResolution = [1024, 1024];
           break;
 
         case '2048x2048':
-          resizeFBO(global.renderTarget, [2048, 2048]);
+          global.renderTargetResolution = [2048, 2048];
           break;
       }
 
+
+      resizeFBO(global.renderTarget, global.renderTargetResolution);
       global.updateVisibility = true;
 
     });
-
   }
 
 
@@ -664,10 +633,12 @@ function init(basepath) {
 
 function toggleGrid() { 
   global.enableGrid = !global.enableGrid;
+  global.updateVisibility = true;
 }
 
 function toggleBBox() { 
   global.enableBBox = !global.enableBBox;
+  global.updateVisibility = true;
 }
 
 

@@ -1,6 +1,6 @@
 
 // creates the geometry of a single plane
-function createPlaneBuffer(gl) { 
+function createPlaneBuffer() { 
 	var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
 	var planeNormals = [0,1,0, 0,1,0, 0,1,0, 0,1,0 ];
 	var planeColors = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ];
@@ -30,8 +30,8 @@ function createPlaneBuffer(gl) {
 	planeTCBuffer.itemSize = 2;
 	planeTCBuffer.numItems = 8;
 
-	plane = {vertexBuffer:planeVertexBuffer, normalBuffer:planeNormalBuffer, colorBuffer:planeColorBuffer, texcoordBuffer:planeTexCoords, primType:gl.TRIANGLE_STRIP};
-
+	var plane = {vertexBuffer:planeVertexBuffer, normalBuffer:planeNormalBuffer, colorBuffer:planeColorBuffer, texcoordBuffer:planeTexCoords, primType:gl.TRIANGLE_STRIP};
+	return plane;
 }
 
 // creates the geometry and vertex buffer for a grid on the Y=0 plane
@@ -98,3 +98,5 @@ function drawFullscreenQuad(shader) {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 }
+
+

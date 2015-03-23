@@ -81,7 +81,7 @@ function resizeFBO(fbo, resolution) {
 	gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
-    console.log("New FBO size: " + fbo.width + "x" + fbo.height);
+    //console.log("New FBO size: " + fbo.width + "x" + fbo.height);
 
 }
 

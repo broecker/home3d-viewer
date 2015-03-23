@@ -77,7 +77,7 @@ octree._loadQueueUpdate = function() {
 
 	}
 
-	const MAX_CONCURRENT_LOADS = 15;
+	const MAX_CONCURRENT_LOADS = 5;
 
 	// start loading all nodes in the queue
 	for (i = 0; i < Math.min(MAX_CONCURRENT_LOADS, queue.length); ++i) { 
@@ -178,7 +178,6 @@ octree.loadBlob = function(tree) {
 				gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 				tree.loaded = true;
-
 
 				octree._loadQueueUpdate();
 				//global.updateVisibility = true;
@@ -460,14 +459,4 @@ octree.getDepth = function(tree) {
 		else 
 			return 1 + octree.getDepth(tree.parent);
 	}
-}
-
-
-octree.calculateWeightedDistance = function(tree, cameraPosition, samples) { 
-	tree.weightedDistance = 0.0;
-	for (var i = 0; i < samples; ++i) { 
-		tree.weightedDistance += vec3.squaredDistance(getCentroid(tree.bbox), cameraPosition);
-	}
-	tree.weightedDistance /= samples;
-	tree.weightedDistance = Math.sqrt(tree.weightedDistance);
 }
