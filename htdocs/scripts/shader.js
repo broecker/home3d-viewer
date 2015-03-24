@@ -61,25 +61,64 @@ function getShader(id) {
 }
 
 
-function loadShaderFile(file, shader) { 
+function loadShadersAsync(vertexFile, fragmentFile, shader) { 
+
+	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+
+	vertexShader.loaded = false;
+	fragmentShader.loaded = false;
+
+	shader.loaded = false;
+
+	loadAndLinkShaderFile('/shaders/grid.vert', [vertexShader, fragmentShader], shader);
+	loadAndLinkShaderFile('/shaders/grid.frag', [fragmentShader, vertexShader], shader);
+}
+
+function loadAndLinkShaderFile(file, programs, shader) { 
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", url);
+	xhr.open("GET", file);
 
 	if(xhr.overrideMimeType){
 		xhr.overrideMimeType("text/plain");
 	}
 
 
-	xhr.onload = function() {
+	xhr.onloadend = function() {
 
 		if (this.status == 200) {
 			var str = this.responseText;
 
-			gl.shaderSource(shader, str);
-			gl.compileShader(shader);
+			alert(str);
 
-			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-				alert(gl.getShaderInfoLog(shader));
+			gl.shaderSource(programs[0], str);
+			gl.compileShader(programs[0]);
+
+			if (!gl.getShaderParameter(programs[0], gl.COMPILE_STATUS)) {
+				alert(gl.getShaderInfoLog(programs[0]));
+			}
+
+
+			programs[0].loaded = true;
+
+			// both shaders are loaded -- link them 
+			if (programs[1].loaded === true) { 
+				gl.attachShader(shader, programs[0]);
+				gl.attachShader(shader, programs[1]);
+				gl.linkProgram(shader);
+
+				if (!gl.getProgramParameter(shader, gl.LINK_STATUS)) {
+					alert("Could not initialize shader");
+					shader.loaded = 'error';
+				} else {
+
+					shader.setUniforms(shader);
+					shader.loaded = true;
+				}
+
+
+
+
 			}
 
 		}
@@ -174,6 +213,7 @@ function loadShaders(basePath) {
 
 
 
+	
 	// load the passthrough/quad shader
 	fragmentShader = getShader("quadFS");
 	vertexShader = getShader("quadVS");
@@ -189,6 +229,35 @@ function loadShaders(basePath) {
 
 	quadShader.vertexPositionAttribute = gl.getAttribLocation(quadShader, "positionIn");
 	quadShader.colormapUniform = gl.getUniformLocation(quadShader, "colormap");
+	quadShader.resolutionUniform = gl.getUniformLocation(quadShader, "resolution");
 	shaders.quadShader = quadShader;
+	
 
+
+	fragmentShader = getShader("skyboxFS");
+	vertexShader = getShader("skyboxVS");
+
+	var skyboxShader = gl.createProgram();
+	gl.attachShader(skyboxShader, vertexShader);
+	gl.attachShader(skyboxShader, fragmentShader);
+	gl.linkProgram(skyboxShader);
+
+	if (!gl.getProgramParameter(skyboxShader, gl.LINK_STATUS)) {
+		alert("Could not initialize skybox shader");
+	}
+
+	skyboxShader.vertexPositionAttribute = gl.getAttribLocation(skyboxShader, "positionIn");
+	skyboxShader.inverseMVPUniform = gl.getUniformLocation(skyboxShader, "inverseMVP");
+	shaders.skyboxShader = skyboxShader;
+	
+
+	/*
+	shaders.skyboxShader = gl.createProgram();
+	loadShadersAsync('/shaders/skybox.vert', '/shaders/skybox.frag', shaders.skyboxShader);
+	shaders.skyboxShader.setUniforms = function (shader) {
+		shader.vertexPositionAttribute = gl.getAttribLocation(shader, "positionIn");
+	}
+	*/
 }
+
+

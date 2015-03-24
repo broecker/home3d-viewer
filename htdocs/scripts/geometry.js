@@ -1,6 +1,9 @@
 
+var geometry = geometry || {};
+
+
 // creates the geometry of a single plane
-function createPlaneBuffer() { 
+geometry.createPlaneBuffer = function() { 
 	var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
 	var planeNormals = [0,1,0, 0,1,0, 0,1,0, 0,1,0 ];
 	var planeColors = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ];
@@ -35,7 +38,7 @@ function createPlaneBuffer() {
 }
 
 // creates the geometry and vertex buffer for a grid on the Y=0 plane
-function createGridBuffer(){
+geometry.createGridBuffer = function(){
 
 	var gridVertices = [];
 	for (var i = -10; i <= 10; ++i) {
@@ -67,7 +70,7 @@ function createGridBuffer(){
 }
 
 // draws the grid
-function drawGrid() {
+geometry.drawGrid = function() {
 
 	gl.useProgram(shaders.gridShader);
 	gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
@@ -83,20 +86,19 @@ function drawGrid() {
 
 
 
-function drawFullscreenQuad(shader) {
-	if (drawFullscreenQuad.vbo === undefined) {
+geometry.drawFullscreenQuad = function(shader) {
+
+	if (geometry.drawFullscreenQuad.vbo === undefined) {
 		var vertices = [0,1, 0,0, 1,1, 1,0 ];
 
-		drawFullscreenQuad.vbo = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, drawFullscreenQuad.vbo);
+		geometry.drawFullscreenQuad.vbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, geometry.drawFullscreenQuad.vbo);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	}
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, drawFullscreenQuad.vbo);
+	gl.bindBuffer(gl.ARRAY_BUFFER, geometry.drawFullscreenQuad.vbo);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 }
-
-

@@ -34,6 +34,7 @@ global.enableBBox = false;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
+global.inverseModelViewProjection = mat4.create();
 global.updateVisibility = false;
 
 global.camera = null;
@@ -128,16 +129,20 @@ function resizeCanvas() {
 }
 
 
-// main render function 
 function drawFBO() {
+
   // display the fbo 
+  gl.disable(gl.DEPTH_TEST);
+
   gl.useProgram(shaders.quadShader);
   gl.activeTexture(gl.TEXTURE0);
   
   gl.bindTexture(gl.TEXTURE_2D, global.renderTarget.texture);
   gl.uniform1i(shaders.quadShader.colormapUniform, 0);
 
-  drawFullscreenQuad(shaders.quadShader);
+  gl.uniform2f(shaders.quadShader.resolutionUniform, global.renderTarget.width, global.renderTarget.height);
+
+  geometry.drawFullscreenQuad(shaders.quadShader);
 
 
 }
@@ -150,9 +155,26 @@ function initializeFBODrawing() {
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], 1.0); 
 
+  // draw the skybox
+  gl.depthMask(false);
+  gl.disable(gl.DEPTH_TEST);
+
+  gl.useProgram(shaders.skyboxShader);
+  gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, global.inverseModelViewProjection);
+  
+  geometry.drawFullscreenQuad(shaders.skyboxShader);
+
+  
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthMask(true);
+  gl.depthFunc(gl.LEQUAL);
+  
+
   // draw all static elements ... 
   if (global.enableGrid)
-    drawGrid();
+    geometry.drawGrid();
+
+
 
 
   if (global.mouse.button[0] || global.mouse.button[2])
@@ -181,6 +203,7 @@ function updateFBO() {
 
   bindFBO(global.renderTarget);
 
+  gl.depthMask(true);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
 
@@ -242,6 +265,10 @@ function updateCamera() {
   //  setup the camera matrices
   setProjectionMatrix(camera, global.projMatrix);
   setViewMatrix(camera, global.viewMatrix);
+
+
+  mat4.multiply(global.inverseModelViewProjection, global.projMatrix, global.viewMatrix);
+  mat4.invert(global.inverseModelViewProjection, global.inverseModelViewProjection);
 }
 
 function updateVisibility() {
@@ -600,7 +627,7 @@ function init(basepath) {
   global.camera.radius = 20.0;
 
   loadShaders(basepath + "shaders/");
-  createGridBuffer();
+  geometry.createGridBuffer();
 
   // create FPS meter
   global.stats = new Stats();
