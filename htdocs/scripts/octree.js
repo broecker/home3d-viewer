@@ -66,16 +66,18 @@ octree._loadQueueAdd = function (tree) {
 // updates the loading queue, removes old items and makes sure new ones get loaded
 // Gets automatically called as soon as a node finishes loading.
 octree._loadQueueUpdate = function() { 
+
+	/*
 	if (global.camera.isMoving === true)
 		return;
-
+	*/
 
 	var queue = octree._loadQueue;
 	var i;
 
 	// remove all nodes already loaded or not visible anymore
 	for (i = queue.length-1; i >= 0; --i) { 
-		if (queue[i].loaded === true || queue.visible === 0) { 
+		if (queue[i].loaded === true || queue.visible === 0 || queue[i].depth > global.maxRecursion) { 
 			queue.splice(i, 1);
 		}
 
@@ -105,13 +107,15 @@ octree.load = function(tree) {
 
 	if (tree.loaded === false) { 
 		octree._loadQueueAdd(tree);
-		
+		octree._loadQueueUpdate();	
 	}
 
+	/*
 	// update
 	if (octree.load._updateTimer === undefined) { 
 		octree.load._updateTimer = setInterval(octree._loadQueueUpdate, 250);
 	}
+	*/
 }
 
 
@@ -194,6 +198,8 @@ octree.loadBlob = function(tree) {
 				gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 				tree.loaded = true;
 				
+
+				octree._loadQueueUpdate();
 			}
 		
 

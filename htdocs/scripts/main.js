@@ -29,7 +29,7 @@ var gl = null; // A global variable for the WebGL context
 
 // store global variables
 var global = global || {};
-global.enableGrid = true;
+global.enableGrid = false;
 global.enableBBox = false;
 
 global.viewMatrix = mat4.create();
@@ -88,7 +88,7 @@ function isMobile() {
 function initWebGL(canvas) {  
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl", {preserveDrawingBuffer: true}) || canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
 
@@ -106,6 +106,8 @@ function initWebGL(canvas) {
 
 // resizes the canvas to fill the whole window
 function resizeCanvas() {
+
+  //debugger;
 
   var width = canvas.clientWidth;
   var height = canvas.clientHeight;
@@ -281,6 +283,14 @@ function loop() {
 
   // start a new frame
   if (global.updateVisibility) {
+
+    if (loop._runonce === undefined) { 
+      loop._runonce = 'done';
+      global.updateVisibility = true;
+
+      resizeCanvas();
+
+    }
 
     updateVisibility();
 
@@ -607,14 +617,14 @@ function init(basepath) {
     global.maxPointsRendered = 50000;
     global.clearColor = [0, 0, 0.2, 0.0]
     global.maxRecursion = 1;
-    global.maxConcurrentLoads = 5;
+    global.maxConcurrentLoads = 2;
 
   } else { 
     global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 250000;
     global.clearColor = [0.1, 0.2, 0.3, 0];
     global.maxRecursion = 2;
-    global.maxConcurrentLoads = 15;
+    global.maxConcurrentLoads = 5;
 
     /*
     
