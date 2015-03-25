@@ -159,6 +159,7 @@ function loadShaders(basePath) {
 	pointcloudShader.lodUniform = gl.getUniformLocation(pointcloudShader, "lodLevel");
 	pointcloudShader.pointSizeUniform = gl.getUniformLocation(pointcloudShader, "pointSize");
 	pointcloudShader.minPointSizeUniform = gl.getUniformLocation(pointcloudShader, "minPointSize");
+	pointcloudShader.viewportHeightUniform = gl.getUniformLocation(pointcloudShader, "viewportHeight");
 	shaders.pointcloudShader = pointcloudShader;
 
 
@@ -251,6 +252,7 @@ function loadShaders(basePath) {
 	shaders.skyboxShader = skyboxShader;
 	
 
+
 	/*
 	shaders.skyboxShader = gl.createProgram();
 	loadShadersAsync('/shaders/skybox.vert', '/shaders/skybox.frag', shaders.skyboxShader);
@@ -258,6 +260,25 @@ function loadShaders(basePath) {
 		shader.vertexPositionAttribute = gl.getAttribLocation(shader, "positionIn");
 	}
 	*/
+
+
+	fragmentShader = getShader("fxaaFS");
+	vertexShader = getShader("fxaaVS");
+	var fxaaShader = gl.createProgram();
+
+	gl.attachShader(fxaaShader, vertexShader);
+	gl.attachShader(fxaaShader, fragmentShader);
+	gl.linkProgram(fxaaShader);
+
+	if (!gl.getProgramParameter(fxaaShader, gl.LINK_STATUS)) {
+		alert("Could not initialize fxaa shader");
+	}
+
+	fxaaShader.vertexPositionAttribute = gl.getAttribLocation(fxaaShader, "positionIn");
+	fxaaShader.colormapUniform = gl.getUniformLocation(fxaaShader, "colormap");
+	fxaaShader.resolutionUniform = gl.getUniformLocation(fxaaShader, "resolution");
+	shaders.fxaaShader = fxaaShader;
+
 }
 
 

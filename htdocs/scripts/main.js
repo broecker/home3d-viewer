@@ -31,6 +31,7 @@ var gl = null; // A global variable for the WebGL context
 var global = global || {};
 global.enableGrid = false;
 global.enableBBox = false;
+global.enableFXAA = true;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
@@ -134,15 +135,19 @@ function drawFBO() {
   // display the fbo 
   gl.disable(gl.DEPTH_TEST);
 
-  gl.useProgram(shaders.quadShader);
+  shader = shaders.quadShader;
+
+  if (global.enableFXAA && !global.camera.isMoving)
+    shader = shaders.fxaaShader;
+
+  gl.useProgram(shader);
   gl.activeTexture(gl.TEXTURE0);
   
   gl.bindTexture(gl.TEXTURE_2D, global.renderTarget.texture);
-  gl.uniform1i(shaders.quadShader.colormapUniform, 0);
+  gl.uniform1i(shader.colormapUniform, 0);
+  gl.uniform2f(shader.resolutionUniform, global.renderTarget.width, global.renderTarget.height);
 
-  gl.uniform2f(shaders.quadShader.resolutionUniform, global.renderTarget.width, global.renderTarget.height);
-
-  geometry.drawFullscreenQuad(shaders.quadShader);
+  geometry.drawFullscreenQuad(shader);
 
 
 }
@@ -173,7 +178,6 @@ function initializeFBODrawing() {
   // draw all static elements ... 
   if (global.enableGrid)
     geometry.drawGrid();
-
 
 
 
@@ -215,8 +219,13 @@ function updateFBO() {
     gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
     gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
 
-    global.pointsDrawn = 0;
+    
+    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * global.camera.fovy));
+    viewportHeight = 1.15 * 1024.0;
+    gl.uniform1f(shaders.pointcloudShader.viewportHeightUniform, viewportHeight);
+    
 
+    global.pointsDrawn = 0;
 
 
     for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
@@ -522,18 +531,24 @@ function stopCameraMove() {
 }
 
 
-function decreaseRecursion() { 
+function decreaseDetail() { 
+
+  if (global.maxRecursion > 1) {
+    --global.maxRecursion;
+    global.pointSize *= 2.0;
+  }
+
     global.maxRecursion = Math.max(--global.maxRecursion, 1);
     console.log("Max recursion: " + global.maxRecursion);
 
-    if (global.gui) { 
-    }
 
     global.updateVisibility = true;
 }
 
-function increaseRecursion() {
+function increaseDetail() {
   ++global.maxRecursion;
+  global.pointSize /= 2.0;
+
   console.log("Max recursion: " + global.maxRecursion);
 
   global.updateVisibility = true;
@@ -542,8 +557,10 @@ function increaseRecursion() {
 function handleKeydown(event) { 
 
   // 'g'
-  if (event.keyCode == 71)
+  if (event.keyCode == 71) {
     global.enableGrid = !global.enableGrid;
+    global.updateVisibility = true;
+  }
 
   // up
   if (event.keyCode == 38)
@@ -570,24 +587,33 @@ function handleKeydown(event) {
 
   // 'c' - center camera
   if (event.keyCode == 67) {
-    camera.target = vec3.fromValues(0,0,0);
+    resetCamera();
   }
 
   // 'a' -- increase recursion level
   if (event.keyCode == 65) {
-    increaseRecursion();
+    increaseDetail();
   }
 
   // 'z' -- decrease recursion level
   if (event.keyCode == 90) {
-    decreaseRecursion();
+    decreaseDetail();
   }
 
-  // b
-  if (event.keyCode == 66)
-    global.enableBBox = !global.enableBBox;
+  // 'x' -- enable multisampling
+  if (event.keyCode == 88) {
+    global.enableFXAA = !global.enableFXAA;
+  }
 
-  global.updateVisibility = true;
+
+
+  // b
+  if (event.keyCode == 66) {
+    global.enableBBox = !global.enableBBox;
+    global.updateVisibility = true;
+  }
+
+  
 }
 
 function handleKeyup(event) {
