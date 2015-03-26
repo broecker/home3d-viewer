@@ -30,8 +30,8 @@ var gl = null; // A global variable for the WebGL context
 // store global variables
 var global = global || {};
 global.enableGrid = false;
-global.enableBBox = false;
-global.enableFXAA = true;
+global.enableBBox = true;
+global.enableFXAA = false;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
@@ -187,7 +187,7 @@ function initializeFBODrawing() {
 
 
   // the tree's bounding volumes 
-  if (global.enableBBox) {
+  if (global.enableBBox && geometry.octree) {
     gl.useProgram(shaders.gridShader);
     gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
 
@@ -199,10 +199,9 @@ function initializeFBODrawing() {
 
 
     // draw the octree bounds
+
     gl.useProgram(shaders.boundsShader);
-    octree.drawBboxBounds(geometry.octree, global.modelViewProjection, shaders.boundsShader);
-
-
+    octree.drawBboxBounds(geometry.octree, shaders.boundsShader);
   }
 
 
@@ -313,6 +312,13 @@ function updateVisibility() {
     });
 
 
+    // update the screen bounds of all visible nodes
+    global.visibleList.forEach(function(node) { 
+      calculateScreenspaceBounds(node.bbox, global.modelViewProjection);
+      node.screenArea = calculateScreenspaceArea(node.bbox, [global.renderTarget.width, global.renderTarget.height]);
+
+
+    });
     
   }
  

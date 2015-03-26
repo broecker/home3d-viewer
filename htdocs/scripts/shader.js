@@ -289,12 +289,12 @@ function loadShaders(basePath) {
 	gl.linkProgram(boundsShader);
 
 	if (!gl.getProgramParameter(boundsShader, gl.LINK_STATUS)) {
-		alert("Could not initialize bbox shader");
+		alert("Could not initialize bbox bounds shader");
 	}
 
 	boundsShader.vertexPositionAttribute = gl.getAttribLocation(boundsShader, "positionIn");
-	boundsShader.pointsUniform = gl.getAttribLocation(boundsShader, "points");
-	boundsShader.areaUniform = gl.getAttribLocation(boundsShader, "area");
+	boundsShader.pointsUniform = gl.getUniformLocation(boundsShader, "pointsContained");
+	boundsShader.areaUniform = gl.getUniformLocation(boundsShader, "projectedArea");
 	shaders.boundsShader = boundsShader;
 
 }

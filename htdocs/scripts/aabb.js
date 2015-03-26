@@ -266,13 +266,44 @@ function calculateScreenspaceBounds(bbox, matrix) {
 
 }
 
+// calculate projected screen-space area in pixels
+function calculateScreenspaceArea(bbox, resolution) { 
+  if (!bbox.screenSpaceBounds)
+    return 0;
+
+    // scale NDC vertices from [-1..1] to [0..1]
+    var bounds = [0,0,0,0]
+    bounds[0] = bbox.screenSpaceBounds.min[0] * 0.5 + 0.5; 
+    bounds[1] = bbox.screenSpaceBounds.min[1] * 0.5 + 0.5; 
+    bounds[2] = bbox.screenSpaceBounds.max[0] * 0.5 + 0.5; 
+    bounds[3] = bbox.screenSpaceBounds.max[1] * 0.5 + 0.5; 
+
+    // clip them to valid values
+    bounds[0] = Math.max(0, Math.min(resolution[0], bounds[0]));
+    bounds[1] = Math.max(0, Math.min(resolution[1], bounds[1]));
+    bounds[2] = Math.max(0, Math.min(resolution[0], bounds[2]));
+    bounds[3] = Math.max(0, Math.min(resolution[1], bounds[3]));
+
+
+    // projected area on the near clip plane
+    var area = (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]);
+
+    // scale the area to the resolution
+    return area * resolution[0]*resolution[1];
+}
+
 
 function drawScreenspaceBounds(bbox, shader) { 
 
   if (!bbox.screenSpaceBounds)
     return;
-  
+ 
+  // line-loop vertices 
   var vertices = [bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.max[1], bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.max[1]];
+
+  // quad vertices
+  //var vertices = [bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.max[1], bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.max[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.min[1]];
+
 
 
   if (drawScreenspaceBounds.vertexBuffer === undefined) { 
@@ -289,7 +320,9 @@ function drawScreenspaceBounds(bbox, shader) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
   
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
-  //gl.uniform1f(shader.areaUniform, bbox.area);
-
+  
   gl.drawArrays(gl.LINE_LOOP, 0, 4);
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
 }

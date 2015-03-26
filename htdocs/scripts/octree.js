@@ -306,6 +306,7 @@ octree.updateVisibility = function(tree, matrix) {
 	}
 }
 
+
 // returns a list of all visible nodes. Must be run after updateOctreeVisibility
 octree.getVisibleNodes = function(tree, list) { 
 
@@ -365,17 +366,19 @@ octree.drawBBoxes = function(tree, shader) {
 
 
 // draws the screen-space bounds of the octree
-octree.drawBboxBounds = function(tree, matrix, shader) { 
+octree.drawBboxBounds = function(tree, shader) { 
 	if (tree.visible > 0) {
 
-		calculateScreenspaceBounds(tree.bbox, matrix);
+		if (tree.screenArea)
+			gl.uniform1f(shader.areaUniform, tree.screenArea);
 
-		//gl.uniform1f(shader.pointsUniform, tree.pointCount);
-		drawScreenspaceBounds(tree.bbox, matrix, shader);
+		gl.uniform1f(shader.pointsUniform, tree.points);
+
+		drawScreenspaceBounds(tree.bbox, shader);
 
 		if (tree.children != null && tree.depth < global.maxRecursion) { 
 			for (var i = 0; i < tree.children.length; ++i)
-				octree.drawBboxBounds(tree.children[i], matrix, shader);
+				octree.drawBboxBounds(tree.children[i], shader);
 		}
 
 
