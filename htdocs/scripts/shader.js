@@ -279,6 +279,24 @@ function loadShaders(basePath) {
 	fxaaShader.resolutionUniform = gl.getUniformLocation(fxaaShader, "resolution");
 	shaders.fxaaShader = fxaaShader;
 
+
+	fragmentShader = getShader("boundsFS");
+	vertexShader = getShader("boundsVS");
+	var boundsShader = gl.createProgram();
+
+	gl.attachShader(boundsShader, vertexShader);
+	gl.attachShader(boundsShader, fragmentShader);
+	gl.linkProgram(boundsShader);
+
+	if (!gl.getProgramParameter(boundsShader, gl.LINK_STATUS)) {
+		alert("Could not initialize bbox shader");
+	}
+
+	boundsShader.vertexPositionAttribute = gl.getAttribLocation(boundsShader, "positionIn");
+	boundsShader.pointsUniform = gl.getAttribLocation(boundsShader, "points");
+	boundsShader.areaUniform = gl.getAttribLocation(boundsShader, "area");
+	shaders.boundsShader = boundsShader;
+
 }
 
 

@@ -284,9 +284,10 @@ octree.setInvisible = function(tree) {
 			octree.setInvisible(tree.children[i]);
 }
 
-// performs view-frustum culling recursively on the tre
+// performs view-frustum culling recursively on the tree
 octree.updateVisibility = function(tree, matrix) { 
 	tree.visible = clipBox(tree.bbox, matrix);
+
 
 	if (tree.children != null && tree.depth < global.maxRecursion) {
 
@@ -362,6 +363,27 @@ octree.drawBBoxes = function(tree, shader) {
 
 }
 
+
+// draws the screen-space bounds of the octree
+octree.drawBboxBounds = function(tree, matrix, shader) { 
+	if (tree.visible > 0) {
+
+		calculateScreenspaceBounds(tree.bbox, matrix);
+
+		//gl.uniform1f(shader.pointsUniform, tree.pointCount);
+		drawScreenspaceBounds(tree.bbox, matrix, shader);
+
+		if (tree.children != null && tree.depth < global.maxRecursion) { 
+			for (var i = 0; i < tree.children.length; ++i)
+				octree.drawBboxBounds(tree.children[i], matrix, shader);
+		}
+
+
+	}
+
+
+}
+
 octree.parseJSON = function(jsonUrl) {
 	
 
@@ -414,11 +436,24 @@ octree.parseJSON = function(jsonUrl) {
 							node.children.splice(j, 1);
 					}
 
+					
 					// randomize the child order
 					shuffle(node.children);
 
-
 				}
+
+
+
+				// calculate the point densities on the x,y and z planes
+				var area = calculateAABBAreas(node.bbox);
+				node.pointDensity = [0, 0, 0];
+
+				var pointsPerSide = Math.pow(node.points, 0.333);
+
+				node.pointDensity[0] = pointsPerSide / area[0];
+				node.pointDensity[1] = pointsPerSide / area[1];
+				node.pointDensity[2] = pointsPerSide / area[2];
+				
 
 				// set loaded flag to false
 				node.loaded = false;

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
 function calculateAABB(pointcloud) {
   
   const HUGE = 5000000;
@@ -102,43 +103,18 @@ function getSpanLength(bbox) {
 }
 
 
-// simple clip-space approach to frustum testing. Fails if _all_ vertices are outside the frustum
-function isVisible(bbox, matrix) { 
+function calculateAABBAreas(bbox) { 
+  // dimensions
+  var x = bbox.max[0] - bbox.min[0];
+  var y = bbox.max[1] - bbox.min[1];
+  var z = bbox.max[2] - bbox.min[2];
 
-  var clipVertices = [];
- 
+  var xArea = y*z;
+  var yArea = x*z;
+  var zArea = x*y;
 
-  for (var i = 0; i < 8; ++i) {
-
-    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
-
-    var clipPos = vec4.create();
-    vec4.transformMat4(clipPos, v, matrix);
-
-    // homogenous transform
-    vec4.scale(clipPos, clipPos, 1.0 / clipPos[3]);
-    clipVertices.push(clipPos);
-  }
-  
-  // note: this fails if the bounding box spans the whole fov and the individual
-  // points fall outside the frustum! 
-
-  var inside = [false, false, false, false, false, false, false, false];
-  for (i = 0; i < 8; ++i) { 
-
-    if (clipVertices[i][0] >= -clipVertices[i][3] && clipVertices[i][0] <= clipVertices[i][3] && 
-        clipVertices[i][1] >= -clipVertices[i][3] && clipVertices[i][1] <= clipVertices[i][3] && 
-        clipVertices[i][2] >= -clipVertices[i][3] && clipVertices[i][2] <= clipVertices[i][3]) {
-          inside[i] = true;
-    }
-  }
-
-  if (inside.every( function isFalse(element, index, array) { return element == false; }))
-    return false;
-  else
-    return true;
+  return [xArea, yArea, zArea];
 }
-
 
 // clips the box against the frustum specified by the matrix (proj*modelview)
 // returns 0 if box is completely outside, 1 if partially inside, 2 if fully inside 
@@ -198,8 +174,10 @@ function clipBox(bbox, matrix) {
     }
 
     // fully outside
-    if (inside == 0)
+    if (inside == 0) {
+      bbox.screenSpaceVertices = null;
       return 0;
+    }
 
     // partially inside
     else if (outside > 0)
@@ -252,6 +230,66 @@ function drawAABB(bbox, shader) {
 }
 
 
+function calculateScreenspaceBounds(bbox, matrix) { 
+  // extract bounds vertices
+  var clipVertices = [];
+  var vertices = extractVertices(bbox);
+
+  for (var i = 0; i < 8; ++i) {
+
+    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+
+    var clipPos = vec4.create();
+    vec4.transformMat4(clipPos, v, matrix);
+
+    // homogenous transform
+    vec4.scale(clipPos, clipPos, 1.0 / clipPos[3]);
+    clipVertices.push(clipPos);
+  }
+  
+
+  // calculate the x/y NDC bounds here
+  const HUGE = 5000000;
+  const smal = -HUGE;
+
+  var boundsMin = [HUGE, HUGE], boundsMax = [smal, smal];
+
+  for (var i = 0; i < 8; ++i) { 
+    boundsMin[0] = Math.min(clipVertices[i][0], boundsMin[0]);
+    boundsMin[1] = Math.min(clipVertices[i][1], boundsMin[1]);
+    boundsMax[0] = Math.max(clipVertices[i][0], boundsMax[0]);
+    boundsMax[1] = Math.max(clipVertices[i][1], boundsMax[1]);
+  }
 
 
+  bbox.screenSpaceBounds = {min:boundsMin, max:boundsMax};
 
+}
+
+
+function drawScreenspaceBounds(bbox, shader) { 
+
+  if (!bbox.screenSpaceBounds)
+    return;
+  
+  var vertices = [bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.max[1], bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.max[1]];
+
+
+  if (drawScreenspaceBounds.vertexBuffer === undefined) { 
+    console.log("Creating bbox bounds vertex buffer");
+
+    drawScreenspaceBounds.vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, drawScreenspaceBounds.vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(2*4), gl.STREAM_DRAW);
+
+  }
+
+  // update vertex buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, drawScreenspaceBounds.vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
+  
+  gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+  //gl.uniform1f(shader.areaUniform, bbox.area);
+
+  gl.drawArrays(gl.LINE_LOOP, 0, 4);
+}

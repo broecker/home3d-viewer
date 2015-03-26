@@ -35,6 +35,7 @@ global.enableFXAA = true;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
+global.modelViewProjection = mat4.create();
 global.inverseModelViewProjection = mat4.create();
 global.updateVisibility = false;
 
@@ -55,7 +56,7 @@ global.clearColor = [0, 0, 0.2];
 
 global.maxPointsRendered = 25000;
 global.pointsDrawn = 0;
-global.pointSize = 2.0;
+global.pointSize = 1.0;
 global.visibleList = [];
 
 // store shaders
@@ -195,6 +196,13 @@ function initializeFBODrawing() {
     gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
 
     octree.drawBBoxes(geometry.octree, shaders.gridShader);
+
+
+    // draw the octree bounds
+    gl.useProgram(shaders.boundsShader);
+    octree.drawBboxBounds(geometry.octree, global.modelViewProjection, shaders.boundsShader);
+
+
   }
 
 
@@ -276,8 +284,8 @@ function updateCamera() {
   setViewMatrix(camera, global.viewMatrix);
 
 
-  mat4.multiply(global.inverseModelViewProjection, global.projMatrix, global.viewMatrix);
-  mat4.invert(global.inverseModelViewProjection, global.inverseModelViewProjection);
+  mat4.multiply(global.modelViewProjection, global.projMatrix, global.viewMatrix);
+  mat4.invert(global.inverseModelViewProjection, global.modelViewProjection);
 }
 
 function updateVisibility() {
@@ -366,9 +374,6 @@ function handleMouseDown(event) {
 
 function handleMouseUp(event) {
   global.mouse.button[event.button] = false;
-  global.camera.isMoving = false;
-
-
   stopCameraMove();
 
 }
@@ -535,19 +540,15 @@ function decreaseDetail() {
 
   if (global.maxRecursion > 1) {
     --global.maxRecursion;
-    global.pointSize *= 2.0;
+    //global.pointSize *= 1.4;
   }
-
-    global.maxRecursion = Math.max(--global.maxRecursion, 1);
     console.log("Max recursion: " + global.maxRecursion);
-
-
     global.updateVisibility = true;
 }
 
 function increaseDetail() {
   ++global.maxRecursion;
-  global.pointSize /= 2.0;
+  //global.pointSize /= 1.4;
 
   console.log("Max recursion: " + global.maxRecursion);
 

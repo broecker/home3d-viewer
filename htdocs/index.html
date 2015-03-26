@@ -80,9 +80,9 @@
 			gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
 
 			color = colorIn;
-					
-			float nearplaneHeight = 1.15 * 1024.0;
-			gl_PointSize = (viewportHeight * 0.01) / gl_Position.w;
+				
+			// conversion factor converts from m to cm
+			gl_PointSize = (viewportHeight * pointSize * 0.01) / gl_Position.w;
 			
 		}
 	</script>
@@ -155,6 +155,27 @@
 	  }
 	</script>	
 
+
+	<script id="boundsVS" type="x-shader/x-vertex">
+		attribute vec2 positionIn;
+		void main()
+		{
+			gl_Position = vec4(positionIn, 0.0, 1.0);
+		}
+	</script>
+
+	<script id="boundsFS" type="x-shader/x-fragment">
+		precision mediump float;
+		uniform float area;
+		uniform float points;
+
+		void main()
+		{
+			vec3 color = vec3(1.0, 1.0, 0.0);
+			gl_FragColor = vec4(color, 1.0);
+		}
+
+	</script>
 
 	<script id="quadVS" type="x-shader/x-vertex">
 
@@ -414,7 +435,7 @@
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
-	<body onload="main('http://10.129.29.12:8000/office/office.json')" >
+	<body onload="main('http://10.129.29.12:8000/bear/bear4.json')" >
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<div class="buttonBar">
@@ -426,6 +447,6 @@
 		<!-- <button type="button" class="btn" onclick="showhelp()">Help</button> -->
 	</div>
 
-	<div class="buildInfo">Build: 24032015</div>
+	<div class="buildInfo">Build: 20150325</div>
 </body>
 </html>
