@@ -31,7 +31,8 @@ var gl = null; // A global variable for the WebGL context
 var global = global || {};
 global.enableGrid = false;
 global.enableBBox = true;
-global.enableFXAA = false;
+global.enableFXAA = true;
+global.enableDensityCulling = false;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
@@ -277,11 +278,10 @@ function tick() {
 }
 
 function updateCamera() {
-  // update the canvas, viewport and camera
-  //resizeCanvas();
+  
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
-  //  setup the camera matrices
+   //  setup the camera matrices
   setProjectionMatrix(camera, global.projMatrix);
   setViewMatrix(camera, global.viewMatrix);
 
@@ -309,35 +309,27 @@ function updateVisibility() {
 
   if (global.visibleList.length > 0) {
 
-    /* 
     global.visibleList.sort(function(a,b) {
-      return b.lodDistance*b.depth - a.lodDistance*a.depth;
-    });
-    */
-
-    global.visibleList.sort(function(a,b) { 
-      return b.lodDistance - a.lodDistance;
-    });
-
-    global.visibleList.sort(function(a,b) { 
-      return a.depth - b.depth;
+      return a.lodDistance*a.depth - b.lodDistance*b.depth;
     });
 
 
-    
-    /*
-    global.visibleList.forEach(function(node) {
-      octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
-    });
-    
-    var oldSize = global.visibleList.length;
-    global.visibleList = global.visibleList.filter(function(node) { 
-      var density2 = node.points / node.screenArea;
-      return density2 < global.densityTreshold*global.densityTreshold;
-    });
-    
-    console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
-    */
+    if (global.enableDensityCulling) { 
+
+      global.visibleList.forEach(function(node) {
+        octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
+      });
+      
+      
+      var oldSize = global.visibleList.length;
+      global.visibleList = global.visibleList.filter(function(node) { 
+        var density2 = node.points / node.screenArea;
+        return density2 < global.densityTreshold*global.densityTreshold;
+      });
+      
+      console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
+  
+    }      
 
   }
 

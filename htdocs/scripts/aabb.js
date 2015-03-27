@@ -232,11 +232,12 @@ function drawAABB(bbox, shader) {
 
 function calculateScreenspaceBounds(bbox, matrix) { 
   // extract bounds vertices
-  var clipVertices = [];
+  var clipVertices = [[0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1]];
   var vertices = extractVertices(bbox);
 
-  var v = [0, 0, 0, 1];
   for (var i = 0; i < 8; ++i) {
+
+    var v = clipVertices[i];
 
     //var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
     v[0] = vertices[i*3+0];
@@ -248,7 +249,6 @@ function calculateScreenspaceBounds(bbox, matrix) {
 
     // homogenous transform
     vec4.scale(v, v, 1.0 / v[3]);
-    clipVertices.push(v);
   }
   
 

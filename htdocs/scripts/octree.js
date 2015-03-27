@@ -189,16 +189,9 @@ octree.loadBlob = function(tree) {
 
 				}
 
-				tree.pointBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
-
-				tree.colorBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+				// deferred loading
+				tree.deferredData = {points:points, colors:colors};
 				tree.loaded = true;
-				
-
 				octree._loadQueueUpdate();
 			}
 		
@@ -218,6 +211,21 @@ octree.loadBlob = function(tree) {
 
 
 octree.drawNode = function(tree, shader) {
+	if (tree.deferredData) { 
+		tree.pointBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, tree.deferredData.points, gl.STATIC_DRAW);
+
+		tree.colorBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, tree.deferredData.colors, gl.STATIC_DRAW);
+
+		tree.deferredData = null;
+	}
+
+
+
+
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -332,8 +340,8 @@ octree.getVisibleNodes = function(tree, list) {
 octree.updateLOD = function(tree, cameraPosition) { 
 
 
-	//tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
-	tree.lodDistance = vec3.dot(getCentroid(tree.bbox), cameraPosition);
+	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+	//tree.lodDistance = vec3.dot(getCentroid(tree.bbox), cameraPosition);
 	const MAX_LOD_DISTANCE = 50000;
 
 	if (tree.children != null) {
