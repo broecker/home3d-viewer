@@ -176,7 +176,8 @@
 
 			float density = sqrt(pointsContained / projectedArea);
 
-			vec3 color = mix(grn, red, density);
+			vec3 color = mix(grn, red, step(1.24, density));
+
 			gl_FragColor = vec4(color, 1.0);
 		}
 
@@ -440,7 +441,7 @@
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
-	<body onload="main('http://10.129.29.12:8000/bear/bear4.json')" >
+	<body onload="main('http://10.129.29.12:8000/office/office.json')" >
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<div class="buttonBar">

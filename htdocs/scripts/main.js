@@ -39,6 +39,8 @@ global.modelViewProjection = mat4.create();
 global.inverseModelViewProjection = mat4.create();
 global.updateVisibility = false;
 
+global.densityTreshold = 1.2;
+
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.touches = null;
@@ -94,6 +96,7 @@ function initWebGL(canvas) {
     gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
+
 
   }
   catch(e) {}
@@ -288,7 +291,6 @@ function updateCamera() {
 }
 
 function updateVisibility() {
-  //debugger;
 
   // build a new visible set
   global.visibleList = [];
@@ -305,22 +307,40 @@ function updateVisibility() {
   }
 
 
-  if (global.visibleList.length > 0) { 
+  if (global.visibleList.length > 0) {
 
+    /* 
     global.visibleList.sort(function(a,b) {
-      return a.lodDistance*a.depth - b.lodDistance*b.depth;
+      return b.lodDistance*b.depth - a.lodDistance*a.depth;
+    });
+    */
+
+    global.visibleList.sort(function(a,b) { 
+      return b.lodDistance - a.lodDistance;
+    });
+
+    global.visibleList.sort(function(a,b) { 
+      return a.depth - b.depth;
     });
 
 
-    // update the screen bounds of all visible nodes
-    global.visibleList.forEach(function(node) { 
-      calculateScreenspaceBounds(node.bbox, global.modelViewProjection);
-      node.screenArea = calculateScreenspaceArea(node.bbox, [global.renderTarget.width, global.renderTarget.height]);
-
-
+    
+    /*
+    global.visibleList.forEach(function(node) {
+      octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
     });
     
+    var oldSize = global.visibleList.length;
+    global.visibleList = global.visibleList.filter(function(node) { 
+      var density2 = node.points / node.screenArea;
+      return density2 < global.densityTreshold*global.densityTreshold;
+    });
+    
+    console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
+    */
+
   }
+
  
 
   global.updateVisibility = false;
@@ -631,6 +651,16 @@ function handleKeyup(event) {
 
 function init(basepath) {
   canvas = document.getElementById("canvas");
+  
+  canvas.addEventListener("webglcontextlost", function(event) {
+    event.preventDefault();
+
+    console.error("WebGL context lost!");
+
+  }, false);
+
+
+
   gl = initWebGL(canvas);      // Initialize the GL context
   resizeCanvas();
 

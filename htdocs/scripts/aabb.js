@@ -235,16 +235,20 @@ function calculateScreenspaceBounds(bbox, matrix) {
   var clipVertices = [];
   var vertices = extractVertices(bbox);
 
+  var v = [0, 0, 0, 1];
   for (var i = 0; i < 8; ++i) {
 
-    var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+    //var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
+    v[0] = vertices[i*3+0];
+    v[1] = vertices[i*3+1];
+    v[2] = vertices[i*3+2];
 
-    var clipPos = vec4.create();
-    vec4.transformMat4(clipPos, v, matrix);
+
+    vec4.transformMat4(v, v, matrix);
 
     // homogenous transform
-    vec4.scale(clipPos, clipPos, 1.0 / clipPos[3]);
-    clipVertices.push(clipPos);
+    vec4.scale(v, v, 1.0 / v[3]);
+    clipVertices.push(v);
   }
   
 

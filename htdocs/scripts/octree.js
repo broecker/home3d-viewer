@@ -139,7 +139,7 @@ octree.loadBlob = function(tree) {
 
 		if (this.status == 200) {
 
-			console.log('loaded blob ' + tree.file + '.blob');
+			//console.log('loaded blob ' + tree.file + '.blob');
 
 			var blob = this.response;
 
@@ -306,6 +306,11 @@ octree.updateVisibility = function(tree, matrix) {
 	}
 }
 
+octree.updateScreenArea = function(tree, matrix, resolution) { 
+	calculateScreenspaceBounds(tree.bbox, matrix);
+    tree.screenArea = calculateScreenspaceArea(tree.bbox, resolution);
+}
+
 
 // returns a list of all visible nodes. Must be run after updateOctreeVisibility
 octree.getVisibleNodes = function(tree, list) { 
@@ -326,23 +331,20 @@ octree.getVisibleNodes = function(tree, list) {
 // updates the distance of tree nodes from the camera. 
 octree.updateLOD = function(tree, cameraPosition) { 
 
-	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+
+	//tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+	tree.lodDistance = vec3.dot(getCentroid(tree.bbox), cameraPosition);
 	const MAX_LOD_DISTANCE = 50000;
 
-	if (tree.children != null)
+	if (tree.children != null) {
 		for (var i = 0; i < tree.children.length; ++i) { 
 			if (tree.children[i].visible > 0) { 
 				octree.updateLOD(tree.children[i], cameraPosition);
 			}
 			else
 				tree.children[i].lodDistance = MAX_LOD_DISTANCE;
-
-			// sort the children based on their lod distance
-			tree.children.sort(function(a, b) { 
-				return a.lodDistance - b.lodDistance;
-			});
-
 		}
+	}
 }
 
 

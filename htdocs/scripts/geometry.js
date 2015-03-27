@@ -97,6 +97,7 @@ geometry.drawFullscreenQuad = function(shader) {
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, geometry.drawFullscreenQuad.vbo);
+	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
