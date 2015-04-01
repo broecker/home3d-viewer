@@ -30,7 +30,7 @@ var gl = null; // A global variable for the WebGL context
 // store global variables
 var global = global || {};
 global.enableGrid = false;
-global.enableBBox = true;
+global.enableBBox = false;
 global.enableFXAA = true;
 global.enableDensityCulling = false;
 
@@ -759,6 +759,11 @@ function toggleBBox() {
   global.enableBBox = !global.enableBBox;
   global.updateVisibility = true;
 }
+
+function toggleFXAA() { 
+  global.enableFXAA = !global.enableFXAA;
+}
+
 
 
 function getBasePath(address) { 
