@@ -45,7 +45,8 @@ global.densityTreshold = 1.2;
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.touches = null;
-
+global.shiftHeld = false;
+global.ctrlHeld = false;
 
 global.stats = null;
 
@@ -61,6 +62,7 @@ global.maxPointsRendered = 25000;
 global.pointsDrawn = 0;
 global.pointSize = 1.0;
 global.visibleList = [];
+
 
 // store shaders
 var shaders = shaders || {};
@@ -186,7 +188,8 @@ function initializeFBODrawing() {
 
 
 
-  if (global.mouse.button[0] || global.mouse.button[2])
+  //if (global.mouse.button[0] || global.mouse.button[2])
+  if (camera.isMoving)
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
 
 
@@ -204,8 +207,8 @@ function initializeFBODrawing() {
 
     // draw the octree bounds
 
-    gl.useProgram(shaders.boundsShader);
-    octree.drawBboxBounds(geometry.octree, shaders.boundsShader);
+    //gl.useProgram(shaders.boundsShader);
+    //octree.drawBboxBounds(geometry.octree, shaders.boundsShader);
   }
 
 
@@ -313,6 +316,13 @@ function updateVisibility() {
       return a.lodDistance*a.depth - b.lodDistance*b.depth;
     });
 
+    /*
+    // REMOVE ME -- just for testing
+    global.visibleList = global.visibleList.filter(function(node) { 
+      return node.depth <= 1;
+    });
+    */
+    
 
     if (global.enableDensityCulling) { 
 
@@ -343,6 +353,7 @@ function loop() {
 
   tick();
 
+  
   // start a new frame
   if (global.updateVisibility) {
 
@@ -407,7 +418,14 @@ function handleMouseMotion(event) {
   
 
   if (global.mouse.button[0]) {
-    rotateCameraAroundTarget(global.camera, deltaY*Math.PI, -deltaX*Math.PI);
+
+    if (global.shiftHeld === true) 
+      panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
+    else if (global.ctrlHeld === true)
+      moveCameraTowardsTarget(global.camera, deltaY*10);
+    else
+      rotateCameraAroundTarget(global.camera, deltaY*Math.PI, -deltaX*Math.PI);
+
     global.updateVisibility = true;
   }
 
@@ -494,11 +512,16 @@ function handleTouchMove(event) {
 
     var center = [(center.maxx+center.minx)*0.5, (center.maxy+center.miny)*0.5];
 
-    if (global.prevTouchCenter != undefined) {
+
+    var mode = 'pan';
+    if (delta > 100.0)
+      mode = 'zoom';
+
+    if (global.prevTouchCenter != undefined && mode === 'pan') {
 
       var move = [center[0] - global.prevTouchCenter[0], center[1] - global.prevTouchCenter[1]]; 
-      move[0] *= 0.1;
-      move[1] *= -0.1;
+      move[0] *= 0.01;
+      move[1] *= -0.01;
 
 
       panCamera(global.camera, move[0], move[1]);
@@ -506,7 +529,7 @@ function handleTouchMove(event) {
 
     }
 
-    if (global.prevTouchDelta != undefined) { 
+    if (global.prevTouchDelta != undefined && mode === 'zoom') { 
 
       var factor = global.prevTouchDelta-delta;
       moveCameraTowardsTarget(global.camera, factor*0.01);
@@ -632,10 +655,25 @@ function handleKeydown(event) {
     global.updateVisibility = true;
   }
 
+  // 'shift'
+  if (event.keyCode == 16)
+    global.shiftHeld = true;
+
+  // 'ctrl'
+  if (event.keyCode == 17) 
+    global.ctrlHeld = true;
+  
+
   
 }
 
 function handleKeyup(event) {
+  if (event.keyCode == 16)
+    global.shiftHeld = false;
+
+  // 'ctrl'
+  if (event.keyCode == 17) 
+    global.ctrlHeld = false;
 
 }
 
@@ -690,8 +728,11 @@ function init(basepath) {
   global.stats.domElement.style.position = 'absolute';
   global.stats.domElement.style.right = '5px';
   global.stats.domElement.style.bottom = '5px';
-  document.body.appendChild(global.stats.domElement);
+  //document.body.appendChild(global.stats.domElement);
+
+
   global.updateVisibility = true;
+
 
   if (isMobile()) {
 
@@ -699,14 +740,14 @@ function init(basepath) {
     global.maxPointsRendered = 50000;
     global.clearColor = [0, 0, 0.2, 0.0]
     global.maxRecursion = 1;
-    global.maxConcurrentLoads = 2;
+    global.maxConcurrentLoads = 3;
 
   } else { 
     global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 250000;
     global.clearColor = [0.1, 0.2, 0.3, 0];
     global.maxRecursion = 2;
-    global.maxConcurrentLoads = 5;
+    global.maxConcurrentLoads = 8;
 
     /*
     
@@ -747,6 +788,11 @@ function init(basepath) {
 
   // create trickle progress bar
   NProgress.start();
+
+
+
+  octree.initLoadQueue(global.maxConcurrentLoads);
+  window.setInterval(octree.updateLoadQueue, 200);
 
 }
 

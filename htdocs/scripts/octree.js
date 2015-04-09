@@ -45,60 +45,58 @@ function shuffle(array) {
 }
 
 
-var octree = octree || {}
-octree._loadQueue = [];
-
-// adds a tree to the load queue. It will be loaded concurrently at the next time
-octree._loadQueueAdd = function (tree) {
-
-	if (octree._loadQueue.indexOf(tree) > -1) {
-		/*
-		console.error("Tree  " + tree.file + " already exists in load queue!");
-		debugger;
-		*/
-		return;
-	}
-
-	tree.loaded = 'in queue';
-	octree._loadQueue.push(tree);
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// updates the loading queue, removes old items and makes sure new ones get loaded
-// Gets automatically called as soon as a node finishes loading.
-octree._loadQueueUpdate = function() { 
+var octree = octree || {}
 
-	/*
-	if (global.camera.isMoving === true)
-		return;
-	*/
 
-	var queue = octree._loadQueue;
-	var i;
+octree.initLoadQueue = function(numRequests) { 
+	octree._nodeBacklog = [];
 
-	// remove all nodes already loaded or not visible anymore
-	for (i = queue.length-1; i >= 0; --i) { 
-		if (queue[i].loaded === true || queue.visible === 0 || queue[i].depth > global.maxRecursion) { 
-			queue.splice(i, 1);
-		}
-
+	octree._xmlRequests = [];
+	for (var i = 0; i < numRequests; ++i) {
+		var request = {xhr:new XMLHttpRequest(), node:null};
+		octree._xmlRequests.push(request);
 	}
+}
 
+octree.updateLoadQueue = function() { 
 
-	// start loading all nodes in the queue
-	for (i = 0; i < Math.min(global.maxConcurrentLoads, queue.length); ++i) { 
-		if (queue[i].loaded == 'in queue') {
-			octree.loadBlob(queue[i]);
-			NProgress.set(0.5);
+	//console.log("Updating " + octree._xmlRequests.length + " request.");
+
+	for (var i = 0; i < octree._xmlRequests.length; ++i) { 
+		var req = octree._xmlRequests[i];
+
+		// finished loading
+		if (req.node != null && req.xhr.readyState === 4 && req.xhr.status === 200) {
+			octree.loadBlob(req.node, req.xhr.response);
+			req.node = null;
+
+			// update the progress bar
+			NProgress.set(0.6);
 			NProgress.inc();
 		}
+
+		// if ready/empty assign new job
+		if (req.node === null && octree._nodeBacklog.length > 0) {
+
+			var tree = octree._nodeBacklog[0];
+			octree._nodeBacklog.splice(0, 1);
+
+			req.node = tree;
+			req.xhr.open("GET", tree.file + ".blob");
+			req.xhr.responseType = "blob";
+			req.xhr.send();
+		}
 	}
 
-
-	if (queue.length == 0) { 
+	if (octree._nodeBacklog.length === 0) {
 		NProgress.done();
+		NProgress.configure.showSpinner = false;
+
 	}
-
-
 }
 
 
@@ -106,126 +104,100 @@ octree._loadQueueUpdate = function() {
 octree.load = function(tree) {
 
 	if (tree.loaded === false) { 
-		octree._loadQueueAdd(tree);
-		octree._loadQueueUpdate();	
+		tree.loaded = 'in queue';
+		octree._nodeBacklog.push(tree);
 	}
 
-	/*
-	// update
-	if (octree.load._updateTimer === undefined) { 
-		octree.load._updateTimer = setInterval(octree._loadQueueUpdate, 250);
+	if (octree._nodeBacklog.length === 1) {
+		NProgress.set(0.1);
 	}
-	*/
 }
+
+
 
 
 // loads the blob referenced by a tree node's file attribute and generates
 // the vertex buffers.
-octree.loadBlob = function(tree) {
+octree.loadBlob = function(tree, blob) {
+	console.assert(blob != undefined);
 
 	if (tree.loaded == 'ongoing' || tree.loaded === true)
 		return;
 
-
 	tree.loaded = 'ongoing';
 
-	var xhr = new XMLHttpRequest();
-	//console.log(xhr);
+
+
+	//console.log('loaded blob ' + tree.file + '.blob');
+	var reader = new FileReader();
+	const littleEndian = true;
+
+
+	const POINT_SIZE = 4*4;
+
+	var pointCount = blob.size / POINT_SIZE;
 	
+	reader.readAsArrayBuffer(blob);
+	reader.onload = function(e) {
+
+		var buffer = reader.result;
 
 
+		var points = new Float32Array(3*pointCount);
+		var colors = new Uint8Array(3*pointCount);
 
-	xhr.onload = function() {
+		var dataView = new DataView(buffer, 0);
 
-		if (this.status == 200) {
+		for (i = 0; i < pointCount; ++i) {
 
-			//console.log('loaded blob ' + tree.file + '.blob');
+			var index = i*POINT_SIZE;
 
-			var blob = this.response;
+			var x = dataView.getFloat32(index+0, littleEndian);
+			var y = dataView.getFloat32(index+4, littleEndian);
+			var z = dataView.getFloat32(index+8, littleEndian);
 
-			var reader = new FileReader();
-			const littleEndian = true;
-
-			console.assert(blob != undefined);
-
-
-			const POINT_SIZE = 4*4;
-
-			var pointCount = blob.size / POINT_SIZE;
-			
-			reader.readAsArrayBuffer(blob);
-			reader.onload = function(e) {
-			
-
-				var buffer = reader.result;
+			var r = dataView.getUint8(index+12, littleEndian);
+			var g = dataView.getUint8(index+13, littleEndian);
+			var b = dataView.getUint8(index+14, littleEndian);
+			var a = dataView.getUint8(index+15, littleEndian);
 
 
-				var points = new Float32Array(3*pointCount);
-				var colors = new Uint8Array(3*pointCount);
+			points[i*3+0] = x;
+			points[i*3+1] = y;
+			points[i*3+2] = z;
 
-				var dataView = new DataView(buffer, 0);
-
-				for (i = 0; i < pointCount; ++i) {
-
-					var index = i*POINT_SIZE;
-
-					var x = dataView.getFloat32(index+0, littleEndian);
-					var y = dataView.getFloat32(index+4, littleEndian);
-					var z = dataView.getFloat32(index+8, littleEndian);
-
-					var r = dataView.getUint8(index+12, littleEndian);
-					var g = dataView.getUint8(index+13, littleEndian);
-					var b = dataView.getUint8(index+14, littleEndian);
-					var a = dataView.getUint8(index+15, littleEndian);
-
-
-					points[i*3+0] = x;
-					points[i*3+1] = y;
-					points[i*3+2] = z;
-
-					colors[i*3+0] = r;
-					colors[i*3+1] = g;
-					colors[i*3+2] = b;
-
-				}
-
-				// deferred loading
-				tree.deferredData = {points:points, colors:colors};
-				tree.loaded = true;
-				octree._loadQueueUpdate();
-			}
-		
+			colors[i*3+0] = r;
+			colors[i*3+1] = g;
+			colors[i*3+2] = b;
 
 		}
 
+		// deferred loading
+		tree.pointBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+
+		tree.colorBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+
+		tree.loaded = true;
 	}
 
 
-	xhr.open("GET", tree.file + ".blob");
-	xhr.responseType = "blob";
-	xhr.send();
 
+	if (octree.loadBlob.pointsLoaded === undefined)
+		octree.loadBlob.pointsLoaded = 0;
+
+	octree.loadBlob.pointsLoaded += pointCount;
+
+	document.getElementById("pointsLoaded").innerHTML = "Points: " + numberWithCommas(octree.loadBlob.pointsLoaded);
 
 
 }
 
 
 octree.drawNode = function(tree, shader) {
-	if (tree.deferredData) { 
-		tree.pointBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, tree.deferredData.points, gl.STATIC_DRAW);
-
-		tree.colorBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, tree.colorBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, tree.deferredData.colors, gl.STATIC_DRAW);
-
-		tree.deferredData = null;
-	}
-
-
-
-
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -366,12 +338,13 @@ octree.drawBBoxes = function(tree, shader) {
 	else
 		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
 
-	drawAABB(tree.bbox, shader);
+	//drawAABB(tree.bbox, shader);
 
 	if (tree.children != null && tree.depth < global.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
 			octree.drawBBoxes(tree.children[i], shader);
-
+	else
+		drawAABB(tree.bbox, shader);
 }
 
 
