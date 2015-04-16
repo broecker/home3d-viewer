@@ -12,7 +12,7 @@
 
 bool option_centerPoints = true;
 size_t option_pointCount = 100000000;
-unsigned int option_nodeSize = 50000;
+unsigned int option_nodeSize = 60000;
 bool option_hasNormals = false;
 
 enum ReadMode

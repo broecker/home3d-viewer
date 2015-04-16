@@ -102,38 +102,38 @@ void Octree::split(const SplitConfig& config)
 	std::cout << ".";
 
 	const glm::vec3 center = aabb.getCentroid();
-	
-	// the new sectors, referenced by index
-	Indexcloud sectors[8];
 
-	
-	this->shuffle();
+	// the new sectors
+	Pointcloud	sectors[8];
 
 
+	std::random_shuffle(points.begin(), points.end());
 
-	// keep n points in the head node here ... 
+	// select n points to keep in this node
+
+	Pointcloud temp(points.begin() + config.maxNodeSize, points.end());
+	points.resize(config.maxNodeSize);
 
 
-
-	for (unsigned i = config.maxNodeSize; i < points.size(); ++i)
+	for (size_t i = 0; i < temp.size(); ++i)
 	{
-		const Point& p = points[i];
+		const Point& p = temp[i];
 
 		if (p.y > center.y)
 		{
 			if (p.x < center.x)
 			{
 				if (p.z < center.z)
-					sectors[0].push_back(i);
+					sectors[0].push_back(p);
 				else
-					sectors[1].push_back(i);
+					sectors[1].push_back(p);
 			}
 			else
 			{
 				if (p.z < center.z)
-					sectors[3].push_back(i);
+					sectors[3].push_back(p);
 				else
-					sectors[2].push_back(i);
+					sectors[2].push_back(p);
 
 			}
 		}
@@ -142,16 +142,16 @@ void Octree::split(const SplitConfig& config)
 			if (p.x < center.x)
 			{
 				if (p.z < center.z)
-					sectors[4].push_back(i);
+					sectors[4].push_back(p);
 				else
-					sectors[5].push_back(i);
+					sectors[5].push_back(p);
 			}
 			else
 			{
 				if (p.z < center.z)
-					sectors[7].push_back(i);
+					sectors[7].push_back(p);
 				else
-					sectors[6].push_back(i);
+					sectors[6].push_back(p);
 			}
 		}
 	}
@@ -159,10 +159,9 @@ void Octree::split(const SplitConfig& config)
 	/*
 	std::cout << "Sectors: \n";
 	for (int i = 0; i < 8; ++i)
-		std::cout << "sectors[" << i << "]: " << sectors[i].size() << std::endl;
+	std::cout << "sectors[" << i << "]: " << sectors[i].size() << std::endl;
 	*/
 
-	
 	int childCount = 0;
 	for (int i = 0; i < 8; ++i)
 	{
@@ -178,8 +177,10 @@ void Octree::split(const SplitConfig& config)
 			else
 			{
 				// if the child node has too few points, push them back onto the parent again
+
 				points.insert(points.end(), sectors[i].begin(), sectors[i].end());
-	
+				//std::cout << "Split resulted in node with too few points (" << sectors[i].size() << "), discarding ... \n";
+
 			}
 		}
 	}
