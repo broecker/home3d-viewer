@@ -1,8 +1,10 @@
-#pragma once
+#ifndef OCTREE_INCLUDED
+#define OCTREE_INCLUDED
 
 #include "Point.h"
 #include "AABB.h"
 
+#include <string>
 
 struct SplitConfig
 {
@@ -52,4 +54,6 @@ private:
 	std::string getJSONEntry() const;
 
 };
+
+#endif
 

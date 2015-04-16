@@ -9,6 +9,13 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cstdio>
+#include <cstring>
+
+#ifdef _WIN32
+#define sscanf sscanf_s
+#endif
+
 
 bool option_centerPoints = true;
 size_t option_pointCount = 100000000;
@@ -56,7 +63,7 @@ static void testForNormals(const char* filename)
 static inline void readXYZRGB(Point& p, const std::string& line)
 {
 	unsigned int r, g, b;
-	sscanf_s(line.c_str(), "%f %f %f %d %d %d", &p.x, &p.y, &p.z, &r, &g, &b);
+	sscanf(line.c_str(), "%f %f %f %d %d %d", &p.x, &p.y, &p.z, &r, &g, &b);
 	p.r = r;
 	p.g = g;
 	p.b = b;
@@ -67,7 +74,7 @@ static inline void readXYZRGBNormal(Point& p, const std::string& line)
 	float nx, ny, nz;
 
 	unsigned int r, g, b;
-	sscanf_s(line.c_str(), "%f %f %f %d %d %d %f %f %f", &p.x, &p.y, &p.z, &r, &g, &b, &nx, &ny, &nz);
+	sscanf(line.c_str(), "%f %f %f %d %d %d %f %f %f", &p.x, &p.y, &p.z, &r, &g, &b, &nx, &ny, &nz);
 	p.r = r;
 	p.g = g;
 	p.b = b;

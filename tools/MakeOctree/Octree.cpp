@@ -7,6 +7,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <cstring>
 
 #include <glm/gtx/io.hpp>
 
