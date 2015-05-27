@@ -25,14 +25,10 @@ public:
 		
 	void build(const SplitConfig& config, const std::string& basename);
 
-	inline bool hasNormals() const { return !normals.empty(); }
-
-	inline void setNormals(const Normalcloud& nc) { normals = nc; assert(normals.size() == points.size()); }
-
+	
 private:
 	Pointcloud		points;
-	Normalcloud		normals;
-
+	
 	Octree*			parent;
 	Octree*			children[8];
 
@@ -49,8 +45,6 @@ private:
 	static std::string recurseBuildJSON(const Octree* node);
 
 	std::string getNodename() const;
-	std::string getPointsFilename() const;
-	std::string getNormalsFilename() const;
 	std::string getJSONEntry() const;
 
 };

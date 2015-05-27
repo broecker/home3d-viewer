@@ -89,10 +89,7 @@ void Octree::shuffle()
 
 		unsigned int j = rng() % (unsigned int)points.size();
 		std::swap(points[i], points[j]);
-			
-		// TODO: move this out of the loop by saving the seed and  reinitializing the rng
-		if (!normals.empty())
-			std::swap(normals[i], normals[j]);
+
 	}		
 }
 
@@ -205,26 +202,13 @@ void Octree::recurseSplit(Octree* node, const SplitConfig& config)
 }
 void Octree::recurseSave(const Octree* node)
 {
-	std::string filename = node->getPointsFilename() + ".blob";
+	std::string filename = node->getNodename() + ".blob";
 
 	std::ofstream ofile(filename.c_str(), std::ios::binary | std::ios::trunc);
 	assert(ofile.is_open());
 
 	// write the data
 	ofile.write(reinterpret_cast<const char*>(&node->points[0]), sizeof(Point)*node->points.size());
-
-
-	if (node->hasNormals())
-	{
-		std::string filename = node->getNormalsFilename() + ".blob";
-
-		std::ofstream ofile(filename.c_str(), std::ios::binary | std::ios::trunc);
-		assert(ofile.is_open());
-
-		// write the data
-		ofile.write(reinterpret_cast<const char*>(&node->normals[0]), sizeof(Normal8b)*node->normals.size());
-	}
-
 
 
 	for (int i = 0; i < 8; ++i)
@@ -294,16 +278,7 @@ std::string Octree::getNodename() const
 
 }
 
-std::string Octree::getNormalsFilename() const
-{
-	return "normals-" + getNodename().substr(5);
-}
-
-std::string Octree::getPointsFilename() const
-{
-	return "points-" + getNodename().substr(5);
-}
-
+// old version?
 std::string Octree::getJSONEntry() const
 {
 	std::stringstream ss;
@@ -312,15 +287,10 @@ std::string Octree::getJSONEntry() const
 
 	// write the parent
 	ss << "\"parent\":" << (parent ? "\"" + parent->getNodename() + "\"" : "null") << ",\n";
+	ss << "\"file\":\"" << getNodename() << "\",\n";
 
-	ss << "\"points\":\"" << this->getPointsFilename() << "\",\n";
+	ss << "\"points\":" << points.size() << ",\n";
 
-	if (this->hasNormals())
-		ss << "\"normals\":" << this->getNormalsFilename() << ",\n";
-	else
-		ss << "\"normals\":null,\n";
-
-	ss << "\"numpoints\":" << points.size() << ",\n";
 
 	// write the bbox
 	ss << "\"bbox\":" << getJSONString(this->aabb) << ",\n";

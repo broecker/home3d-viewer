@@ -22,12 +22,8 @@ size_t option_pointCount = 100000000;
 unsigned int option_nodeSize = 60000;
 bool option_hasNormals = false;
 
-enum ReadMode
-{
-	RM_PHOTOSCAN,
-	RM_SCENE
-}	option_readMode = RM_PHOTOSCAN;
-
+bool option_flipY = false;
+bool option_flipYZ = false;
 
 static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) 
 {
@@ -214,16 +210,16 @@ static void parseOptions(int argc, const char** argv)
 {
 	for (int i = 0; i < argc; ++i)
 	{
-		if (strcmp(argv[i], "-agi") == 0)
+		if (strcmp(argv[i], "-flipY") == 0)
 		{
-			option_readMode = RM_PHOTOSCAN;
-			std::cout << "[Option] Readmode: AGI Photoscan\n";
+			option_flipY = true;
+			std::cout << "[Option] Flipping Y coordinate.\n";
 		}
 
-		if (strcmp(argv[i], "-scene") == 0)
+		if (strcmp(argv[i], "-flipYZ") == 0)
 		{
-			option_readMode = RM_SCENE;
-			std::cout << "[Option] Readmode: SCENE\n";
+			option_flipYZ = true;
+			std::cout << "[Option] Flipping Y and Z coordinate.\n";
 		}
 
 		if (strcmp(argv[i], "-nodesize") == 0)
@@ -231,6 +227,8 @@ static void parseOptions(int argc, const char** argv)
 			option_nodeSize = atoi(argv[++i]);
 			std::cout << "[Option] Max node size: " << option_nodeSize << std::endl;
 		}
+
+
 
 	}
 }
@@ -262,11 +260,12 @@ int main(int argc, const char** argv)
 	assert(!points.empty());
 	
 
-	if (option_readMode == RM_PHOTOSCAN)
+	if (option_flipY)
 		flipY(points);
-	else if (option_readMode == RM_SCENE)
+
+	if (option_flipYZ)
 		flipYZ(points);
-	
+
 	if (option_centerPoints)
 		centerPoints(points);
 	
