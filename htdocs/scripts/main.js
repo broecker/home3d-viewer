@@ -154,8 +154,11 @@ function drawFBO() {
   gl.disable(gl.DEPTH_TEST);
 
   shader = shaders.quadShader;
+  if (shader === null)
+    return;
 
-  if (global.enableFXAA && !global.camera.isMoving)
+
+  if (global.enableFXAA && !global.camera.isMoving && !(shaders.fxaaShader === null))
     shader = shaders.fxaaShader;
 
   gl.useProgram(shader);
@@ -179,37 +182,41 @@ function updateFBO() {
   gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], 1.0); 
 
   // draw the skybox
-  gl.depthMask(false);
-  gl.disable(gl.DEPTH_TEST);
+  if (!(shaders.skyboxShader === null)) {
 
-  gl.useProgram(shaders.skyboxShader);
-  gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, global.inverseModelViewProjection);
-  
-  geometry.drawFullscreenQuad(shaders.skyboxShader);
+    gl.depthMask(false);
+    gl.disable(gl.DEPTH_TEST);
 
-  
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthMask(true);
-  gl.depthFunc(gl.LEQUAL);
-  
+    gl.useProgram(shaders.skyboxShader);
+    gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, global.inverseModelViewProjection);
+
+    geometry.drawFullscreenQuad(shaders.skyboxShader);
+
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL);
+  }
 
   // draw all static elements ... 
-  if (global.enableGrid)
+  if (global.enableGrid && !(shaders.gridShader === null))
     geometry.drawGrid();
 
 
-  
-  gl.useProgram(shaders.dynamicPointcloudShader);
-  gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.viewMatrixUniform, false, global.viewMatrix);
-  gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.projMatrixUniform, false, global.projMatrix);
-  gl.uniform1f(shaders.dynamicPointcloudShader.pointSizeUniform, global.pointSize);
-  gl.uniform3f(shaders.dynamicPointcloudShader.colorUniform, 1.0, 1.0, 1.0);
+  if (!(shaders.dynamicPointcloudShader === null)) {
+    
+    gl.useProgram(shaders.dynamicPointcloudShader);
+    gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.viewMatrixUniform, false, global.viewMatrix);
+    gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.projMatrixUniform, false, global.projMatrix);
+    gl.uniform1f(shaders.dynamicPointcloudShader.pointSizeUniform, global.pointSize);
+    gl.uniform3f(shaders.dynamicPointcloudShader.colorUniform, 1.0, 1.0, 1.0);
 
 
-  dynamicPointcloud.draw(geometry.pointcloud, shaders.dynamicPointcloudShader);
+    dynamicPointcloud.draw(geometry.pointcloud, shaders.dynamicPointcloudShader);
+  }
 
   //if (global.mouse.button[0] || global.mouse.button[2])
-  if (camera.isMoving)
+  if (camera.isMoving && (!shaders.objectShader === null))
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
 
 
@@ -586,7 +593,7 @@ function init() {
   global.camera = createOrbitalCamera();
   global.camera.radius = 20.0;
 
-  loadShaders();
+  shader.loadAll(shaders);
   geometry.createGridBuffer();
 
   // create FPS meter

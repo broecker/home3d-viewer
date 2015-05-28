@@ -23,10 +23,11 @@ THE SOFTWARE.
 */
 
 
+var shader = shader || {};
 
+shader.createFromDOM = function(domID) {
 // loads a shader with the given id from the DOM
-function getShader(id) {
-	var shaderScript = document.getElementById(id);
+	var shaderScript = document.getElementById(domID);
 	if (!shaderScript) {
 		return null;
 	}
@@ -61,285 +62,365 @@ function getShader(id) {
 }
 
 
-function loadShadersAsync(vertexFile, fragmentFile, shader) { 
+/*	loading external file; modified from :
+	http://stackoverflow.com/questions/4878145/javascript-and-webgl-external-scripts
+*/
+shader._loadFile = function(url, data, callback, errorCallback) {
+    // Set up an asynchronous request
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
 
-	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    // Hook the event that gets called as the request progresses
+    request.onreadystatechange = function () {
+        // If the request is "DONE" (completed or failed)
+        if (request.readyState == 4) {
+            // If we got HTTP status 200 (OK)
+            if (request.status == 200) {
+                callback(request.responseText, data)
+            } else { // Failed
+                errorCallback(url);
+            }
+        }
+    };
 
-	vertexShader.loaded = false;
-	fragmentShader.loaded = false;
-
-	shader.loaded = false;
-
-	loadAndLinkShaderFile('/shaders/grid.vert', [vertexShader, fragmentShader], shader);
-	loadAndLinkShaderFile('/shaders/grid.frag', [fragmentShader, vertexShader], shader);
+    request.send(null);    
 }
 
-function loadAndLinkShaderFile(file, programs, shader) { 
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", file);
+shader.loadFiles = function(urls, callback, errorCallback) {
+    var numUrls = urls.length;
+    var numComplete = 0;
+    var result = [];
 
-	if(xhr.overrideMimeType){
-		xhr.overrideMimeType("text/plain");
-	}
+    // Callback for a single file
+    function partialCallback(text, urlIndex) {
+        result[urlIndex] = text;
+        numComplete++;
 
+        // When all files have downloaded
+        if (numComplete == numUrls) {
+            callback(result);
+        }
+    }
 
-	xhr.onloadend = function() {
+    for (var i = 0; i < numUrls; i++) {
+        shader._loadFile(urls[i], i, partialCallback, errorCallback);
+    }
+}
 
-		if (this.status == 200) {
-			var str = this.responseText;
+shader.loadAll = function(shaders) {
 
-			alert(str);
-
-			gl.shaderSource(programs[0], str);
-			gl.compileShader(programs[0]);
-
-			if (!gl.getShaderParameter(programs[0], gl.COMPILE_STATUS)) {
-				alert(gl.getShaderInfoLog(programs[0]));
-			}
-
-
-			programs[0].loaded = true;
-
-			// both shaders are loaded -- link them 
-			if (programs[1].loaded === true) { 
-				gl.attachShader(shader, programs[0]);
-				gl.attachShader(shader, programs[1]);
-				gl.linkProgram(shader);
-
-				if (!gl.getProgramParameter(shader, gl.LINK_STATUS)) {
-					alert("Could not initialize shader");
-					shader.loaded = 'error';
-				} else {
-
-					shader.setUniforms(shader);
-					shader.loaded = true;
-				}
-
-
-
-
-			}
-
+	// loading grid shader 
+	shaders.gridShader = null;	
+	shader.loadFiles(['shaders/grid.vert', 'shaders/grid.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
 		}
-	}
 
 
-	xhr.send(null);
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize grid shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
+		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		program.colorUniform = gl.getUniformLocation(program, "color");
+		shaders.gridShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+
+	// loading object shader 
+	shaders.objectShader = null;	
+	shader.loadFiles(['shaders/object.vert', 'shaders/object.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize object shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
+		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
+		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		shaders.objectShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+	// loading quad shader 
+	shaders.quadShader = null;	
+	shader.loadFiles(['shaders/quad.vert', 'shaders/quad.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize quad shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.colormapUniform = gl.getUniformLocation(program, "colormap");
+		program.resolutionUniform = gl.getUniformLocation(program, "resolution");
+		shaders.quadShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+
+	// load fxaa shader 
+	shaders.fxaaShader = null;	
+	shader.loadFiles(['shaders/fxaa.vert', 'shaders/fxaa.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize fxaa shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.colormapUniform = gl.getUniformLocation(program, "colormap");
+		program.resolutionUniform = gl.getUniformLocation(program, "resolution");
+		shaders.fxaaShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+
+	// load skybox shader 
+	shaders.skyboxShader = null;	
+	shader.loadFiles(['shaders/skybox.vert', 'shaders/skybox.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize skybox shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.inverseMVPUniform = gl.getUniformLocation(program, "inverseMVP");
+		shaders.skyboxShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+	// load bounds shader 
+	shaders.boundsShader = null;	
+	shader.loadFiles(['shaders/bounds.vert', 'shaders/bounds.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize bounds shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.pointsUniform = gl.getUniformLocation(program, "pointsContained");
+		program.areaUniform = gl.getUniformLocation(program, "projectedArea");
+		shaders.boundsShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+
+	// load points shader 
+	shaders.pointsShader = null;	
+	shader.loadFiles(['shaders/points.vert', 'shaders/points.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize pointcloud shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
+		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
+		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		program.modelMatrixUniform = gl.getUniformLocation(program, "modelMatrix");
+		program.lodUniform = gl.getUniformLocation(program, "lodLevel");
+		program.pointSizeUniform = gl.getUniformLocation(program, "pointSize");
+		program.minPointSizeUniform = gl.getUniformLocation(program, "minPointSize");
+		program.viewportHeightUniform = gl.getUniformLocation(program, "viewportHeight");
+		shaders.pointsShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
+
+	// load dynamic points shader 
+	shaders.dynamicPointcloudShader = null;	
+	shader.loadFiles(['shaders/dynamicPoints.vert', 'shaders/dynamicPoints.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize pointcloud shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
+		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
+		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		program.modelMatrixUniform = gl.getUniformLocation(program, "modelMatrix");
+		program.geometryMapUniform = gl.getUniformLocation(program, "geometryMap");
+		program.cloudScaleUniform = gl.getUniformLocation(program, "cloudScale");
+		program.cloudBiasUniform = gl.getUniformLocation(program, "cloudBias");
+		shaders.dynamicPointcloudShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
 }
-
-
-
-// loads all shaders in the DOM
-function loadShaders(basePath) {
-
-	// load the point cloud shader
-
-	var fragmentShader = getShader("pointVS");
-	var vertexShader = getShader("pointFS");
-
-	/*
-	var fragmentShader = loadShader(basePath + "/points.vert");
-	var vertexShader = loadShader(basePath + "/points.frag");
-	*/
-	var pointcloudShader = gl.createProgram();
-	gl.attachShader(pointcloudShader, vertexShader);
-	gl.attachShader(pointcloudShader, fragmentShader);
-	gl.linkProgram(pointcloudShader);
-
-	if (!gl.getProgramParameter(pointcloudShader, gl.LINK_STATUS)) {
-		alert("Could not initialize point cloud shader");
-	}
-
-	pointcloudShader.vertexPositionAttribute = gl.getAttribLocation(pointcloudShader, "positionIn");
-	pointcloudShader.vertexColorAttribute = gl.getAttribLocation(pointcloudShader, "colorIn");
-	pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
-	pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
-	pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
-	pointcloudShader.lodUniform = gl.getUniformLocation(pointcloudShader, "lodLevel");
-	pointcloudShader.pointSizeUniform = gl.getUniformLocation(pointcloudShader, "pointSize");
-	pointcloudShader.minPointSizeUniform = gl.getUniformLocation(pointcloudShader, "minPointSize");
-	pointcloudShader.viewportHeightUniform = gl.getUniformLocation(pointcloudShader, "viewportHeight");
-	shaders.pointcloudShader = pointcloudShader;
-
-
-	// load the dynamic point cloud shader
-
-	fragmentShader = getShader("dynamicPointVS");
-	vertexShader = getShader("dynamicPointFS");
-
-	pointcloudShader = gl.createProgram();
-	gl.attachShader(pointcloudShader, vertexShader);
-	gl.attachShader(pointcloudShader, fragmentShader);
-	gl.linkProgram(pointcloudShader);
-
-	if (!gl.getProgramParameter(pointcloudShader, gl.LINK_STATUS)) {
-		alert("Could not initialize dynamic point cloud shader");
-	}
-
-	pointcloudShader.texcoordAttribute = gl.getAttribLocation(pointcloudShader, "texcoord");
-	pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
-	pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
-	pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
-	pointcloudShader.viewportHeightUniform = gl.getUniformLocation(pointcloudShader, "viewportHeight");
-	pointcloudShader.geometryMapUniform = gl.getUniformLocation(pointcloudShader, "geometryMap");
-	pointcloudShader.cloudScaleUniform = gl.getUniformLocation(pointcloudShader, "cloudScale");
-	pointcloudShader.cloudBiasUniform = gl.getUniformLocation(pointcloudShader, "cloudBias");
-	shaders.dynamicPointcloudShader = pointcloudShader;
-
-
-	// load the grid shader
-	fragmentShader = getShader("gridVS");
-	vertexShader = getShader("gridFS");
-
-	/*
-	fragmentShader = loadShader(basePath + "/grid.vert");
-	vertexShader = loadShader(basePath + "/grid.frag");
-	*/
-	var gridShader = gl.createProgram();
-	gl.attachShader(gridShader, vertexShader);
-	gl.attachShader(gridShader, fragmentShader);
-	gl.linkProgram(gridShader);
-
-	if (!gl.getProgramParameter(gridShader, gl.LINK_STATUS)) {
-		alert("Could not initialize grid shader");
-	}
-
-	gridShader.vertexPositionAttribute = gl.getAttribLocation(gridShader, "positionIn");
-	gridShader.projMatrixUniform = gl.getUniformLocation(gridShader, "projMatrix");
-	gridShader.viewMatrixUniform = gl.getUniformLocation(gridShader, "viewMatrix");
-	gridShader.colorUniform = gl.getUniformLocation(gridShader, "color");
-	shaders.gridShader = gridShader;
-
-
-	// load the object shader
-
-	fragmentShader = getShader("objectVS");
-	vertexShader = getShader("objectFS");
-	/*/
-	fragmentShader = loadShader(basePath + "/object.vert");
-	vertexShader = loadShader(basePath + "/object.frag");
-	*/
-
-	var objectShader = gl.createProgram();
-	gl.attachShader(objectShader, vertexShader);
-	gl.attachShader(objectShader, fragmentShader);
-	gl.linkProgram(objectShader);
-
-	if (!gl.getProgramParameter(objectShader, gl.LINK_STATUS)) {
-		alert("Could not initialize object shader");
-	}
-
-	objectShader.vertexPositionAttribute = gl.getAttribLocation(objectShader, "positionIn");
-	objectShader.vertexColorAttribute = gl.getAttribLocation(objectShader, "colorIn");
-	objectShader.projMatrixUniform = gl.getUniformLocation(objectShader, "projMatrix");
-	objectShader.viewMatrixUniform = gl.getUniformLocation(objectShader, "viewMatrix");
-	shaders.objectShader = objectShader;
-
-
-
-	
-	// load the passthrough/quad shader
-	fragmentShader = getShader("quadFS");
-	vertexShader = getShader("quadVS");
-
-	var quadShader = gl.createProgram();
-	gl.attachShader(quadShader, vertexShader);
-	gl.attachShader(quadShader, fragmentShader);
-	gl.linkProgram(quadShader);
-
-	if (!gl.getProgramParameter(quadShader, gl.LINK_STATUS)) {
-		alert("Could not initialize quad shader");
-	}
-
-	quadShader.vertexPositionAttribute = gl.getAttribLocation(quadShader, "positionIn");
-	quadShader.colormapUniform = gl.getUniformLocation(quadShader, "colormap");
-	quadShader.resolutionUniform = gl.getUniformLocation(quadShader, "resolution");
-	shaders.quadShader = quadShader;
-	
-
-
-	fragmentShader = getShader("skyboxFS");
-	vertexShader = getShader("skyboxVS");
-
-	var skyboxShader = gl.createProgram();
-	gl.attachShader(skyboxShader, vertexShader);
-	gl.attachShader(skyboxShader, fragmentShader);
-	gl.linkProgram(skyboxShader);
-
-	if (!gl.getProgramParameter(skyboxShader, gl.LINK_STATUS)) {
-		alert("Could not initialize skybox shader");
-	}
-
-	skyboxShader.vertexPositionAttribute = gl.getAttribLocation(skyboxShader, "positionIn");
-	skyboxShader.inverseMVPUniform = gl.getUniformLocation(skyboxShader, "inverseMVP");
-	shaders.skyboxShader = skyboxShader;
-	
-
-
-	/*
-	shaders.skyboxShader = gl.createProgram();
-	loadShadersAsync('/shaders/skybox.vert', '/shaders/skybox.frag', shaders.skyboxShader);
-	shaders.skyboxShader.setUniforms = function (shader) {
-		shader.vertexPositionAttribute = gl.getAttribLocation(shader, "positionIn");
-	}
-	*/
-
-
-	fragmentShader = getShader("fxaaFS");
-	vertexShader = getShader("fxaaVS");
-	var fxaaShader = gl.createProgram();
-
-	gl.attachShader(fxaaShader, vertexShader);
-	gl.attachShader(fxaaShader, fragmentShader);
-	gl.linkProgram(fxaaShader);
-
-	if (!gl.getProgramParameter(fxaaShader, gl.LINK_STATUS)) {
-		alert("Could not initialize fxaa shader");
-	}
-
-	fxaaShader.vertexPositionAttribute = gl.getAttribLocation(fxaaShader, "positionIn");
-	fxaaShader.colormapUniform = gl.getUniformLocation(fxaaShader, "colormap");
-	fxaaShader.resolutionUniform = gl.getUniformLocation(fxaaShader, "resolution");
-	shaders.fxaaShader = fxaaShader;
-
-
-	fragmentShader = getShader("boundsFS");
-	vertexShader = getShader("boundsVS");
-	var boundsShader = gl.createProgram();
-
-	gl.attachShader(boundsShader, vertexShader);
-	gl.attachShader(boundsShader, fragmentShader);
-	gl.linkProgram(boundsShader);
-
-	if (!gl.getProgramParameter(boundsShader, gl.LINK_STATUS)) {
-		alert("Could not initialize bbox bounds shader");
-	}
-
-	boundsShader.vertexPositionAttribute = gl.getAttribLocation(boundsShader, "positionIn");
-	boundsShader.pointsUniform = gl.getUniformLocation(boundsShader, "pointsContained");
-	boundsShader.areaUniform = gl.getUniformLocation(boundsShader, "projectedArea");
-	shaders.boundsShader = boundsShader;
-
-
-
-	// load the debug  quad shader
-	fragmentShader = getShader("quadFS");
-	vertexShader = getShader("debugQuadVS");
-
-	quadShader = gl.createProgram();
-	gl.attachShader(quadShader, vertexShader);
-	gl.attachShader(quadShader, fragmentShader);
-	gl.linkProgram(quadShader);
-
-	if (!gl.getProgramParameter(quadShader, gl.LINK_STATUS)) {
-		alert("Could not initialize debug quad shader");
-	}
-
-	quadShader.vertexPositionAttribute = gl.getAttribLocation(quadShader, "positionIn");
-	quadShader.colormapUniform = gl.getUniformLocation(quadShader, "colormap");
-	quadShader.resolutionUniform = gl.getUniformLocation(quadShader, "resolution");
-	shaders.debugQuadShader = quadShader;
-}
-
 
