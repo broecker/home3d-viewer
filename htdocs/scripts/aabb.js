@@ -23,7 +23,10 @@ THE SOFTWARE.
 */
 
 
-function calculateAABB(pointcloud) {
+var aabb = aabb || {}
+
+
+aabb.calculate = function(pointcloud) {
   
   const HUGE = 5000000;
   const smal = -HUGE;
@@ -59,7 +62,15 @@ function calculateAABB(pointcloud) {
   return {min:minVal, max:maxVal}
 }
 
-function extractVertices(bbox) {
+
+aabb.create = function(minVals, maxVals) {
+  minv = vec3.fromValues(minVals[0], minVals[1], minVals[2]);
+  maxv = vec3.fromValues(maxVals[0], maxVals[1], maxVals[2]);
+  return {min:minv, max:maxv};
+}
+
+
+aabb.extractVertices = function(bbox) {
   /*
   +-------+
   |  o->x |
@@ -90,20 +101,20 @@ function extractVertices(bbox) {
   return vertices;
 }
 
-function getCentroid(bbox) {
+aabb.getCentroid = function(bbox) {
   return [(bbox.min[0] + bbox.max[0])*0.5,
           (bbox.min[1] + bbox.max[1])*0.5,
           (bbox.min[2] + bbox.max[2])*0.5];  
 
 }
 
-function getSpanLength(bbox) {
+aabb.getSpanLength = function(bbox) {
   return vec3.length(bbox.max - bbox.min);
   
 }
 
 
-function calculateAABBAreas(bbox) { 
+aabb.calculateAABBAreas = function(bbox) { 
   // dimensions
   var x = bbox.max[0] - bbox.min[0];
   var y = bbox.max[1] - bbox.min[1];
@@ -118,7 +129,7 @@ function calculateAABBAreas(bbox) {
 
 // clips the box against the frustum specified by the matrix (proj*modelview)
 // returns 0 if box is completely outside, 1 if partially inside, 2 if fully inside 
-function clipBox(bbox, matrix) {
+aabb.clipBox = function(bbox, matrix) {
   var vertices = extractVertices(bbox);
  
 
@@ -188,7 +199,7 @@ function clipBox(bbox, matrix) {
   return 2;
 }
 
-function drawAABB(bbox, shader) {
+aabb.drawAABB = function(bbox, shader) {
   
   // 'pseudo static' -- check if the unchanging variables have been initialized (once)
   if (typeof drawAABB.vertexBuffer == 'undefined') {
@@ -230,7 +241,7 @@ function drawAABB(bbox, shader) {
 }
 
 
-function calculateScreenspaceBounds(bbox, matrix) { 
+aabb.calculateScreenspaceBounds = function(bbox, matrix) { 
   // extract bounds vertices
   var clipVertices = [[0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1]];
   var vertices = extractVertices(bbox);
@@ -271,7 +282,7 @@ function calculateScreenspaceBounds(bbox, matrix) {
 }
 
 // calculate projected screen-space area in pixels
-function calculateScreenspaceArea(bbox, resolution) { 
+aabb.calculateScreenspaceArea = function(bbox, resolution) { 
   if (!bbox.screenSpaceBounds)
     return 0;
 
@@ -297,7 +308,7 @@ function calculateScreenspaceArea(bbox, resolution) {
 }
 
 
-function drawScreenspaceBounds(bbox, shader) { 
+aabb.drawScreenspaceBounds = function(bbox, shader) { 
 
   if (!bbox.screenSpaceBounds)
     return;

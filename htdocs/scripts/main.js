@@ -29,24 +29,21 @@ var gl = null; // A global variable for the WebGL context
 
 // store global variables
 var global = global || {};
-global.enableGrid = false;
+global.enableGrid = true;
 global.enableBBox = false;
 global.enableFXAA = true;
-global.enableDensityCulling = false;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
 global.modelViewProjection = mat4.create();
 global.inverseModelViewProjection = mat4.create();
-global.updateVisibility = false;
-
-global.densityTreshold = 1.2;
 
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.touches = null;
 global.shiftHeld = false;
 global.ctrlHeld = false;
+
 
 global.stats = null;
 
@@ -58,11 +55,7 @@ global.renderTargetResolution = [1024, 1024];
 global.clearColor = [0, 0, 0.2];
 
 
-global.maxPointsRendered = 25000;
-global.pointsDrawn = 0;
-global.pointSize = 1.0;
-global.visibleList = [];
-
+global.videoElement = null;
 
 // store shaders
 var shaders = shaders || {};
@@ -70,7 +63,6 @@ var shaders = shaders || {};
 // store what we want to render
 var geometry = geometry || {};
 geometry.grid = null;
-geometry.octree = null;
 
 window.mobilecheck = function() {
   var check = false;
@@ -127,7 +119,7 @@ function resizeCanvas() {
     canvas.width = width;
     canvas.height = height;
 
-  }  
+  } 
 
   gl.viewport(0, 0, width, height);
   global.viewport = [0, 0, width, height];
@@ -136,6 +128,25 @@ function resizeCanvas() {
 
 }
 
+
+lastVideoTime = 0.0;
+function updateVideoTexture() {
+  currentTime = global.videoElement.currentTime;
+  console.log("Current video time: " + currentTime);
+
+  // expected frame rate: 30fps
+  FRAME_RATE = 1.0 / 30.0;
+
+  if (Math.abs(currentTime - lastVideoTime) > FRAME_RATE) {
+    dynamicPointcloud.updateTexture(geometry.pointcloud, global.videoElement);
+
+    console.log("New frame.");
+    lastVideoTime = currentTime;
+  }
+
+
+
+}
 
 function drawFBO() {
 
@@ -160,7 +171,7 @@ function drawFBO() {
 }
 
 
-function initializeFBODrawing() {
+function updateFBO() {
   // also clear the fbo
   bindFBO(global.renderTarget);
 
@@ -187,88 +198,27 @@ function initializeFBODrawing() {
     geometry.drawGrid();
 
 
+  
+  gl.useProgram(shaders.dynamicPointcloudShader);
+  gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.viewMatrixUniform, false, global.viewMatrix);
+  gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.projMatrixUniform, false, global.projMatrix);
+  gl.uniform1f(shaders.dynamicPointcloudShader.pointSizeUniform, global.pointSize);
+  gl.uniform3f(shaders.dynamicPointcloudShader.colorUniform, 1.0, 1.0, 1.0);
+
+
+  dynamicPointcloud.draw(geometry.pointcloud, shaders.dynamicPointcloudShader);
 
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving)
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
 
 
-  // the tree's bounding volumes 
-  if (global.enableBBox && geometry.octree) {
-    gl.useProgram(shaders.gridShader);
-    gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
-
-    gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.0);
-    gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
-    gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
-
-    octree.drawBBoxes(geometry.octree, shaders.gridShader);
-
-
-    // draw the octree bounds
-
-    //gl.useProgram(shaders.boundsShader);
-    //octree.drawBboxBounds(geometry.octree, shaders.boundsShader);
-  }
-
-
 
   disableFBO(global.renderTarget);
 }
 
-
-function updateFBO() {
-
-  bindFBO(global.renderTarget);
-
-  gl.depthMask(true);
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
-
-  if (geometry.octree) { 
-    // draw the points
-    gl.useProgram(shaders.pointcloudShader);
-
-    gl.uniform1f(shaders.pointcloudShader.pointSizeUniform, global.pointSize);
-    gl.uniformMatrix4fv(shaders.pointcloudShader.projMatrixUniform, false, global.projMatrix);
-    gl.uniformMatrix4fv(shaders.pointcloudShader.viewMatrixUniform, false, global.viewMatrix);
-
-    
-    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * global.camera.fovy));
-    viewportHeight = 1.15 * 1024.0;
-    gl.uniform1f(shaders.pointcloudShader.viewportHeightUniform, viewportHeight);
-    
-
-    global.pointsDrawn = 0;
-
-
-    for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) { 
-      var node = global.visibleList[i];
-
-      if (node.loaded === true) {
-        octree.drawNode(node, shaders.pointcloudShader);
-        global.visibleList.splice(i, 1);
-      } else {
-
-        if (node.loaded === false && node.depth <= global.maxRecursion) {
-          octree.load(node);
-
-        }
-
-      }
-    }
-
-
-  }
-
-
-
-  disableFBO(global.renderTarget);
-
-}
 
 var lastTime = 0;
-
 function tick() {
   var time = new Date().getTime();
   
@@ -293,60 +243,6 @@ function updateCamera() {
   mat4.invert(global.inverseModelViewProjection, global.modelViewProjection);
 }
 
-function updateVisibility() {
-
-  // build a new visible set
-  global.visibleList = [];
-
-  if (geometry.octree) {
-    
-    var mat = mat4.create();
-    mat4.multiply(mat, global.projMatrix, global.viewMatrix);
-
-    octree.setInvisible(geometry.octree);
-    octree.updateVisibility(geometry.octree, mat);
-    octree.updateLOD(geometry.octree, getPosition(global.camera));
-    octree.getVisibleNodes(geometry.octree, global.visibleList);
-  }
-
-
-  if (global.visibleList.length > 0) {
-
-    global.visibleList.sort(function(a,b) {
-      return a.lodDistance*a.depth - b.lodDistance*b.depth;
-    });
-
-    /*
-    // REMOVE ME -- just for testing
-    global.visibleList = global.visibleList.filter(function(node) { 
-      return node.depth <= 1;
-    });
-    */
-    
-
-    if (global.enableDensityCulling) { 
-
-      global.visibleList.forEach(function(node) {
-        octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
-      });
-      
-      
-      var oldSize = global.visibleList.length;
-      global.visibleList = global.visibleList.filter(function(node) { 
-        var density2 = node.points / node.screenArea;
-        return density2 < global.densityTreshold*global.densityTreshold;
-      });
-      
-      console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
-  
-    }      
-
-  }
-
- 
-
-  global.updateVisibility = false;
-}
 
 function loop() {
   global.stats.begin();
@@ -354,30 +250,10 @@ function loop() {
   tick();
 
   
-  // start a new frame
-  if (global.updateVisibility) {
+  updateVideoTexture();
 
-    if (loop._runonce === undefined) { 
-      loop._runonce = 'done';
-      global.updateVisibility = true;
-
-      resizeCanvas();
-
-    }
-
-    updateVisibility();
-
-    updateCamera();
-    initializeFBODrawing();
-  }
-
-  // update the fbo
-  if (global.visibleList.length > 0) {
-
-      updateFBO();
-      
-  }
-    
+  updateCamera();
+  updateFBO();
 
   // display our current render target
   drawFBO();
@@ -448,7 +324,7 @@ function handleMouseMotion(event) {
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
-  moveCameraTowardsTarget(global.camera, delta);
+ moveCameraTowardsTarget(global.camera, delta);
 
   global.updateVisibility = true;
 }
@@ -577,25 +453,6 @@ function stopCameraMove() {
 }
 
 
-function decreaseDetail() { 
-
-  if (global.maxRecursion > 1) {
-    --global.maxRecursion;
-    //global.pointSize *= 1.4;
-  }
-    console.log("Max recursion: " + global.maxRecursion);
-    global.updateVisibility = true;
-}
-
-function increaseDetail() {
-  ++global.maxRecursion;
-  //global.pointSize /= 1.4;
-
-  console.log("Max recursion: " + global.maxRecursion);
-
-  global.updateVisibility = true;
-}
-
 function handleKeydown(event) { 
 
   // 'g'
@@ -663,6 +520,9 @@ function handleKeydown(event) {
   if (event.keyCode == 17) 
     global.ctrlHeld = true;
   
+  // 'space bar'
+  if (event.keyCode == 32)
+    toggleAnimation();
 
   
 }
@@ -677,9 +537,16 @@ function handleKeyup(event) {
 
 }
 
+function startVideo() {
+  global.videoElement.play();
+}
+
+function videoDone() { 
+}
 
 
-function init(basepath) {
+
+function init() {
   canvas = document.getElementById("canvas");
   
   canvas.addEventListener("webglcontextlost", function(event) {
@@ -719,7 +586,7 @@ function init(basepath) {
   global.camera = createOrbitalCamera();
   global.camera.radius = 20.0;
 
-  loadShaders(basepath + "shaders/");
+  loadShaders();
   geometry.createGridBuffer();
 
   // create FPS meter
@@ -733,6 +600,21 @@ function init(basepath) {
 
   global.updateVisibility = true;
 
+  // hard coded values for the bunny for now
+  /*
+  Points 35947
+  Bias -10.1709 3.29874 -10.1709
+  Scale 0.04916 0.0647947 0.0491599
+  */
+  var scale = vec3.fromValues(0.04916, 0.0647947, 0.0491599);
+  vec3.inverse(scale, scale);
+  var bias = vec3.fromValues(-10.1709, 3.29874, -10.1709);
+  var resolution = [256, 256];
+  var bbox = aabb.create([-10.1709, 3.29874, -10.1709], [10.1709, 18.7321, 10.1709]);
+
+  var pc = dynamicPointcloud.create(35497, scale, bias, resolution, bbox);
+  dynamicPointcloud.center(pc);
+  geometry.pointcloud = pc;
 
   if (isMobile()) {
 
@@ -749,50 +631,20 @@ function init(basepath) {
     global.maxRecursion = 2;
     global.maxConcurrentLoads = 8;
 
-    /*
-    
-    // create gui 
-   global.gui = new dat.GUI();  
-    global.gui.add(global, 'maxRecursion', 1, 6).step(1).onFinishChange(function(value) { global.updateVisibility = true; });
-    global.gui.add(global, 'pointSize', 1.0, 6.0).onFinishChange(function(value) { global.updateVisibility = true; });
-    global.gui.add(global, 'maxPointsRendered', 1, 2000000);
-    global.gui.add(global, 'pointsDrawn').listen();
-    global.gui.add(global.visibleList, 'length').listen();
-    global.gui.add(global, 'renderTargetResolution', ['1024x1024', '256x256', '512x512', '2048x2048'] ).onFinishChange(function(value){
-      switch (value) { 
-        case '256x256':
-          global.renderTargetResolution = [256, 256];
-          break;
-        case '512x512':
-          global.renderTargetResolution = [512, 512];
-          break;
-        case '1024x1024':
-          global.renderTargetResolution = [1024, 1024];
-          break;
-
-        case '2048x2048':
-          global.renderTargetResolution = [2048, 2048];
-          break;
-      }
-
-
-      resizeFBO(global.renderTarget, global.renderTargetResolution);
-      global.updateVisibility = true;
-
-    });
-
-    */
-
   }
 
+  // initialize video
+  global.videoElement = document.getElementById("video");
+  global.videoElement.addEventListener("canplaythrough", startVideo, true);
+  global.videoElement.addEventListener("ended", videoDone, true);
+  global.videoTexture = gl.createTexture();
+
+  gl.bindTexture(gl.TEXTURE_2D, global.videoTexture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
   // create trickle progress bar
   NProgress.start();
-
-
-
-  octree.initLoadQueue(global.maxConcurrentLoads);
-  window.setInterval(octree.updateLoadQueue, 200);
 
 }
 
@@ -810,6 +662,14 @@ function toggleFXAA() {
   global.enableFXAA = !global.enableFXAA;
 }
 
+function toggleAnimation() { 
+  video = global.videoElement;
+  if (video.paused)
+    video.play();
+  else
+    video.pause();
+
+}
 
 
 function getBasePath(address) { 
@@ -820,12 +680,9 @@ function getBasePath(address) {
 }
 
 
-function main(treeJson) {
-  var basepath = getBasePath(treeJson);
-
-  init(basepath);
-
-  geometry.octree = octree.parseJSON(treeJson);
+function main() {
+  
+  init();
 
   loop();
 }
