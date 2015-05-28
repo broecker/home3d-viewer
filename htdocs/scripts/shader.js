@@ -86,7 +86,7 @@ shader._loadFile = function(url, data, callback, errorCallback) {
     request.send(null);    
 }
 
-shader.loadFiles = function(urls, callback, errorCallback) {
+shader._loadFiles = function(urls, callback, errorCallback) {
     var numUrls = urls.length;
     var numComplete = 0;
     var result = [];
@@ -111,7 +111,7 @@ shader.loadAll = function(shaders) {
 
 	// loading grid shader 
 	shaders.gridShader = null;	
-	shader.loadFiles(['shaders/grid.vert', 'shaders/grid.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/grid.vert', 'shaders/grid.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -150,7 +150,7 @@ shader.loadAll = function(shaders) {
 
 	// loading object shader 
 	shaders.objectShader = null;	
-	shader.loadFiles(['shaders/object.vert', 'shaders/object.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/object.vert', 'shaders/object.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -188,7 +188,7 @@ shader.loadAll = function(shaders) {
 
 	// loading quad shader 
 	shaders.quadShader = null;	
-	shader.loadFiles(['shaders/quad.vert', 'shaders/quad.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/quad.vert', 'shaders/quad.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -226,7 +226,7 @@ shader.loadAll = function(shaders) {
 
 	// load fxaa shader 
 	shaders.fxaaShader = null;	
-	shader.loadFiles(['shaders/fxaa.vert', 'shaders/fxaa.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/fxaa.vert', 'shaders/fxaa.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -264,7 +264,7 @@ shader.loadAll = function(shaders) {
 
 	// load skybox shader 
 	shaders.skyboxShader = null;	
-	shader.loadFiles(['shaders/skybox.vert', 'shaders/skybox.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/skybox.vert', 'shaders/skybox.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -300,7 +300,7 @@ shader.loadAll = function(shaders) {
 
 	// load bounds shader 
 	shaders.boundsShader = null;	
-	shader.loadFiles(['shaders/bounds.vert', 'shaders/bounds.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/bounds.vert', 'shaders/bounds.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -338,7 +338,7 @@ shader.loadAll = function(shaders) {
 
 	// load points shader 
 	shaders.pointsShader = null;	
-	shader.loadFiles(['shaders/points.vert', 'shaders/points.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/points.vert', 'shaders/points.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
@@ -382,7 +382,7 @@ shader.loadAll = function(shaders) {
 
 	// load dynamic points shader 
 	shaders.dynamicPointcloudShader = null;	
-	shader.loadFiles(['shaders/dynamicPoints.vert', 'shaders/dynamicPoints.frag'], function (shaderText) {
+	shader._loadFiles(['shaders/dynamicPoints.vert', 'shaders/dynamicPoints.frag'], function (shaderText) {
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
