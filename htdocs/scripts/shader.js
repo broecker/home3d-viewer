@@ -163,8 +163,32 @@ function loadShaders(basePath) {
 	shaders.pointcloudShader = pointcloudShader;
 
 
-	// load the grid shader
+	// load the dynamic point cloud shader
 
+	fragmentShader = getShader("dynamicPointVS");
+	vertexShader = getShader("dynamicPointFS");
+
+	pointcloudShader = gl.createProgram();
+	gl.attachShader(pointcloudShader, vertexShader);
+	gl.attachShader(pointcloudShader, fragmentShader);
+	gl.linkProgram(pointcloudShader);
+
+	if (!gl.getProgramParameter(pointcloudShader, gl.LINK_STATUS)) {
+		alert("Could not initialize dynamic point cloud shader");
+	}
+
+	pointcloudShader.texcoordAttribute = gl.getAttribLocation(pointcloudShader, "texcoord");
+	pointcloudShader.projMatrixUniform = gl.getUniformLocation(pointcloudShader, "projMatrix");
+	pointcloudShader.viewMatrixUniform = gl.getUniformLocation(pointcloudShader, "viewMatrix");
+	pointcloudShader.modelMatrixUniform = gl.getUniformLocation(pointcloudShader, "modelMatrix");
+	pointcloudShader.viewportHeightUniform = gl.getUniformLocation(pointcloudShader, "viewportHeight");
+	pointcloudShader.geometryMapUniform = gl.getUniformLocation(pointcloudShader, "geometryMap");
+	pointcloudShader.cloudScaleUniform = gl.getUniformLocation(pointcloudShader, "cloudScale");
+	pointcloudShader.cloudBiasUniform = gl.getUniformLocation(pointcloudShader, "cloudBias");
+	shaders.dynamicPointcloudShader = pointcloudShader;
+
+
+	// load the grid shader
 	fragmentShader = getShader("gridVS");
 	vertexShader = getShader("gridFS");
 
@@ -297,6 +321,25 @@ function loadShaders(basePath) {
 	boundsShader.areaUniform = gl.getUniformLocation(boundsShader, "projectedArea");
 	shaders.boundsShader = boundsShader;
 
+
+
+	// load the debug  quad shader
+	fragmentShader = getShader("quadFS");
+	vertexShader = getShader("debugQuadVS");
+
+	quadShader = gl.createProgram();
+	gl.attachShader(quadShader, vertexShader);
+	gl.attachShader(quadShader, fragmentShader);
+	gl.linkProgram(quadShader);
+
+	if (!gl.getProgramParameter(quadShader, gl.LINK_STATUS)) {
+		alert("Could not initialize debug quad shader");
+	}
+
+	quadShader.vertexPositionAttribute = gl.getAttribLocation(quadShader, "positionIn");
+	quadShader.colormapUniform = gl.getUniformLocation(quadShader, "colormap");
+	quadShader.resolutionUniform = gl.getUniformLocation(quadShader, "resolution");
+	shaders.debugQuadShader = quadShader;
 }
 
 
