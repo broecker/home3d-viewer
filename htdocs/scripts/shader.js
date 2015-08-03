@@ -378,8 +378,8 @@ shader.loadAll = function(shaders) {
 		}, function (url) {
 		alert('Failed to download "' + url + '"');
 	}); 
-
-
+	
+	/*
 	// load dynamic points shader 
 	shaders.dynamicPointcloudShader = null;	
 	shader._loadFiles(['shaders/dynamicPoints.vert', 'shaders/dynamicPoints.frag'], function (shaderText) {
@@ -421,6 +421,6 @@ shader.loadAll = function(shaders) {
 		}, function (url) {
 		alert('Failed to download "' + url + '"');
 	}); 
-
+	*/
 }
 

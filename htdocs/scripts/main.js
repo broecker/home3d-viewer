@@ -129,25 +129,6 @@ function resizeCanvas() {
 }
 
 
-lastVideoTime = 0.0;
-function updateVideoTexture() {
-  currentTime = global.videoElement.currentTime;
-  console.log("Current video time: " + currentTime);
-
-  // expected frame rate: 30fps
-  FRAME_RATE = 1.0 / 30.0;
-
-  if (Math.abs(currentTime - lastVideoTime) > FRAME_RATE) {
-    dynamicPointcloud.updateTexture(geometry.pointcloud, global.videoElement);
-
-    console.log("New frame.");
-    lastVideoTime = currentTime;
-  }
-
-
-
-}
-
 function drawFBO() {
 
   // display the fbo 
@@ -203,17 +184,6 @@ function updateFBO() {
     geometry.drawGrid();
 
 
-  if (!(shaders.dynamicPointcloudShader === null)) {
-    
-    gl.useProgram(shaders.dynamicPointcloudShader);
-    gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.viewMatrixUniform, false, global.viewMatrix);
-    gl.uniformMatrix4fv(shaders.dynamicPointcloudShader.projMatrixUniform, false, global.projMatrix);
-    gl.uniform1f(shaders.dynamicPointcloudShader.pointSizeUniform, global.pointSize);
-    gl.uniform3f(shaders.dynamicPointcloudShader.colorUniform, 1.0, 1.0, 1.0);
-
-
-    dynamicPointcloud.draw(geometry.pointcloud, shaders.dynamicPointcloudShader);
-  }
 
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving && (!shaders.objectShader === null))
@@ -255,9 +225,6 @@ function loop() {
   global.stats.begin();
 
   tick();
-
-  
-  updateVideoTexture();
 
   updateCamera();
   updateFBO();
@@ -607,21 +574,9 @@ function init() {
 
   global.updateVisibility = true;
 
-  // hard coded values for the bunny for now
-  /*
-  Points 35947
-  Bias -10.1709 3.29874 -10.1709
-  Scale 0.04916 0.0647947 0.0491599
-  */
-  var scale = vec3.fromValues(0.04916, 0.0647947, 0.0491599);
-  vec3.inverse(scale, scale);
-  var bias = vec3.fromValues(-10.1709, 3.29874, -10.1709);
-  var resolution = [256, 256];
-  var bbox = aabb.create([-10.1709, 3.29874, -10.1709], [10.1709, 18.7321, 10.1709]);
 
-  var pc = dynamicPointcloud.create(35497, scale, bias, resolution, bbox);
-  dynamicPointcloud.center(pc);
-  geometry.pointcloud = pc;
+  //var tree = octree.load(path);
+
 
   if (isMobile()) {
 
@@ -639,16 +594,6 @@ function init() {
     global.maxConcurrentLoads = 8;
 
   }
-
-  // initialize video
-  global.videoElement = document.getElementById("video");
-  global.videoElement.addEventListener("canplaythrough", startVideo, true);
-  global.videoElement.addEventListener("ended", videoDone, true);
-  global.videoTexture = gl.createTexture();
-
-  gl.bindTexture(gl.TEXTURE_2D, global.videoTexture);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
   // create trickle progress bar
   NProgress.start();
@@ -687,9 +632,9 @@ function getBasePath(address) {
 }
 
 
-function main() {
+function main(path) {
   
-  init();
+  init(path);
 
   loop();
 }

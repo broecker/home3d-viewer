@@ -149,29 +149,67 @@
 	<script src="scripts/geometry.js"></script>
 	<script src="scripts/dat-gui.js"></script>
 	<script src="scripts/framebuffer.js"></script>
-	<script src="scripts/dynamicPointcloud.js"></script>
+	<script src="scripts/octree.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src='scripts/nprogress.js'></script>
 
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
-	<body onload="main()">
-	<video autoplay loop id="video">
-		<source src="test.mp4" type="video/mp4">
-		Your browser does not support the video tag.
-	</video> 
-
+	<body onload="main('../taliesin.webgl/Taliesin.json')" >
 	<canvas id="canvas" width="800" height="600"></canvas>
 
-
-	<div class="buildInfo">Build: 20150409</div>
 	<div class="buttonBar">
 		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
-		<button type="button" class="btn" onclick="toggleAnimation()">Toggle Animation</button>
+		<!--
+		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button> -->
+		<button type="button" class="btn" onclick="resetCamera()">Reset Camera</button>
+		<button type="button" class="btn" onclick="increaseDetail()">Increase Detail</button>
+		<button type="button" class="btn" onclick="decreaseDetail()">Decrease Detail</button>
+		<!--<button type="button" class="btn" onclick="toggleFXAA()">Toggle Anti-aliasing</button> -->
+		<button type="button" class="btn" onclick="location.href='#openHelp';">Help</button>
 	</div>
-	
+
+	<div class="buildInfo">Build: 20150803</div>
+	<div class="pointInfo" id="pointsLoaded">Points: 0</div>
 
 
-</body>
+	<div id="openHelp" class="modalDialog">
+	<div>
+		<a href="#close" title="Close" class="close">X</a>
+		<h2>Help and Controls</h2>
+		<h3>Mouse Controls</h3>
+		<p><ul>
+		<li>Left mouse drag -- Rotate camera</li>
+		<li>Right mouse drag -- Move camera focus</li>
+		<li>Middle mouse drag -- Zoom camera</li>
+		</ul></p>
+		<h3>Touchpad Controls</h3>
+		<p><ul>
+		<li>Left mouse drag -- Rotate camera </li>
+		<li>Shift + Left mouse -- Pan camera </li>
+		<li>Ctrl + Left mouse -- Zoom camera </li>
+		</ul></p>
+		<h3>Touch Controls</h3>
+		<p><ul>
+		<li>Single finger drag -- Rotate camera</li>
+		<li>Two finger drag -- Pan camera</li>
+		<li>Two finger pinch -- Zoom camera </li>
+		</ul></p>
+		<h3>Options</h3>
+		<p><ul>
+		<li>Toggle Grid -- Displays a grid on the ground plane</li>
+		<li>Reset Camera -- Resets the camera to the initial position</li>
+		<li>In/Decrease Detail -- Changes max octree recursion depth</li>
+		<li>Help -- This window</li>
+		</ul></p>
+		<h3>Debug Commands</h3>
+		<p><ul>
+		<li>X -- Toggle FXAA anti-aliasing</li>
+		<li>A/Z -- In/Decrease max octree recursion depth</li>
+		<li>B -- Toggle bounding box display</li>
+		</ul></p>
+	</div>
+	</div>
+	</body>
 </html>
