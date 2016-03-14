@@ -1,5 +1,5 @@
 attribute vec3 positionIn;
-attribute vec3 normalIn;
+//attribute vec3 normalIn;
 
 uniform mat4 transform;
 uniform mat4 viewMatrix;

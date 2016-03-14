@@ -198,7 +198,7 @@ function inititalizeFBO() {
 
 
 
-  /*
+  
   shader = shaders.gridShader;
   if (global.enableBBox && geometry.octree && !(shader === null)) { 
     gl.useProgram(shader);
@@ -211,16 +211,13 @@ function inititalizeFBO() {
     octree.drawBBoxes(geometry.octree, shader);
 
   }
-  */
+  
 
 
   disableFBO(global.renderTarget);
 }
 
 function updateFBO() {
-
-  // remove me!
-  return;
 
 
   bindFBO(global.renderTarget);
@@ -805,7 +802,7 @@ function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
-  geometry.loadJsonModel('data/monkey.json', 'arrow')
+  geometry.loadJsonModel('data/arrow.json', 'arrow')
 
   loop();
 }

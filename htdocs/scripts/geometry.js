@@ -186,16 +186,19 @@ geometry.loadJsonModel = function(url, name) {
 			var modelIndexBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelIndexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(nodes.faceData), gl.STATIC_DRAW);
-			modelIndexBuffer.numTris = nodes.faceCount*3
+			modelIndexBuffer.numTris = nodes.faceData.length
 
 			var matrix = mat4.create();
 
-			var model = {transform:matrix, vertexBuffer:vertexPositionBuffer, normalBuffer:vertexNormalBuffer, indexBuffer:modelIndexBuffer};
+			mat4.translate(matrix, matrix, [3.0, 0.0, 2.0]);
+
+			var model = {transform:matrix, numTris:nodes.faceData.length, vertexBuffer:vertexPositionBuffer, normalBuffer:vertexNormalBuffer, indexBuffer:modelIndexBuffer};
 		
 			console.log(model);
 
 			geometry.models[name] = model;
-			console.log(geometry.models)
+		
+			console.log("saved model \"" + url + " \" in \"" + name + "\"")
 
 		}
 	}
@@ -222,20 +225,21 @@ geometry.drawJsonModel = function(modelName, color) {
 	var shader = shaders.objectShader;
 	
 	gl.useProgram(shader);
-	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 
+	// set the position
+	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
-	
 
+	// set the uniforms
 	gl.uniform3f(shader.colorUniform, color[0], color[1], color[2]);
 	gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
 	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
 	gl.uniformMatrix4fv(shader.transformUniform, false, model.transform);
 
-
+	// set the indices
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
 	gl.drawElements(gl.TRIANGLES, model.numTris, gl.UNSIGNED_SHORT, 0);
 	
 
