@@ -27,6 +27,8 @@ var canvas;
 var gl = null; // A global variable for the WebGL context
 
 
+var arrow = null;
+
 // store global variables
 var global = global || {};
 global.enableGrid = true;
@@ -44,6 +46,8 @@ global.touches = null;
 global.shiftHeld = false;
 global.ctrlHeld = false;
 
+
+global.showSolution = false;
 
 global.stats = null;
 
@@ -185,6 +189,8 @@ function inititalizeFBO() {
     geometry.drawGrid();
 
 
+  geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2]);
+
 
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving && (!shaders.objectShader === null))
@@ -192,6 +198,7 @@ function inititalizeFBO() {
 
 
 
+  /*
   shader = shaders.gridShader;
   if (global.enableBBox && geometry.octree && !(shader === null)) { 
     gl.useProgram(shader);
@@ -204,12 +211,17 @@ function inititalizeFBO() {
     octree.drawBBoxes(geometry.octree, shader);
 
   }
+  */
 
 
   disableFBO(global.renderTarget);
 }
 
 function updateFBO() {
+
+  // remove me!
+  return;
+
 
   bindFBO(global.renderTarget);
 
@@ -254,6 +266,9 @@ function updateFBO() {
 
 
   }
+
+  if (global.showSolution)
+    markers.drawMarkers();
 
 
   disableFBO(global.renderTarget);
@@ -779,11 +794,19 @@ function getBasePath(address) {
 }
 
 
+function toggleSolution() { 
+  global.showSolution = !global.showSolution;
+  global.updateVisibility = true;
+
+  console.log("Showing solution: " + global.showSolution);
+}
+
 function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
-
+  geometry.loadJsonModel('data/monkey.json', 'arrow')
 
   loop();
 }
+

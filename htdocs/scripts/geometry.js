@@ -151,3 +151,92 @@ geometry.drawFullscreenQuad = function(shader) {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 }
+
+
+geometry.loadJsonModel = function(url, name) { 
+
+	geometry.models = geometry.models || {};
+
+	var nodes = null;
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+
+			// remove all newline
+			var data = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
+			
+			nodes = JSON.parse(data);
+			console.log(nodes)
+
+
+			var vertexPositionBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nodes.vertexData), gl.STATIC_DRAW);
+			vertexPositionBuffer.itemSize = 3;
+			vertexPositionBuffer.numItems = nodes.vertexCount;
+
+			var vertexNormalBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nodes.normalData), gl.STATIC_DRAW);
+			vertexNormalBuffer.itemSize = 3;
+			vertexNormalBuffer.numItems = nodes.vertexCount;
+
+			var modelIndexBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelIndexBuffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(nodes.faceData), gl.STATIC_DRAW);
+			modelIndexBuffer.numTris = nodes.faceCount*3
+
+			var matrix = mat4.create();
+
+			var model = {transform:matrix, vertexBuffer:vertexPositionBuffer, normalBuffer:vertexNormalBuffer, indexBuffer:modelIndexBuffer};
+		
+			console.log(model);
+
+			geometry.models[name] = model;
+			console.log(geometry.models)
+
+		}
+	}
+
+	xmlhttp.open("GET", url, true)
+	xmlhttp.send();
+
+}
+
+
+geometry.drawJsonModel = function(modelName, color) { 
+
+	if (Object.keys(geometry.models).length == 0)
+		return;
+
+	var model = geometry.models[modelName];
+	//console.log(model);
+
+	if (model === undefined)
+		return;
+
+
+	
+	var shader = shaders.objectShader;
+	
+	gl.useProgram(shader);
+	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
+	gl.vertexAttribPointer(shader.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
+	
+
+	gl.uniform3f(shader.colorUniform, color[0], color[1], color[2]);
+	gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
+	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+	gl.uniformMatrix4fv(shader.transformUniform, false, model.transform);
+
+
+	gl.drawElements(gl.TRIANGLES, model.numTris, gl.UNSIGNED_SHORT, 0);
+	
+
+}

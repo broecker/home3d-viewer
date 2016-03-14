@@ -177,14 +177,16 @@ shader.loadAll = function(shaders, basepath) {
 			alert("Could not initialize object shader");
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
-		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
+		program.vertexNormalAttribute = gl.getAttribLocation(program, "normalIn");
 		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
 		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		program.colorUniform = gl.getUniformLocation(program, "color");
 		shaders.objectShader = program;
 
 		}, function (url) {
 		alert('Failed to download "' + url + '"');
 	}); 
+
 
 	// loading quad shader 
 	shaders.quadShader = null;	

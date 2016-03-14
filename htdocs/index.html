@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Hello Pointcloud!</title>
+	<title>School of Nursing -- Science Exploration 2016</title>
 
 	<style>
 	html, body {
@@ -144,6 +144,7 @@
 	<script src="scripts/stats.js"></script>
 	<script src="scripts/shader.js"></script>
 	<script src="scripts/geometry.js"></script>
+	<script src="scripts/markers.js"></script>
 	<script src="scripts/framebuffer.js"></script>
 	<script src="scripts/octree.js"></script>
 	<script src="scripts/main.js"></script>
@@ -152,7 +153,8 @@
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
-	<body onload="main('data/curiosity.sol1112/sol1112.json', '')" >
+	<body onload="main('data/son/son.json', '')" >
+	
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<div class="buttonBar">
@@ -164,6 +166,7 @@
 		<button type="button" class="btn" onclick="decreaseDetail()">Decrease Detail</button>
 		<!--<button type="button" class="btn" onclick="toggleFXAA()">Toggle Anti-aliasing</button> -->
 		<button type="button" class="btn" onclick="location.href='#openHelp';">Help</button>
+		<button type="button" class="btn" onclock="toggleSolution()">Show/Hide Solution</button>
 	</div>
 
 	<div class="buildInfo">Build: 20150803</div>
