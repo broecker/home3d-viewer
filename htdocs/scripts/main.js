@@ -128,7 +128,7 @@ function resizeCanvas() {
   gl.viewport(0, 0, width, height);
   global.viewport = [0, 0, width, height];
 
-  console.log("Resizing canvas to " + width + "x" + height);
+  //console.log("Resizing canvas to " + width + "x" + height);
 
 }
 
@@ -189,9 +189,6 @@ function inititalizeFBO() {
     geometry.drawGrid();
 
 
-  geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2]);
-
-
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving && (!shaders.objectShader === null))
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
@@ -210,8 +207,17 @@ function inititalizeFBO() {
 
     octree.drawBBoxes(geometry.octree, shader);
 
+
   }
-  
+
+
+  if (global.showSolution) {
+    markers.drawMarkers();  
+
+    geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2]);
+
+  }
+
 
 
   disableFBO(global.renderTarget);
@@ -262,10 +268,9 @@ function updateFBO() {
     }
 
 
-  }
+    geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2])
 
-  if (global.showSolution)
-    markers.drawMarkers();
+  }
 
 
   disableFBO(global.renderTarget);

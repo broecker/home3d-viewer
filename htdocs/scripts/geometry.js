@@ -231,12 +231,20 @@ geometry.drawJsonModel = function(modelName, color) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, model.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
+	// set the position
+	gl.enableVertexAttribArray(shader.vertexNormalAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+	gl.vertexAttribPointer(shader.vertexNormalAttribute, model.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
 
 	// set the uniforms
 	gl.uniform3f(shader.colorUniform, color[0], color[1], color[2]);
 	gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
 	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
 	gl.uniformMatrix4fv(shader.transformUniform, false, model.transform);
+
+	gl.uniform3f(shader.lightDirectionUniform, 2.0, 4.0, 1.0);
 
 	// set the indices
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);

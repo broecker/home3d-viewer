@@ -177,11 +177,14 @@ shader.loadAll = function(shaders, basepath) {
 			alert("Could not initialize object shader");
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
-	//program.vertexNormalAttribute = gl.getAttribLocation(program, "normalIn");
+		program.vertexNormalAttribute = gl.getAttribLocation(program, "normalIn");
 		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
 		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
 		program.transformUniform = gl.getUniformLocation(program, "transform");
 		program.colorUniform = gl.getUniformLocation(program, "color");
+		program.lightDirectionUniform = gl.getUniformLocation(program, "lightDirection");
+
+
 		shaders.objectShader = program;
 
 		}, function (url) {
