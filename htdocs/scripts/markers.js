@@ -50,8 +50,12 @@ markers.load = function(url) {
 
 					m.transform = mat4.create();
 					mat4.translate(m.transform, m.transform, currentValue.location);
-					var scale = [currentValue.scale, currentValue.scale, currentValue.scale];
-					mat4.scale(m.transform, m.transform, scale)
+
+					var scale = currentValue.scale;
+					if (scale === undefined)
+						scale = 1.0;
+
+					mat4.scale(m.transform, m.transform, [scale, scale, scale])
 
 					markers.push(m);
 			});
@@ -92,7 +96,7 @@ markers.draw = function() {
 	}
 
 	gl.enable(gl.CULL_FACE);
-	
+
 
 	gl.useProgram(shader);
 

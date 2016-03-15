@@ -210,7 +210,8 @@ function inititalizeFBO() {
   }
 
 
-  markers.draw();
+  if (global.showSolution)
+    markers.draw();
 
 
   disableFBO(global.renderTarget);
@@ -627,6 +628,11 @@ function handleKeydown(event) {
     resetCamera();
   }
 
+  // 's' -- toggle solution
+  if (event.keyCode == 83) {
+    toggleSolution(document.getElementById('SolutionButton'));
+  }
+
   // 'a' -- increase recursion level
   if (event.keyCode == 65) {
     increaseDetail();
@@ -785,11 +791,16 @@ function getBasePath(address) {
 }
 
 
-function toggleSolution() { 
+function toggleSolution(button) { 
+
   global.showSolution = !global.showSolution;
   global.updateVisibility = true;
 
-  console.log("Showing solution: " + global.showSolution);
+  if (global.showSolution === true)
+    button.innerHTML= "Hide Solution";
+  else 
+    button.innerHTML = "Show Solution";
+
 }
 
 function main(datapath, shaderpath) {
