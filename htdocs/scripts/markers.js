@@ -91,6 +91,9 @@ markers.draw = function() {
 		return;
 	}
 
+	gl.enable(gl.CULL_FACE);
+	
+
 	gl.useProgram(shader);
 
 	// set the position
