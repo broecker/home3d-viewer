@@ -207,17 +207,10 @@ function inititalizeFBO() {
 
     octree.drawBBoxes(geometry.octree, shader);
 
-
   }
 
 
-  if (global.showSolution) {
-    markers.drawMarkers();  
-
-    geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2]);
-
-  }
-
+  markers.draw();
 
 
   disableFBO(global.renderTarget);
@@ -266,10 +259,6 @@ function updateFBO() {
 
       }
     }
-
-
-    geometry.drawJsonModel('arrow', [1.0, 0.5, 0.2])
-
   }
 
 
@@ -807,7 +796,8 @@ function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
-  geometry.loadJsonModel('data/arrow.json', 'arrow')
+  geometry.loadJsonModel('data/arrow.json', 'arrow');
+  markers.load("data/markers.json");
 
   loop();
 }
