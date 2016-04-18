@@ -88,7 +88,7 @@ function isMobile() {
 function initWebGL(canvas) {  
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl", {preserveDrawingBuffer : true}) || canvas.getContext("experimental-webgl", {preserveDrawingBuffer : true});
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
 
@@ -155,7 +155,7 @@ function drawFBO() {
 }
 
 
-function updateFBO() {
+function inititalizeFBO() {
   // also clear the fbo
   bindFBO(global.renderTarget);
 
@@ -191,8 +191,74 @@ function updateFBO() {
 
 
 
+  shader = shaders.gridShader;
+  if (global.enableBBox && geometry.octree && !(shader === null)) { 
+    gl.useProgram(shader);
+    gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+
+    gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
+    gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
+    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+
+    octree.drawBBoxes(geometry.octree, shader);
+
+  }
+
+
   disableFBO(global.renderTarget);
 }
+
+function updateFBO() {
+
+  bindFBO(global.renderTarget);
+
+  gl.depthMask(true);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+
+
+  var shader = shaders.pointsShader;
+  if (geometry.octree && shader) {
+    // draw the points
+    gl.useProgram(shader);
+
+    gl.uniform1f(shader.pointSizeUniform, global.pointSize);
+    gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
+    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+
+
+    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * global.camera.fovy));
+    viewportHeight = 1.15 * 1024.0;
+    gl.uniform1f(shader.viewportHeightUniform, viewportHeight);
+
+
+    global.pointsDrawn = 0;
+
+
+    for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
+      var node = global.visibleList[i];
+
+      if (node.loaded === true) {
+        octree.drawNode(node, shader);
+        global.visibleList.splice(i, 1);
+      } else {
+
+        if (node.loaded === false && node.depth <= global.maxRecursion) {
+          octree.load(node);
+
+        }
+
+      }
+    }
+
+
+  }
+
+
+  disableFBO(global.renderTarget);
+
+}
+
 
 
 var lastTime = 0;
@@ -221,15 +287,91 @@ function updateCamera() {
 }
 
 
+function updateVisibility() {
+
+  // build a new visible set
+  global.visibleList = [];
+
+  if (geometry.octree) {
+
+    var mat = mat4.create();
+    mat4.multiply(mat, global.projMatrix, global.viewMatrix);
+
+    octree.setInvisible(geometry.octree);
+    octree.updateVisibility(geometry.octree, mat);
+    octree.updateLOD(geometry.octree, getPosition(global.camera));
+    octree.getVisibleNodes(geometry.octree, global.visibleList);
+  }
+
+
+  if (global.visibleList.length > 0) {
+
+    global.visibleList.sort(function(a,b) {
+      return a.lodDistance*a.depth - b.lodDistance*b.depth;
+    });
+
+    /*
+    // REMOVE ME -- just for testing
+    global.visibleList = global.visibleList.filter(function(node) {
+      return node.depth <= 1;
+    });
+    */
+
+
+    if (global.enableDensityCulling) {
+
+      global.visibleList.forEach(function(node) {
+        octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
+      });
+
+
+      var oldSize = global.visibleList.length;
+      global.visibleList = global.visibleList.filter(function(node) {
+        var density2 = node.points / node.screenArea;
+        return density2 < global.densityTreshold*global.densityTreshold;
+      });
+
+      console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
+
+    }
+
+  }
+
+
+
+  global.updateVisibility = false;
+}
+
+
 function loop() {
   global.stats.begin();
 
   tick();
 
-  updateCamera();
-  updateFBO();
+ // start a new frame
+  if (global.updateVisibility) {
 
-  // display our current render target
+    if (loop._runonce === undefined) {
+      loop._runonce = 'done';
+      global.updateVisibility = true;
+
+      resizeCanvas();
+
+    }
+
+    updateVisibility();
+
+    updateCamera();
+    inititalizeFBO();
+  }
+
+  // update the fbo
+  if (global.visibleList.length > 0) {
+
+      updateFBO();
+
+  }
+
   drawFBO();
   
  
@@ -427,6 +569,21 @@ function stopCameraMove() {
 }
 
 
+function increaseDetail() { 
+  ++global.maxRecursion;
+  global.updateVisibility =  true;
+}
+
+function decreaseDetail() { 
+  -- global.maxRecursion;
+  if (global.maxRecursion < 0)
+    global.maxRecursion = 0; 
+
+  global.updateVisibility = true;
+}
+
+
+
 function handleKeydown(event) { 
 
   // 'g'
@@ -511,16 +668,7 @@ function handleKeyup(event) {
 
 }
 
-function startVideo() {
-  global.videoElement.play();
-}
-
-function videoDone() { 
-}
-
-
-
-function init() {
+function init(datapath, shaderpath) {
   canvas = document.getElementById("canvas");
   
   canvas.addEventListener("webglcontextlost", function(event) {
@@ -560,7 +708,8 @@ function init() {
   global.camera = createOrbitalCamera();
   global.camera.radius = 20.0;
 
-  shader.loadAll(shaders);
+  shader.loadAll(shaders, shaderpath);
+
   geometry.createGridBuffer();
 
   // create FPS meter
@@ -573,6 +722,7 @@ function init() {
 
 
   global.updateVisibility = true;
+
 
 
   //var tree = octree.load(path);
@@ -595,6 +745,15 @@ function init() {
 
   }
 
+
+  // initialize octree
+  octree.initLoadQueue(global.maxConcurrentLoads);
+  geometry.octree = octree.parseJSON(datapath);
+
+  window.setInterval(octree.updateLoadQueue, 200);
+
+
+
   // create trickle progress bar
   NProgress.start();
 
@@ -610,19 +769,17 @@ function toggleBBox() {
   global.updateVisibility = true;
 }
 
+
+/// saves the current opengl canvas in an image and opens it in a new window 
+function saveScreenShot() {
+  var image = new Image();
+  image.src = canvas.toDataURL("image/png");
+   window.open(image.src);  
+}
+
 function toggleFXAA() { 
   global.enableFXAA = !global.enableFXAA;
 }
-
-function toggleAnimation() { 
-  video = global.videoElement;
-  if (video.paused)
-    video.play();
-  else
-    video.pause();
-
-}
-
 
 function getBasePath(address) { 
   var basepath = address.substring(0, address.lastIndexOf("/"));
@@ -632,9 +789,20 @@ function getBasePath(address) {
 }
 
 
+
+
 function main(path) {
   
   init(path);
+
+  loop();
+}
+
+function main(datapath, shaderpath) {
+  
+  init(datapath, shaderpath);
+
+
 
   loop();
 }

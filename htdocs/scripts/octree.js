@@ -266,7 +266,11 @@ octree.setInvisible = function(tree) {
 
 // performs view-frustum culling recursively on the tree
 octree.updateVisibility = function(tree, matrix) { 
+<<<<<<< HEAD
 	tree.visible = clipBox(tree.bbox, matrix);
+=======
+	tree.visible = aabb.clipBox(tree.bbox, matrix);
+>>>>>>> upstream/master
 
 
 	if (tree.children != null && tree.depth < global.maxRecursion) {
@@ -312,7 +316,7 @@ octree.getVisibleNodes = function(tree, list) {
 octree.updateLOD = function(tree, cameraPosition) { 
 
 
-	tree.lodDistance = vec3.distance(getCentroid(tree.bbox), cameraPosition);
+	tree.lodDistance = vec3.distance(aabb.getCentroid(tree.bbox), cameraPosition);
 	//tree.lodDistance = vec3.dot(getCentroid(tree.bbox), cameraPosition);
 	const MAX_LOD_DISTANCE = 50000;
 
@@ -344,7 +348,7 @@ octree.drawBBoxes = function(tree, shader) {
 		for (var i = 0; i < tree.children.length; ++i) 
 			octree.drawBBoxes(tree.children[i], shader);
 	else
-		drawAABB(tree.bbox, shader);
+		aabb.drawAABB(tree.bbox, shader);
 }
 
 
@@ -427,7 +431,6 @@ octree.parseJSON = function(jsonUrl) {
 					shuffle(node.children);
 
 				}
-
 
 
 				// calculate the point densities on the x,y and z planes

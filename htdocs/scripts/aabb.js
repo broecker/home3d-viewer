@@ -130,8 +130,7 @@ aabb.calculateAABBAreas = function(bbox) {
 // clips the box against the frustum specified by the matrix (proj*modelview)
 // returns 0 if box is completely outside, 1 if partially inside, 2 if fully inside 
 aabb.clipBox = function(bbox, matrix) {
-  var vertices = extractVertices(bbox);
- 
+  var vertices = aabb.extractVertices(bbox);
 
   /* the six planes, based on manually extracting the mvp columns from clip space coordinates, as seen here:
     http://www.lighthouse3d.com/tutorials/view-frustum-culling/clip-space-approach-extracting-the-planes/
@@ -202,31 +201,31 @@ aabb.clipBox = function(bbox, matrix) {
 aabb.drawAABB = function(bbox, shader) {
   
   // 'pseudo static' -- check if the unchanging variables have been initialized (once)
-  if (typeof drawAABB.vertexBuffer == 'undefined') {
+  if (typeof aabb.vertexBuffer == 'undefined') {
     console.log("creating AABB vertex buffers ");
     
     const bboxIndices = [ 0,1,1,2,2,3,3,0,
                           4,5,5,6,6,7,7,4,
                           0,4,1,5,2,6,3,7];
       
-    drawAABB.vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, drawAABB.vertexBuffer);
+    aabb.vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, aabb.vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(8*3), gl.STREAM_DRAW);
     
-    drawAABB.indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawAABB.indexBuffer);
+    aabb.indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, aabb.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(bboxIndices), gl.STATIC_DRAW);
     
 
   }
   
   // update vertex data
-  var vertices = extractVertices(bbox);
-  gl.bindBuffer(gl.ARRAY_BUFFER, drawAABB.vertexBuffer);
+  var vertices = aabb.extractVertices(bbox);
+  gl.bindBuffer(gl.ARRAY_BUFFER, aabb.vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
  
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawAABB.indexBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, aabb.indexBuffer);
   
   // setup shader
   gl.useProgram(shader);
