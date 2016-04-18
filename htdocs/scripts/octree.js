@@ -266,11 +266,7 @@ octree.setInvisible = function(tree) {
 
 // performs view-frustum culling recursively on the tree
 octree.updateVisibility = function(tree, matrix) { 
-<<<<<<< HEAD
-	tree.visible = clipBox(tree.bbox, matrix);
-=======
 	tree.visible = aabb.clipBox(tree.bbox, matrix);
->>>>>>> upstream/master
 
 
 	if (tree.children != null && tree.depth < global.maxRecursion) {
@@ -433,6 +429,7 @@ octree.parseJSON = function(jsonUrl) {
 				}
 
 
+				/*
 				// calculate the point densities on the x,y and z planes
 				var area = calculateAABBAreas(node.bbox);
 				node.pointDensity = [0, 0, 0];
@@ -442,7 +439,7 @@ octree.parseJSON = function(jsonUrl) {
 				node.pointDensity[0] = pointsPerSide / area[0];
 				node.pointDensity[1] = pointsPerSide / area[1];
 				node.pointDensity[2] = pointsPerSide / area[2];
-				
+				*/
 
 				// set loaded flag to false
 				node.loaded = false;
