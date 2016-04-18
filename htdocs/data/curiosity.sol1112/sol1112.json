@@ -1,0 +1,286 @@
+[
+{
+"parent":null,
+"file":"node-root",
+"points":60000,
+"bbox":{ "min":[-5.27515,-0.952449,-8.25532], "max":[5.27515,0.952449,8.25532]},
+"children":["node-0", "node-1", null, null, "node-4", "node-5", "node-6", "node-7"]
+},
+{
+"parent":"node-root",
+"file":"node-0",
+"points":4622,
+"bbox":{ "min":[-4.11319,0.000193119,-1.23365], "max":[-3.11386,0.785094,-0.425031]},
+"children":null},
+{
+"parent":"node-root",
+"file":"node-1",
+"points":15113,
+"bbox":{ "min":[-3.42803,5.00679e-006,1.12773], "max":[-1.60295,0.952449,4.46213]},
+"children":null},
+{
+"parent":"node-root",
+"file":"node-4",
+"points":60000,
+"bbox":{ "min":[-5.27515,-0.952449,-8.25532], "max":[-7.15256e-006,-5.6982e-005,-1.96695e-005]},
+"children":[null, "node-41", null, null, "node-44", "node-45", "node-46", "node-47"]
+},
+{
+"parent":"node-4",
+"file":"node-41",
+"points":1088,
+"bbox":{ "min":[-4.01491,-0.236501,-1.33869], "max":[-3.06281,-5.6982e-005,-0.38803]},
+"children":null},
+{
+"parent":"node-4",
+"file":"node-44",
+"points":56948,
+"bbox":{ "min":[-5.27515,-0.928013,-8.25532], "max":[-2.63758,-0.733522,-4.12769]},
+"children":null},
+{
+"parent":"node-4",
+"file":"node-45",
+"points":60064,
+"bbox":{ "min":[-5.20436,-0.894603,-4.12763], "max":[-2.63761,-0.738265,-0.000206664]},
+"children":["node-450", null, null, null, "node-454", "node-455", "node-456", "node-457"]
+},
+{
+"parent":"node-45",
+"file":"node-450",
+"points":263,
+"bbox":{ "min":[-5.19965,-0.816408,-4.11255], "max":[-3.93315,-0.783408,-2.07248]},
+"children":null},
+{
+"parent":"node-45",
+"file":"node-454",
+"points":704,
+"bbox":{ "min":[-5.16055,-0.85829,-4.12688], "max":[-3.92232,-0.816435,-2.06393]},
+"children":null},
+{
+"parent":"node-45",
+"file":"node-455",
+"points":225,
+"bbox":{ "min":[-4.82664,-0.852658,-2.05941], "max":[-3.92192,-0.817107,-1.38919]},
+"children":null},
+{
+"parent":"node-45",
+"file":"node-456",
+"points":365,
+"bbox":{ "min":[-3.91898,-0.882359,-2.06131], "max":[-2.6406,-0.81804,-0.400206]},
+"children":null},
+{
+"parent":"node-45",
+"file":"node-457",
+"points":1070,
+"bbox":{ "min":[-3.92072,-0.880957,-4.12737], "max":[-2.63909,-0.817758,-2.06644]},
+"children":null},
+{
+"parent":"node-4",
+"file":"node-46",
+"points":60018,
+"bbox":{ "min":[-2.63757,-0.877162,-4.12765], "max":[-7.15256e-006,-0.6445,-1.96695e-005]},
+"children":["node-460", null, "node-462", null, "node-464", "node-465", "node-466", "node-467"]
+},
+{
+"parent":"node-46",
+"file":"node-460",
+"points":283,
+"bbox":{ "min":[-1.93521,-0.760804,-2.39694], "max":[-1.60993,-0.711105,-2.12731]},
+"children":null},
+{
+"parent":"node-46",
+"file":"node-462",
+"points":500,
+"bbox":{ "min":[-1.31147,-0.760829,-1.4097], "max":[-0.0113978,-0.655275,-0.00966167]},
+"children":null},
+{
+"parent":"node-46",
+"file":"node-464",
+"points":9163,
+"bbox":{ "min":[-2.63738,-0.876946,-4.12763], "max":[-1.31892,-0.760907,-2.06406]},
+"children":null},
+{
+"parent":"node-46",
+"file":"node-465",
+"points":9926,
+"bbox":{ "min":[-2.63757,-0.835401,-2.06369], "max":[-1.31886,-0.771498,-0.000312664]},
+"children":null},
+{
+"parent":"node-46",
+"file":"node-466",
+"points":9108,
+"bbox":{ "min":[-1.31862,-0.84351,-2.06359], "max":[-0.000224113,-0.76087,-0.000519671]},
+"children":null},
+{
+"parent":"node-46",
+"file":"node-467",
+"points":8383,
+"bbox":{ "min":[-1.31879,-0.876156,-4.1275], "max":[-0.000206947,-0.762711,-2.0639]},
+"children":null},
+{
+"parent":"node-4",
+"file":"node-47",
+"points":60182,
+"bbox":{ "min":[-2.63755,-0.952449,-7.98164], "max":[-0.000115871,-0.831613,-4.12772]},
+"children":[null, "node-471", null, null, "node-474", "node-475", "node-476", "node-477"]
+},
+{
+"parent":"node-47",
+"file":"node-471",
+"points":110,
+"bbox":{ "min":[-2.63747,-0.891765,-4.89077], "max":[-1.32384,-0.858337,-4.13382]},
+"children":null},
+{
+"parent":"node-47",
+"file":"node-474",
+"points":158,
+"bbox":{ "min":[-2.62614,-0.942345,-7.47544], "max":[-1.32128,-0.892361,-6.06603]},
+"children":null},
+{
+"parent":"node-47",
+"file":"node-475",
+"points":189,
+"bbox":{ "min":[-2.63514,-0.943188,-6.05124], "max":[-1.32783,-0.892031,-4.53482]},
+"children":null},
+{
+"parent":"node-47",
+"file":"node-476",
+"points":181,
+"bbox":{ "min":[-1.31865,-0.944881,-6.03713], "max":[-0.00131798,-0.892251,-4.57596]},
+"children":null},
+{
+"parent":"node-47",
+"file":"node-477",
+"points":161,
+"bbox":{ "min":[-1.31848,-0.950491,-7.47491], "max":[-0.0116339,-0.892073,-6.06491]},
+"children":null},
+{
+"parent":"node-root",
+"file":"node-5",
+"points":60000,
+"bbox":{ "min":[-3.2171,-0.838812,8.63299e-005], "max":[-2.38419e-005,-4.19617e-005,8.25532]},
+"children":["node-50", null, null, null, "node-54", null, "node-56", "node-57"]
+},
+{
+"parent":"node-5",
+"file":"node-50",
+"points":1750,
+"bbox":{ "min":[-3.20975,-0.414717,1.09901], "max":[-1.88836,-0.000918865,3.65187]},
+"children":null},
+{
+"parent":"node-5",
+"file":"node-54",
+"points":12308,
+"bbox":{ "min":[-2.91877,-0.806872,0.000290334], "max":[-1.60862,-0.465604,3.85084]},
+"children":null},
+{
+"parent":"node-5",
+"file":"node-56",
+"points":5600,
+"bbox":{ "min":[-1.30459,-0.826001,4.12782], "max":[-0.000207901,-0.696294,8.25431]},
+"children":null},
+{
+"parent":"node-5",
+"file":"node-57",
+"points":32643,
+"bbox":{ "min":[-1.60855,-0.795279,0.00012733], "max":[-0.000277042,-0.629777,4.12741]},
+"children":null},
+{
+"parent":"node-root",
+"file":"node-6",
+"points":60000,
+"bbox":{ "min":[1.90735e-006,-0.924183,6.43358e-005], "max":[5.27515,-0.59682,7.97002]},
+"children":["node-60", "node-61", "node-62", "node-63", "node-64", "node-65", null, "node-67"]
+},
+{
+"parent":"node-6",
+"file":"node-60",
+"points":55916,
+"bbox":{ "min":[1.90735e-006,-0.760497,0.00231733], "max":[2.63747,-0.601259,3.985]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-61",
+"points":28006,
+"bbox":{ "min":[3.91006e-005,-0.760498,3.98506], "max":[2.63755,-0.648613,7.95371]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-62",
+"points":11329,
+"bbox":{ "min":[2.63773,-0.733285,3.98509], "max":[4.36817,-0.59682,6.75905]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-63",
+"points":27336,
+"bbox":{ "min":[2.63764,-0.760501,0.00034833], "max":[5.26182,-0.604443,3.98484]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-64",
+"points":7364,
+"bbox":{ "min":[0.000325203,-0.792398,7.83354e-005], "max":[2.63733,-0.760505,0.672469]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-65",
+"points":4202,
+"bbox":{ "min":[0.000123978,-0.914941,5.09502], "max":[1.56789,-0.760507,7.72224]},
+"children":null},
+{
+"parent":"node-6",
+"file":"node-67",
+"points":3004,
+"bbox":{ "min":[2.63759,-0.78944,0.000149332], "max":[5.27515,-0.760503,1.63112]},
+"children":null},
+{
+"parent":"node-root",
+"file":"node-7",
+"points":60092,
+"bbox":{ "min":[1.19209e-005,-0.928978,-7.52284], "max":[4.85121,-0.709206,-2.46689e-005]},
+"children":["node-70", "node-71", "node-72", null, "node-74", "node-75", "node-76", "node-77"]
+},
+{
+"parent":"node-7",
+"file":"node-70",
+"points":281,
+"bbox":{ "min":[0.257466,-0.819087,-7.34449], "max":[2.42108,-0.799678,-5.3156]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-71",
+"points":12279,
+"bbox":{ "min":[1.19209e-005,-0.81909,-2.21647], "max":[2.42549,-0.732321,-7.16671e-005]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-72",
+"points":15719,
+"bbox":{ "min":[2.4258,-0.819089,-3.70079], "max":[4.84483,-0.709206,-2.46689e-005]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-74",
+"points":24445,
+"bbox":{ "min":[1.19209e-005,-0.928978,-7.52284], "max":[2.4256,-0.8191,-3.76143]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-75",
+"points":36420,
+"bbox":{ "min":[0.000188828,-0.886633,-3.76123], "max":[2.42549,-0.819092,-0.462639]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-76",
+"points":7681,
+"bbox":{ "min":[2.42565,-0.86473,-3.76101], "max":[3.58838,-0.819097,-0.852403]},
+"children":null},
+{
+"parent":"node-7",
+"file":"node-77",
+"points":3258,
+"bbox":{ "min":[2.42587,-0.860604,-5.31221], "max":[3.24152,-0.819139,-3.76173]},
+"children":null}
+]
