@@ -27,6 +27,8 @@ var canvas;
 var gl = null; // A global variable for the WebGL context
 
 
+var arrow = null;
+
 // store global variables
 var global = global || {};
 global.enableGrid = true;
@@ -45,6 +47,7 @@ global.shiftHeld = false;
 global.ctrlHeld = false;
 
 
+global.showSolution = false;
 global.stats = null;
 
 global.maxConcurrentLoads = 20;
@@ -124,7 +127,7 @@ function resizeCanvas() {
   gl.viewport(0, 0, width, height);
   global.viewport = [0, 0, width, height];
 
-  console.log("Resizing canvas to " + width + "x" + height);
+  //console.log("Resizing canvas to " + width + "x" + height);
 
 }
 
@@ -183,12 +186,9 @@ function inititalizeFBO() {
   if (global.enableGrid && !(shaders.gridShader === null))
     geometry.drawGrid();
 
-
-
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving && (!shaders.objectShader === null))
     drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
-
 
 
   shader = shaders.gridShader;
@@ -204,6 +204,9 @@ function inititalizeFBO() {
 
   }
 
+
+  if (global.showSolution)
+    markers.draw();
 
   disableFBO(global.renderTarget);
 }
@@ -250,8 +253,6 @@ function updateFBO() {
 
       }
     }
-
-
   }
 
 
@@ -284,8 +285,8 @@ function updateCamera() {
 
   mat4.multiply(global.modelViewProjection, global.projMatrix, global.viewMatrix);
   mat4.invert(global.inverseModelViewProjection, global.modelViewProjection);
-}
 
+}
 
 function updateVisibility() {
 
@@ -341,7 +342,6 @@ function updateVisibility() {
 
   global.updateVisibility = false;
 }
-
 
 function loop() {
   global.stats.begin();
@@ -583,7 +583,6 @@ function decreaseDetail() {
 }
 
 
-
 function handleKeydown(event) { 
 
   // 'g'
@@ -618,6 +617,11 @@ function handleKeydown(event) {
   // 'c' - center camera
   if (event.keyCode == 67) {
     resetCamera();
+  }
+
+  // 's' -- toggle solution
+  if (event.keyCode == 83) {
+    toggleSolution(document.getElementById('SolutionButton'));
   }
 
   // 'a' -- increase recursion level
@@ -724,7 +728,6 @@ function init(datapath, shaderpath) {
   global.updateVisibility = true;
 
 
-
   //var tree = octree.load(path);
 
 
@@ -769,7 +772,6 @@ function toggleBBox() {
   global.updateVisibility = true;
 }
 
-
 /// saves the current opengl canvas in an image and opens it in a new window 
 function saveScreenShot() {
   var image = new Image();
@@ -789,20 +791,24 @@ function getBasePath(address) {
 }
 
 
+function toggleSolution(button) { 
 
+  global.showSolution = !global.showSolution;
+  global.updateVisibility = true;
 
-function main(path) {
-  
-  init(path);
+  if (global.showSolution === true)
+    button.innerHTML= "Hide Solution";
+  else 
+    button.innerHTML = "Show Solution";
 
-  loop();
 }
 
 function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
-
+  geometry.loadJsonModel('data/arrow.json', 'arrow');
+ // markers.load("data/markers.json");
 
   loop();
 }

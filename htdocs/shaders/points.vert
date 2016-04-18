@@ -4,7 +4,6 @@ attribute vec3 colorIn;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 
-uniform float pointSize;
 //uniform float pointSize;
 
 uniform float viewportHeight;
@@ -17,9 +16,7 @@ void main()
 	color = colorIn;
 		
 	// conversion factor converts from m to cm
-	gl_PointSize = (viewportHeight * pointSize * 0.01) / gl_Position.w;
 	const float pointSize = 0.01;
-
-	//gl_PointSize = (viewportHeight * pointSize) / gl_Position.w;
+	gl_PointSize = (viewportHeight * pointSize) / gl_Position.w;
 	
 }

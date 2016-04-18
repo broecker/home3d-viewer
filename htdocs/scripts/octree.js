@@ -428,7 +428,6 @@ octree.parseJSON = function(jsonUrl) {
 
 				}
 
-
 				/*
 				// calculate the point densities on the x,y and z planes
 				var area = calculateAABBAreas(node.bbox);

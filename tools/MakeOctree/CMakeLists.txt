@@ -16,6 +16,7 @@ find_package (Boost)
 include_directories(${include_directories} ${Boost_INCLUDE_DIRS})
 link_directories(${link_directories} ${Boost_LIBRARY_DIRS})
 
+<<<<<<< HEAD
 # add eigen
 include_directories(${include_directories} "/mnt/ws/home/mbroecker/include/eigen3")
 
@@ -36,6 +37,8 @@ set(CMAKE_CXX_COMPILER "g++-4.7")
 add_executable(makeOctree main.cpp Octree.cpp AABB.cpp)
 target_link_libraries (makeOctree pcl_common pcl_io)
 
+=======
+>>>>>>> FETCH_HEAD
 # add glm
 find_package(GLM)
 include_directories(${GLM_INCLUDE_DIRS})
@@ -51,3 +54,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_GRAPHICS -DNO_TIMER -Wall -std=c++0
 add_executable(makeOctree main.cpp Octree.cpp AABB.cpp)
 target_link_libraries (makeOctree)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> FETCH_HEAD
