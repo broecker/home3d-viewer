@@ -73,6 +73,11 @@ window.mobilecheck = function() {
   return check;
 }
 
+window.IE11check = function() { 
+  return (!(window.ActiveXObject) && "ActiveXObject" in window);
+}
+
+
 function isMobile() {
     if (navigator.userAgent.match(/Android/i)
             || navigator.userAgent.match(/iPhone/i)
@@ -722,7 +727,9 @@ function init(datapath, shaderpath) {
   global.stats.domElement.style.position = 'absolute';
   global.stats.domElement.style.right = '5px';
   global.stats.domElement.style.bottom = '5px';
-  //document.body.appendChild(global.stats.domElement);
+  
+  // disable the following line to disable drawing
+  document.body.appendChild(global.stats.domElement);
 
 
   global.updateVisibility = true;
@@ -782,9 +789,12 @@ function saveScreenShotInEditor() {
 
 function saveCanvasToFile() {
   var filename = 'home3d_canvas_' + Date.now() + ".png";
-  ReImg.fromCanvas(document.getElementById('canvas')).downloadPng();
+  var canvas = document.getElementById('canvas');
 
-
+  if (window.IE11check())
+    window.navigator.msSaveBlob(canvas.msToBlob(), filename);
+  else
+    ReImg.fromCanvas(canvas).downloadPng(filename);
 }
 
 
