@@ -93,11 +93,11 @@ function bindFBO(fbo) {
    	//debugger;
 }
 
-function disableFBO(fbo) { 
+function disableFBO(fbo, viewport) { 
 
 	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.bindTexture(gl.TEXTURE_2D, null);
-	gl.viewport(global.viewport[0], global.viewport[1], global.viewport[2], global.viewport[3] );
+	gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3] );
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }

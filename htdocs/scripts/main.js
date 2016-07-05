@@ -31,9 +31,6 @@ var arrow = null;
 
 // store global variables
 var global = global || {};
-global.enableGrid = true;
-global.enableBBox = false;
-global.enableFXAA = true;
 
 global.viewMatrix = mat4.create();
 global.projMatrix = mat4.create();
@@ -46,7 +43,6 @@ global.touches = null;
 global.shiftHeld = false;
 global.ctrlHeld = false;
 
-
 global.showSolution = false;
 global.stats = null;
 
@@ -54,9 +50,6 @@ global.maxConcurrentLoads = 20;
 
 global.renderTarget = null;
 global.renderTargetResolution = [1024, 1024];
-
-global.clearColor = [0, 0, 0.2];
-
 
 global.videoElement = null;
 
@@ -102,7 +95,9 @@ function initWebGL(canvas) {
 
 
   }
-  catch(e) {}
+  catch(e) {
+    console.error(e);
+  }
   
   // If we don't have a GL context, give up now
   if (!gl) {
@@ -130,7 +125,7 @@ function resizeCanvas() {
   } 
 
   gl.viewport(0, 0, width, height);
-  global.viewport = [0, 0, width, height];
+  window.renderer.resize([0, 0, width, height])
 
   //console.log("Resizing canvas to " + width + "x" + height);
 
@@ -168,7 +163,7 @@ function inititalizeFBO() {
   bindFBO(global.renderTarget);
 
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.clearColor(global.clearColor[0], global.clearColor[1], global.clearColor[2], 1.0); 
+  gl.clearColor(renderer.clearColor[0], renderer.clearColor[1], renderer.clearColor[2], 1.0); 
 
   // draw the skybox
   if (!(shaders.skyboxShader === null)) {
@@ -188,7 +183,7 @@ function inititalizeFBO() {
   }
 
   // draw all static elements ... 
-  if (global.enableGrid && !(shaders.gridShader === null))
+  if (window.renderer.enableGrid && !(shaders.gridShader === null))
     geometry.drawGrid();
 
   //if (global.mouse.button[0] || global.mouse.button[2])
@@ -197,7 +192,7 @@ function inititalizeFBO() {
 
 
   shader = shaders.gridShader;
-  if (global.enableBBox && geometry.octree && !(shader === null)) { 
+  if (window.renderer.enableBBoxes && geometry.octree && !(shader === null)) { 
     gl.useProgram(shader);
     gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 
@@ -213,7 +208,7 @@ function inititalizeFBO() {
   if (global.showSolution)
     markers.draw();
 
-  disableFBO(global.renderTarget);
+  disableFBO(global.renderTarget, renderer.viewport);
 }
 
 function updateFBO() {
@@ -243,12 +238,12 @@ function updateFBO() {
     global.pointsDrawn = 0;
 
 
-    for (var i = 0; i < global.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
-      var node = global.visibleList[i];
+    for (var i = 0; i < renderer.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
+      var node = renderer.visibleList[i];
 
       if (node.loaded === true) {
         octree.drawNode(node, shader);
-        global.visibleList.splice(i, 1);
+        renderer.visibleList.splice(i, 1);
       } else {
 
         if (node.loaded === false && node.depth <= global.maxRecursion) {
@@ -261,7 +256,7 @@ function updateFBO() {
   }
 
 
-  disableFBO(global.renderTarget);
+  disableFBO(global.renderTarget, renderer.viewport);
 
 }
 
@@ -296,7 +291,7 @@ function updateCamera() {
 function updateVisibility() {
 
   // build a new visible set
-  global.visibleList = [];
+  renderer.visibleList = [];
 
   if (geometry.octree) {
 
@@ -306,19 +301,19 @@ function updateVisibility() {
     octree.setInvisible(geometry.octree);
     octree.updateVisibility(geometry.octree, mat);
     octree.updateLOD(geometry.octree, getPosition(global.camera));
-    octree.getVisibleNodes(geometry.octree, global.visibleList);
+    octree.getVisibleNodes(geometry.octree, renderer.visibleList);
   }
 
 
-  if (global.visibleList.length > 0) {
+  if (renderer.visibleList.length > 0) {
 
-    global.visibleList.sort(function(a,b) {
+    renderer.visibleList.sort(function(a,b) {
       return a.lodDistance*a.depth - b.lodDistance*b.depth;
     });
 
     /*
     // REMOVE ME -- just for testing
-    global.visibleList = global.visibleList.filter(function(node) {
+    renderer.visibleList = renderer.visibleList.filter(function(node) {
       return node.depth <= 1;
     });
     */
@@ -326,26 +321,26 @@ function updateVisibility() {
 
     if (global.enableDensityCulling) {
 
-      global.visibleList.forEach(function(node) {
+      renderer.visibleList.forEach(function(node) {
         octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
       });
 
 
-      var oldSize = global.visibleList.length;
-      global.visibleList = global.visibleList.filter(function(node) {
+      var oldSize = renderer.visibleList.length;
+      renderer.visibleList = renderer.visibleList.filter(function(node) {
         var density2 = node.points / node.screenArea;
         return density2 < global.densityTreshold*global.densityTreshold;
       });
 
-      console.log("Removed " + (oldSize-global.visibleList.length) + " nodes, " + global.visibleList.length + " remaining");
+      console.log("Removed " + (oldSize-renderer.visibleList.length) + " nodes, " + renderer.visibleList.length + " remaining");
 
     }
 
   }
 
 
+  window.renderer.updateVisibility = false;
 
-  global.updateVisibility = false;
 }
 
 function loop() {
@@ -354,11 +349,11 @@ function loop() {
   tick();
 
  // start a new frame
-  if (global.updateVisibility) {
+  if (window.renderer.updateVisibility) {
 
     if (loop._runonce === undefined) {
       loop._runonce = 'done';
-      global.updateVisibility = true;
+      window.renderer.updateVisibility = true;
 
       resizeCanvas();
 
@@ -371,7 +366,7 @@ function loop() {
   }
 
   // update the fbo
-  if (global.visibleList.length > 0) {
+  if (renderer.visibleList.length > 0) {
 
       updateFBO();
 
@@ -423,17 +418,17 @@ function handleMouseMotion(event) {
     else
       rotateCameraAroundTarget(global.camera, deltaY*Math.PI, -deltaX*Math.PI);
 
-    global.updateVisibility = true;
+    window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[1]) {
     moveCameraTowardsTarget(global.camera, deltaY*10);
-    global.updateVisibility = true;
+    window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[2]) {
     panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
-    global.updateVisibility = true;
+    window.renderer.updateVisibility = true;
   }
 
 
@@ -447,7 +442,7 @@ function handleMouseWheel(event) {
   var delta = event.wheelDelta* 0.05;;
  moveCameraTowardsTarget(global.camera, delta);
 
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 }
 
 
@@ -545,13 +540,13 @@ function handleTouchMove(event) {
 
   global.touches = event.targetTouches;
   global.mouse.lastPosition = mousePosition;
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 }
 
 
 function resetCamera() {
   
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 
   global.camera = createOrbitalCamera();
   global.camera.radius = 20.0;
@@ -562,7 +557,7 @@ function startCameraMove() {
   global.renderTargetResolution.old = global.renderTargetResolution;
   resizeFBO(global.renderTarget, [global.renderTargetResolution[0]/2, global.renderTargetResolution[1]/2]);
 
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 
 }
 
@@ -570,13 +565,13 @@ function stopCameraMove() {
   global.camera.isMoving = false;
   resizeFBO(global.renderTarget, global.renderTargetResolution.old);
 
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 }
 
 
 function increaseDetail() { 
   ++global.maxRecursion;
-  global.updateVisibility =  true;
+  window.renderer.updateVisibility =  true;
 }
 
 function decreaseDetail() { 
@@ -584,7 +579,7 @@ function decreaseDetail() {
   if (global.maxRecursion < 0)
     global.maxRecursion = 0; 
 
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 }
 
 
@@ -593,7 +588,7 @@ function handleKeydown(event) {
   // 'g'
   if (event.keyCode == 71) {
     global.enableGrid = !global.enableGrid;
-    global.updateVisibility = true;
+    window.renderer.updateVisibility = true;
   }
 
   // up
@@ -641,7 +636,7 @@ function handleKeydown(event) {
 
   // 'x' -- enable multisampling
   if (event.keyCode == 88) {
-    global.enableFXAA = !global.enableFXAA;
+    window.renderer.enableFXAA = !global.enableFXAA;
   }
 
 
@@ -649,7 +644,7 @@ function handleKeydown(event) {
   // b
   if (event.keyCode == 66) {
     global.enableBBox = !global.enableBBox;
-    global.updateVisibility = true;
+    window.renderer.updateVisibility = true;
   }
 
   // 'shift'
@@ -731,10 +726,6 @@ function init(datapath, shaderpath) {
   // disable the following line to disable drawing
   document.body.appendChild(global.stats.domElement);
 
-
-  global.updateVisibility = true;
-
-
   //var tree = octree.load(path);
 
 
@@ -742,14 +733,12 @@ function init(datapath, shaderpath) {
 
     global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 50000;
-    global.clearColor = [0, 0, 0.2, 0.0]
     global.maxRecursion = 1;
     global.maxConcurrentLoads = 3;
 
   } else { 
     global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 250000;
-    global.clearColor = [0.1, 0.2, 0.3, 0];
     global.maxRecursion = 2;
     global.maxConcurrentLoads = 8;
 
@@ -767,16 +756,6 @@ function init(datapath, shaderpath) {
   // create trickle progress bar
   NProgress.start();
 
-}
-
-function toggleGrid() { 
-  global.enableGrid = !global.enableGrid;
-  global.updateVisibility = true;
-}
-
-function toggleBBox() { 
-  global.enableBBox = !global.enableBBox;
-  global.updateVisibility = true;
 }
 
 /// saves the current opengl canvas in an image and opens it in a new window 
@@ -797,11 +776,6 @@ function saveCanvasToFile() {
     ReImg.fromCanvas(canvas).downloadPng(filename);
 }
 
-
-function toggleFXAA() { 
-  global.enableFXAA = !global.enableFXAA;
-}
-
 function getBasePath(address) { 
   var basepath = address.substring(0, address.lastIndexOf("/"));
   basepath = basepath.substring(0, basepath.lastIndexOf("/")+1);
@@ -813,7 +787,7 @@ function getBasePath(address) {
 function toggleSolution(button) { 
 
   global.showSolution = !global.showSolution;
-  global.updateVisibility = true;
+  window.renderer.updateVisibility = true;
 
   if (global.showSolution === true)
     button.innerHTML= "Hide Solution";
@@ -828,6 +802,9 @@ function main(datapath, shaderpath) {
 
   geometry.loadJsonModel('data/arrow.json', 'arrow');
  // markers.load("data/markers.json");
+
+  window.renderer.init();
+  console.log(renderer);
 
   loop();
 }

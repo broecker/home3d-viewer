@@ -158,6 +158,7 @@
 	<script src="scripts/main.js"></script>
 	<script src='scripts/nprogress.js'></script>
 	<script src='scripts/reimg.js'></script>
+	<script src='scripts/renderer.js'></script>
 
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
@@ -166,9 +167,9 @@
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<div class="buttonBar">
-		<button type="button" class="btn" onclick="toggleGrid()">Toggle Grid</button>
+		<button type="button" class="btn" onclick="renderer.toggleGrid()">Toggle Grid</button>
 		<!--
-		<button type="button" class="btn" onclick="toggleBBox()">Toggle BBox</button> -->
+		<button type="button" class="btn" onclick="renderer.toggleBBoxes()">Toggle BBox</button> -->
 		<button type="button" class="btn" onclick="resetCamera()">Reset Camera</button>
 		<button type="button" class="btn" onclick="increaseDetail()">Increase Detail</button>
 		<button type="button" class="btn" onclick="decreaseDetail()">Decrease Detail</button>
