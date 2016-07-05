@@ -37,12 +37,9 @@ global.touches = null;
 global.shiftHeld = false;
 global.ctrlHeld = false;
 
-global.showSolution = false;
 global.stats = null;
 
 global.maxConcurrentLoads = 20;
-
-global.videoElement = null;
 
 // store shaders
 var shaders = shaders || {};
@@ -113,13 +110,11 @@ function resizeCanvas() {
   } 
 
   gl.viewport(0, 0, width, height);
-  window.renderer.resize([0, 0, width, height])
+  renderer.resize([0, 0, width, height])
 
   //console.log("Resizing canvas to " + width + "x" + height);
 
 }
-
-
 
 
 function inititalizeFBO() {
@@ -167,10 +162,6 @@ function inititalizeFBO() {
     octree.drawBBoxes(geometry.octree, shader);
 
   }
-
-
-  if (global.showSolution)
-    markers.draw();
 
   framebuffer.disable(renderer.renderTarget);
   gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
@@ -227,30 +218,17 @@ function updateFBO() {
 
 
 
-var lastTime = 0;
 function tick() {
+
+
   var time = new Date().getTime();
   
-  if (lastTime !== 0) {
-    var dt = (time - lastTime) / 1000.0;
+  if (tick.lastTime !== 0) {
+    var dt = (time - tick.lastTime) / 1000.0;
 
   }
-  lastTime = time;
+  tick.lastTime = time;
   
-}
-
-function updateCamera() {
-  
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-
-   //  setup the camera matrices
-  setProjectionMatrix(camera, renderer.projMatrix);
-  setViewMatrix(camera, renderer.viewMatrix);
-
-
-  mat4.multiply(renderer.modelViewProjection, renderer.projMatrix, renderer.viewMatrix);
-  mat4.invert(renderer.inverseModelViewProjection, renderer.modelViewProjection);
-
 }
 
 function loop() {
@@ -263,7 +241,7 @@ function loop() {
 
     if (loop._runonce === undefined) {
       loop._runonce = 'done';
-      window.renderer.updateVisibility = true;
+      renderer.updateVisibility = true;
 
       resizeCanvas();
 
@@ -271,7 +249,7 @@ function loop() {
 
     renderer.updateVisibilityList();
 
-    updateCamera();
+    renderer.updateCamera();
     inititalizeFBO();
   }
 
@@ -502,11 +480,6 @@ function handleKeydown(event) {
     renderer.resetCamera();
   }
 
-  // 's' -- toggle solution
-  if (event.keyCode == 83) {
-    toggleSolution(document.getElementById('SolutionButton'));
-  }
-
   // 'a' -- increase recursion level
   if (event.keyCode == 65) {
     increaseDetail();
@@ -660,25 +633,11 @@ function getBasePath(address) {
   return basepath;
 }
 
-
-function toggleSolution(button) { 
-
-  global.showSolution = !global.showSolution;
-  window.renderer.updateVisibility = true;
-
-  if (global.showSolution === true)
-    button.innerHTML= "Hide Solution";
-  else 
-    button.innerHTML = "Show Solution";
-
-}
-
 function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
   geometry.loadJsonModel('data/arrow.json', 'arrow');
- // markers.load("data/markers.json");
 
   renderer.init();
   console.log(renderer);

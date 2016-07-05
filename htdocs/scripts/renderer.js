@@ -27,7 +27,7 @@
 window.renderer = {
 
     // creates the member variables and initializes them
-    init : function(gl) {
+    init : function() {
         this.enableGrid = true;
         this.enableBBoxes = false;
         this.enableFXAA = true;
@@ -97,6 +97,20 @@ window.renderer = {
       framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
 
       this.updateVisibility = true;
+    },
+
+    updateCamera : function() {
+
+        this.camera.aspect = this.viewport[2] / this.viewport[3]; //canvas.clientWidth / canvas.clientHeight;
+
+        //  setup the camera matrices
+        setProjectionMatrix(this.camera, this.projMatrix);
+        setViewMatrix(this.camera, this.viewMatrix);
+
+        mat4.multiply(this.modelViewProjection, this.projMatrix, this.viewMatrix);
+        mat4.invert(this.inverseModelViewProjection, this.modelViewProjection);
+
+
     },
 
 
