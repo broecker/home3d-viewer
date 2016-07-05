@@ -160,7 +160,8 @@ window.renderer = {
     },
 
 
-    drawRenderTarget : function(gl) {
+    // displays the renderer content
+    drawRenderTarget : function() {
         // display the fbo 
         gl.disable(gl.DEPTH_TEST);
 
@@ -168,6 +169,7 @@ window.renderer = {
         if (shader === null)
             return;
 
+        gl.viewport(this.viewport[0], this.viewport[1], this.viewport[2], this.viewport[3]);
 
         if (this.enableFXAA && !this.camera.isMoving && !(shaders.fxaaShader === null))
         shader = shaders.fxaaShader;
@@ -181,10 +183,123 @@ window.renderer = {
 
         geometry.drawFullscreenQuad(shader);
 
+    },
+
+
+    draw : function() {
+        if (this.updateVisibility) { 
+            this.updateVisibilityList();
+            this.updateCamera();
+            this.drawFirstFrame();
+        } 
+
+        if (this.visibleList.length > 0)
+            this.drawIncrementalFrame();
+
+    },
+
+
+    // the following two functions handle the incremental rendering implemented for this project
+
+    // clears the render target and draws the first set of points
+    drawFirstFrame : function() {
+        framebuffer.bind(this.renderTarget);
+
+        // also clear the fbo
+        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], 1.0); 
+
+        // draw the skybox
+        if (!(shaders.skyboxShader === null)) {
+
+            gl.depthMask(false);
+            gl.disable(gl.DEPTH_TEST);
+
+            gl.useProgram(shaders.skyboxShader);
+            gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, this.inverseModelViewProjection);
+
+            geometry.drawFullscreenQuad(shaders.skyboxShader);
+
+            gl.enable(gl.DEPTH_TEST);
+            gl.depthMask(true);
+            gl.depthFunc(gl.LEQUAL);
+        }
+
+        // draw all static elements ... 
+        if (this.enableGrid && !(shaders.gridShader === null))
+            geometry.drawGrid();
+
+        //if (global.mouse.button[0] || global.mouse.button[2])
+        if (this.camera.isMoving && (!shaders.objectShader === null))
+            camera.drawFocus(this.camera, shaders.objectShader, this.projMatrix, this.viewMatrix);
+
+
+        shader = shaders.gridShader;
+        if (this.enableBBoxes && geometry.octree && !(shader === null)) { 
+            gl.useProgram(shader);
+            gl.enableVertexAttribArray(shader.vertexPositionAttribute);
+
+            gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
+            gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
+            gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
+
+            octree.drawBBoxes(geometry.octree, shader);
+
+        }
+
+        framebuffer.disable(this.renderTarget);
+        gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
+
+    },
+
+    drawIncrementalFrame : function() {
+
+
+        framebuffer.bind(this.renderTarget);
+
+        gl.depthMask(true);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
+
+
+        var shader = shaders.pointsShader;
+        if (geometry.octree && shader) {
+            // draw the points
+            gl.useProgram(shader);
+
+            gl.uniform1f(shader.pointSizeUniform, global.pointSize);
+            gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
+            gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
+
+
+            var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * this.camera.fovy));
+            viewportHeight = 1.15 * 1024.0;
+            gl.uniform1f(shader.viewportHeightUniform, viewportHeight);
+
+
+            global.pointsDrawn = 0;
+
+
+            for (var i = 0; i < this.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
+                var node = this.visibleList[i];
+
+                if (node.loaded === true) {
+                    octree.drawNode(node, shader);
+                    this.visibleList.splice(i, 1);
+                } else {
+
+                    if (node.loaded === false && node.depth <= global.maxRecursion)
+                        octree.load(node);
+
+
+                }
+            }
+        }
+
+
+        framebuffer.disable(this.renderTarget, this.viewport);
+        gl.viewport(0, 0, this.viewport[2], this.viewport[3]);
     }
-
-
-
 
 
 }

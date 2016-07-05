@@ -117,107 +117,6 @@ function resizeCanvas() {
 }
 
 
-function inititalizeFBO() {
-  // also clear the fbo
-  framebuffer.bind(renderer.renderTarget);
-
-  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.clearColor(renderer.clearColor[0], renderer.clearColor[1], renderer.clearColor[2], 1.0); 
-
-  // draw the skybox
-  if (!(shaders.skyboxShader === null)) {
-
-    gl.depthMask(false);
-    gl.disable(gl.DEPTH_TEST);
-
-    gl.useProgram(shaders.skyboxShader);
-    gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, renderer.inverseModelViewProjection);
-
-    geometry.drawFullscreenQuad(shaders.skyboxShader);
-
-
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(true);
-    gl.depthFunc(gl.LEQUAL);
-  }
-
-  // draw all static elements ... 
-  if (renderer.enableGrid && !(shaders.gridShader === null))
-    geometry.drawGrid();
-
-  //if (global.mouse.button[0] || global.mouse.button[2])
-  if (renderer.camera.isMoving && (!shaders.objectShader === null))
-    camera.drawFocus(renderer.camera, shaders.objectShader, renderer.projMatrix, renderer.viewMatrix);
-
-
-  shader = shaders.gridShader;
-  if (renderer.enableBBoxes && geometry.octree && !(shader === null)) { 
-    gl.useProgram(shader);
-    gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-
-    gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
-    gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
-    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
-
-    octree.drawBBoxes(geometry.octree, shader);
-
-  }
-
-  framebuffer.disable(renderer.renderTarget);
-  gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
-}
-
-function updateFBO() {
-
-  framebuffer.bind(renderer.renderTarget);
-
-  gl.depthMask(true);
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
-
-
-  var shader = shaders.pointsShader;
-  if (geometry.octree && shader) {
-    // draw the points
-    gl.useProgram(shader);
-
-    gl.uniform1f(shader.pointSizeUniform, global.pointSize);
-    gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
-    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
-
-
-    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * renderer.camera.fovy));
-    viewportHeight = 1.15 * 1024.0;
-    gl.uniform1f(shader.viewportHeightUniform, viewportHeight);
-
-
-    global.pointsDrawn = 0;
-
-
-    for (var i = 0; i < renderer.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
-      var node = renderer.visibleList[i];
-
-      if (node.loaded === true) {
-        octree.drawNode(node, shader);
-        renderer.visibleList.splice(i, 1);
-      } else {
-
-        if (node.loaded === false && node.depth <= global.maxRecursion) {
-          octree.load(node);
-
-        }
-
-      }
-    }
-  }
-
-
-  framebuffer.disable(renderer.renderTarget, renderer.viewport);
-  gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
-}
-
-
-
 function tick() {
 
 
@@ -236,32 +135,8 @@ function loop() {
 
   tick();
 
- // start a new frame
-  if (renderer.updateVisibility) {
-
-    if (loop._runonce === undefined) {
-      loop._runonce = 'done';
-      renderer.updateVisibility = true;
-
-      resizeCanvas();
-
-    }
-
-    renderer.updateVisibilityList();
-
-    renderer.updateCamera();
-    inititalizeFBO();
-  }
-
-  // update the fbo
-  if (renderer.visibleList.length > 0) {
-
-      updateFBO();
-
-  }
-
- 
-  renderer.drawRenderTarget(gl); 
+  renderer.draw();
+  renderer.drawRenderTarget(); 
  
   global.stats.end();
 
@@ -601,6 +476,9 @@ function init(datapath, shaderpath) {
 
   renderer.init();
 
+  resizeCanvas();
+
+
   //geometry.loadJsonModel('data/arrow.json', 'arrow');
 
   // create trickle progress bar
@@ -636,8 +514,5 @@ function getBasePath(address) {
 function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
-
-
-
   loop();
 }
