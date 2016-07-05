@@ -29,7 +29,7 @@ window.renderer = {
     // creates the member variables and initializes them
     init : function(gl) {
         this.enableGrid = true;
-        this.enableBboxes = false;
+        this.enableBBoxes = false;
         this.enableFXAA = true;
 
 
@@ -41,6 +41,7 @@ window.renderer = {
         this.viewport = [0,0,800,600];
 
         this.visibleList = [];
+        this.enableDensityCulling = false;
 
         this.viewMatrix = mat4.create();
         this.projMatrix = mat4.create();
@@ -63,8 +64,8 @@ window.renderer = {
         this.updateVisibilityFlag = true;
     },
 
-    toggleBboxes : function() {
-        this.enableBboxes = !this.enableBboxes;
+    toggleBBoxes : function() {
+        this.enableBBoxes = !this.enableBBoxes;
         this.updateVisibilityFlag = true;
     },
 
@@ -73,7 +74,46 @@ window.renderer = {
     },
 
 
-    updateVisibility : function() {
+    updateVisibilityList : function() {
+        this.visibleList = [];
+
+
+        if (geometry.octree) {
+
+            var mat = mat4.create();
+            mat4.multiply(mat, this.projMatrix, this.viewMatrix);
+
+            octree.setInvisible(geometry.octree);
+            octree.updateVisibility(geometry.octree, mat);
+            octree.updateLOD(geometry.octree, getPosition(global.camera));
+            octree.getVisibleNodes(geometry.octree, this.visibleList);
+        }
+
+
+        if (this.visibleList.length > 0) {
+
+            renderer.visibleList.sort(function(a,b) {
+               return a.lodDistance*a.depth - b.lodDistance*b.depth;
+            });
+
+
+            if (this.enableDensityCulling) {
+                renderer.visibleList.forEach(function(node) {
+                    octree.updateScreenArea(node, renderer.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
+                });
+
+
+                var oldSize = renderer.visibleList.length;
+                renderer.visibleList = renderer.visibleList.filter(function(node) {
+                    var density2 = node.points / node.screenArea;
+                    return density2 < global.densityTreshold*global.densityTreshold;
+                });
+
+                console.log("Removed " + (oldSize-renderer.visibleList.length) + " nodes, " + renderer.visibleList.length + " remaining");
+
+            }
+
+        }
 
 
         this.updateVisibilityFlag = false;

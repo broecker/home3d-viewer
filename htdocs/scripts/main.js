@@ -253,68 +253,13 @@ function updateCamera() {
 
 }
 
-function updateVisibility() {
-
-  // build a new visible set
-  renderer.visibleList = [];
-
-  if (geometry.octree) {
-
-    var mat = mat4.create();
-    mat4.multiply(mat, renderer.projMatrix, renderer.viewMatrix);
-
-    octree.setInvisible(geometry.octree);
-    octree.updateVisibility(geometry.octree, mat);
-    octree.updateLOD(geometry.octree, getPosition(global.camera));
-    octree.getVisibleNodes(geometry.octree, renderer.visibleList);
-  }
-
-
-  if (renderer.visibleList.length > 0) {
-
-    renderer.visibleList.sort(function(a,b) {
-      return a.lodDistance*a.depth - b.lodDistance*b.depth;
-    });
-
-    /*
-    // REMOVE ME -- just for testing
-    renderer.visibleList = renderer.visibleList.filter(function(node) {
-      return node.depth <= 1;
-    });
-    */
-
-
-    if (global.enableDensityCulling) {
-
-      renderer.visibleList.forEach(function(node) {
-        octree.updateScreenArea(node, renderer.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
-      });
-
-
-      var oldSize = renderer.visibleList.length;
-      renderer.visibleList = renderer.visibleList.filter(function(node) {
-        var density2 = node.points / node.screenArea;
-        return density2 < global.densityTreshold*global.densityTreshold;
-      });
-
-      console.log("Removed " + (oldSize-renderer.visibleList.length) + " nodes, " + renderer.visibleList.length + " remaining");
-
-    }
-
-  }
-
-
-  renderer.updateVisibility = false;
-
-}
-
 function loop() {
   global.stats.begin();
 
   tick();
 
  // start a new frame
-  if (window.renderer.updateVisibility) {
+  if (renderer.updateVisibility) {
 
     if (loop._runonce === undefined) {
       loop._runonce = 'done';
@@ -324,7 +269,7 @@ function loop() {
 
     }
 
-    updateVisibility();
+    renderer.updateVisibilityList();
 
     updateCamera();
     inititalizeFBO();
@@ -551,10 +496,8 @@ function decreaseDetail() {
 function handleKeydown(event) { 
 
   // 'g'
-  if (event.keyCode == 71) {
-    global.enableGrid = !global.enableGrid;
-    window.renderer.updateVisibility = true;
-  }
+  if (event.keyCode == 71)
+    renderer.toggleGrid();
 
   // up
   if (event.keyCode == 38)
@@ -600,17 +543,14 @@ function handleKeydown(event) {
   }
 
   // 'x' -- enable multisampling
-  if (event.keyCode == 88) {
-    window.renderer.enableFXAA = !global.enableFXAA;
-  }
-
+  if (event.keyCode == 88)
+    renderer.toggleFXAA();
 
 
   // b
-  if (event.keyCode == 66) {
-    global.enableBBox = !global.enableBBox;
-    window.renderer.updateVisibility = true;
-  }
+  if (event.keyCode == 66)
+    renderer.toggleBBoxes();
+
 
   // 'shift'
   if (event.keyCode == 16)
