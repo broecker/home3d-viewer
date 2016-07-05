@@ -42,6 +42,10 @@ window.renderer = {
 
         this.visibleList = [];
 
+        this.viewMatrix = mat4.create();
+        this.projMatrix = mat4.create();
+        this.modelViewProjection = mat4.create();
+        this.inverseModelViewProjection = mat4.create();
 
         this.renderTargetResolution = [1024, 1024];
         this.renderTarget = createFBO(this.renderTargetResolution[0], this.renderTargetResolution[1]);

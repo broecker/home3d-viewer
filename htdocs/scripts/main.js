@@ -32,11 +32,6 @@ var arrow = null;
 // store global variables
 var global = global || {};
 
-global.viewMatrix = mat4.create();
-global.projMatrix = mat4.create();
-global.modelViewProjection = mat4.create();
-global.inverseModelViewProjection = mat4.create();
-
 global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.touches = null;
@@ -142,7 +137,7 @@ function inititalizeFBO() {
     gl.disable(gl.DEPTH_TEST);
 
     gl.useProgram(shaders.skyboxShader);
-    gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, global.inverseModelViewProjection);
+    gl.uniformMatrix4fv(shaders.skyboxShader.inverseMVPUniform, false, renderer.inverseModelViewProjection);
 
     geometry.drawFullscreenQuad(shaders.skyboxShader);
 
@@ -153,22 +148,22 @@ function inititalizeFBO() {
   }
 
   // draw all static elements ... 
-  if (window.renderer.enableGrid && !(shaders.gridShader === null))
+  if (renderer.enableGrid && !(shaders.gridShader === null))
     geometry.drawGrid();
 
   //if (global.mouse.button[0] || global.mouse.button[2])
   if (camera.isMoving && (!shaders.objectShader === null))
-    drawCameraFocus(gl, shaders.objectShader, global.projMatrix, global.viewMatrix, camera);
+    drawCameraFocus(gl, shaders.objectShader, renderer.projMatrix, renderer.viewMatrix, camera);
 
 
   shader = shaders.gridShader;
-  if (window.renderer.enableBBoxes && geometry.octree && !(shader === null)) { 
+  if (renderer.enableBBoxes && geometry.octree && !(shader === null)) { 
     gl.useProgram(shader);
     gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 
     gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
-    gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
-    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+    gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
+    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
 
     octree.drawBBoxes(geometry.octree, shader);
 
@@ -196,8 +191,8 @@ function updateFBO() {
     gl.useProgram(shader);
 
     gl.uniform1f(shader.pointSizeUniform, global.pointSize);
-    gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
-    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+    gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
+    gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
 
 
     var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * global.camera.fovy));
@@ -249,12 +244,12 @@ function updateCamera() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
    //  setup the camera matrices
-  setProjectionMatrix(camera, global.projMatrix);
-  setViewMatrix(camera, global.viewMatrix);
+  setProjectionMatrix(camera, renderer.projMatrix);
+  setViewMatrix(camera, renderer.viewMatrix);
 
 
-  mat4.multiply(global.modelViewProjection, global.projMatrix, global.viewMatrix);
-  mat4.invert(global.inverseModelViewProjection, global.modelViewProjection);
+  mat4.multiply(renderer.modelViewProjection, renderer.projMatrix, renderer.viewMatrix);
+  mat4.invert(renderer.inverseModelViewProjection, renderer.modelViewProjection);
 
 }
 
@@ -266,7 +261,7 @@ function updateVisibility() {
   if (geometry.octree) {
 
     var mat = mat4.create();
-    mat4.multiply(mat, global.projMatrix, global.viewMatrix);
+    mat4.multiply(mat, renderer.projMatrix, renderer.viewMatrix);
 
     octree.setInvisible(geometry.octree);
     octree.updateVisibility(geometry.octree, mat);
@@ -292,7 +287,7 @@ function updateVisibility() {
     if (global.enableDensityCulling) {
 
       renderer.visibleList.forEach(function(node) {
-        octree.updateScreenArea(node, global.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
+        octree.updateScreenArea(node, renderer.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
       });
 
 
@@ -309,7 +304,7 @@ function updateVisibility() {
   }
 
 
-  window.renderer.updateVisibility = false;
+  renderer.updateVisibility = false;
 
 }
 

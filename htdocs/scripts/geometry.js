@@ -102,8 +102,8 @@ geometry.drawGrid = function() {
 	gl.vertexAttribPointer(shaders.gridShader.vertexPositionAttribute, geometry.grid.buffer.itemSize, gl.FLOAT, false, 0, 0);
 
 	gl.uniform3f(shaders.gridShader.colorUniform, 0.7, 0.7, 0.7);
-	gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, global.projMatrix);
-	gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, global.viewMatrix);
+	gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, renderer.projMatrix);
+	gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, renderer.viewMatrix);
 	gl.drawArrays(gl.LINES, 0, geometry.grid.buffer.numItems);
 }
 
@@ -237,8 +237,8 @@ geometry.drawJsonModel = function(modelName, color) {
 
 	// set the uniforms
 	gl.uniform3f(shader.colorUniform, color[0], color[1], color[2]);
-	gl.uniformMatrix4fv(shader.projMatrixUniform, false, global.projMatrix);
-	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, global.viewMatrix);
+	gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
+	gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
 	gl.uniformMatrix4fv(shader.transformUniform, false, model.transform);
 
 	gl.uniform3f(shader.lightDirectionUniform, 2.0, 4.0, 1.0);
