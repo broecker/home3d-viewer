@@ -32,7 +32,6 @@ var arrow = null;
 // store global variables
 var global = global || {};
 
-global.camera = null;
 global.mouse = {button:[false, false, false], lastPosition:[0,0]};
 global.touches = null;
 global.shiftHeld = false;
@@ -195,7 +194,7 @@ function updateFBO() {
     gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
 
 
-    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * global.camera.fovy));
+    var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * renderer.camera.fovy));
     viewportHeight = 1.15 * 1024.0;
     gl.uniform1f(shader.viewportHeightUniform, viewportHeight);
 
@@ -300,12 +299,12 @@ function handleMouseDown(event) {
   global.mouse.button[event.button] = true;
   global.mouse.lastPosition = [event.clientX, event.clientY];
 
-  startCameraMove();
+  renderer.startCameraMove();
 }
 
 function handleMouseUp(event) {
   global.mouse.button[event.button] = false;
-  stopCameraMove();
+  renderer.stopCameraMove();
 
 }
 
@@ -322,22 +321,22 @@ function handleMouseMotion(event) {
   if (global.mouse.button[0]) {
 
     if (global.shiftHeld === true) 
-      panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
+      panCamera(renderer.camera, deltaX*4.0, -deltaY*4.0);
     else if (global.ctrlHeld === true)
-      moveCameraTowardsTarget(global.camera, deltaY*10);
+      moveCameraTowardsTarget(renderer.camera, deltaY*10);
     else
-      rotateCameraAroundTarget(global.camera, deltaY*Math.PI, -deltaX*Math.PI);
+      rotateCameraAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
 
     window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[1]) {
-    moveCameraTowardsTarget(global.camera, deltaY*10);
+    moveCameraTowardsTarget(renderer.camera, deltaY*10);
     window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[2]) {
-    panCamera(global.camera, deltaX*4.0, -deltaY*4.0);
+    panCamera(renderer.camera, deltaX*4.0, -deltaY*4.0);
     window.renderer.updateVisibility = true;
   }
 
@@ -350,7 +349,7 @@ function handleMouseMotion(event) {
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
- moveCameraTowardsTarget(global.camera, delta);
+ moveCameraTowardsTarget(renderer.camera, delta);
 
   window.renderer.updateVisibility = true;
 }
@@ -368,14 +367,14 @@ function handleTouchStart(event) {
   global.prevTouchCenter = undefined;
 
   global.mouse.lastPosition = [canvas.clientWidth-touch.pageX, touch.pageY];
-  startCameraMove();
+  renderer.startCameraMove();
 }
 
 function handleTouchEnd(event) {
   global.mouse.button[event.button] = false;
 
   global.touches = event.targetTouches;
-  stopCameraMove();
+  renderer.stopCameraMove();
     
 }
 
@@ -395,7 +394,7 @@ function handleTouchMove(event) {
     // scale to -1..1
    // deltaY *= 180.0 / Math.PI;
     
-    rotateCameraAroundTarget(global.camera, deltaY*Math.PI, deltaX*Math.PI);
+    rotateCameraAroundTarget(renderer.camera, deltaY*Math.PI, deltaX*Math.PI);
 
   } else {
 
@@ -426,7 +425,7 @@ function handleTouchMove(event) {
       move[1] *= -0.01;
 
 
-      panCamera(global.camera, move[0], move[1]);
+      panCamera(renderer.camera, move[0], move[1]);
 
 
     }
@@ -434,7 +433,7 @@ function handleTouchMove(event) {
     if (global.prevTouchDelta != undefined && mode === 'zoom') { 
 
       var factor = global.prevTouchDelta-delta;
-      moveCameraTowardsTarget(global.camera, factor*0.01);
+      moveCameraTowardsTarget(renderer.camera, factor*0.01);
     }
 
 
@@ -450,31 +449,6 @@ function handleTouchMove(event) {
 
   global.touches = event.targetTouches;
   global.mouse.lastPosition = mousePosition;
-  window.renderer.updateVisibility = true;
-}
-
-
-function resetCamera() {
-  
-  window.renderer.updateVisibility = true;
-
-  global.camera = createOrbitalCamera();
-  global.camera.radius = 20.0;
-}
-
-function startCameraMove() {
-  global.camera.isMoving = true;
-  renderer.renderTargetResolution.old = renderer.renderTargetResolution;
-  resizeFBO(renderer.renderTarget, [renderer.renderTargetResolution[0]/2, renderer.renderTargetResolution[1]/2]);
-
-  window.renderer.updateVisibility = true;
-
-}
-
-function stopCameraMove() {
-  global.camera.isMoving = false;
-  resizeFBO(renderer.renderTarget, renderer.renderTargetResolution.old);
-
   window.renderer.updateVisibility = true;
 }
 
@@ -501,30 +475,30 @@ function handleKeydown(event) {
 
   // up
   if (event.keyCode == 38)
-    panCamera(global.camera, 0, 0, -2.0);
+    panCamera(renderer.camera, 0, 0, -2.0);
 
   // down
   if (event.keyCode == 40) 
-    panCamera(global.camera, 0, 0, 2.0);
+    panCamera(renderer.camera, 0, 0, 2.0);
 
   // left
   if (event.keyCode == 37)
-    panCamera(global.camera, 2.0, 0, 0);
+    panCamera(renderer.camera, 2.0, 0, 0);
 
   // right
   if (event.keyCode == 39)
-    panCamera(global.camera, -2, 0, 0);
+    panCamera(renderer.camera, -2, 0, 0);
 
   // page down
   if (event.keyCode == 34)
-    panCamera(global.camera, 0, -2, 0);
+    panCamera(renderer.camera, 0, -2, 0);
   //page up
   if (event.keyCode == 33)
-    panCamera(global.camera, 0, 2, 0);
+    panCamera(renderer.camera, 0, 2, 0);
 
   // 'c' - center camera
   if (event.keyCode == 67) {
-    resetCamera();
+    renderer.resetCamera();
   }
 
   // 's' -- toggle solution
@@ -614,8 +588,7 @@ function init(datapath, shaderpath) {
     return false;
   }
 
-  global.camera = createOrbitalCamera();
-  global.camera.radius = 20.0;
+  
 
   shader.loadAll(shaders, shaderpath);
 

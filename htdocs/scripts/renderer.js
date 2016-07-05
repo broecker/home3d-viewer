@@ -35,7 +35,8 @@ window.renderer = {
 
         this.updateVisibilityFlag = true;
 
-        this.camera = null;
+        this.camera = createOrbitalCamera();
+        this.camera.radius = 20.0;
 
         this.clearColor = [0,0,0,0];
         this.viewport = [0,0,800,600];
@@ -74,6 +75,31 @@ window.renderer = {
     },
 
 
+    resetCamera : function() {
+      
+      this.updateVisibility = true;
+
+      this.camera = createOrbitalCamera();
+      this.camera.radius = 20.0;
+    },
+
+    startCameraMove : function() {
+      this.camera.isMoving = true;
+      this.renderTargetResolution.old = this.renderTargetResolution;
+      resizeFBO(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
+
+      this.updateVisibility = true;
+
+    },
+
+    stopCameraMove : function() {
+      this.camera.isMoving = false;
+      resizeFBO(this.renderTarget, this.renderTargetResolution.old);
+
+      this.updateVisibility = true;
+    },
+
+
     updateVisibilityList : function() {
         this.visibleList = [];
 
@@ -85,7 +111,7 @@ window.renderer = {
 
             octree.setInvisible(geometry.octree);
             octree.updateVisibility(geometry.octree, mat);
-            octree.updateLOD(geometry.octree, getPosition(global.camera));
+            octree.updateLOD(geometry.octree, getPosition(this.camera));
             octree.getVisibleNodes(geometry.octree, this.visibleList);
         }
 
@@ -129,7 +155,7 @@ window.renderer = {
             return;
 
 
-        if (this.enableFXAA && !global.camera.isMoving && !(shaders.fxaaShader === null))
+        if (this.enableFXAA && !this.camera.isMoving && !(shaders.fxaaShader === null))
         shader = shaders.fxaaShader;
 
         gl.useProgram(shader);
