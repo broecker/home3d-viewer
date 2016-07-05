@@ -27,7 +27,7 @@
 window.renderer = {
 
     // creates the member variables and initializes them
-    init : function() {
+    init : function(gl) {
         this.enableGrid = true;
         this.enableBboxes = false;
         this.enableFXAA = true;
@@ -41,6 +41,10 @@ window.renderer = {
         this.viewport = [0,0,800,600];
 
         this.visibleList = [];
+
+
+        this.renderTargetResolution = [1024, 1024];
+        this.renderTarget = createFBO(this.renderTargetResolution[0], this.renderTargetResolution[1]);
 
     },
 
@@ -69,7 +73,34 @@ window.renderer = {
 
 
         this.updateVisibilityFlag = false;
+    },
+
+
+    drawRenderTarget : function(gl) {
+        // display the fbo 
+        gl.disable(gl.DEPTH_TEST);
+
+        shader = shaders.quadShader;
+        if (shader === null)
+            return;
+
+
+        if (this.enableFXAA && !global.camera.isMoving && !(shaders.fxaaShader === null))
+        shader = shaders.fxaaShader;
+
+        gl.useProgram(shader);
+        gl.activeTexture(gl.TEXTURE0);
+
+        gl.bindTexture(gl.TEXTURE_2D, this.renderTarget.texture);
+        gl.uniform1i(shader.colormapUniform, 0);
+        gl.uniform2f(shader.resolutionUniform, this.renderTarget.width, this.renderTarget.height);
+
+        geometry.drawFullscreenQuad(shader);
+
     }
+
+
+
 
 
 }

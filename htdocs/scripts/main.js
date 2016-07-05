@@ -48,9 +48,6 @@ global.stats = null;
 
 global.maxConcurrentLoads = 20;
 
-global.renderTarget = null;
-global.renderTargetResolution = [1024, 1024];
-
 global.videoElement = null;
 
 // store shaders
@@ -110,9 +107,6 @@ function initWebGL(canvas) {
 
 // resizes the canvas to fill the whole window
 function resizeCanvas() {
-
-  //debugger;
-
   var width = canvas.clientWidth;
   var height = canvas.clientHeight;
   
@@ -132,35 +126,11 @@ function resizeCanvas() {
 }
 
 
-function drawFBO() {
-
-  // display the fbo 
-  gl.disable(gl.DEPTH_TEST);
-
-  shader = shaders.quadShader;
-  if (shader === null)
-    return;
-
-
-  if (global.enableFXAA && !global.camera.isMoving && !(shaders.fxaaShader === null))
-    shader = shaders.fxaaShader;
-
-  gl.useProgram(shader);
-  gl.activeTexture(gl.TEXTURE0);
-  
-  gl.bindTexture(gl.TEXTURE_2D, global.renderTarget.texture);
-  gl.uniform1i(shader.colormapUniform, 0);
-  gl.uniform2f(shader.resolutionUniform, global.renderTarget.width, global.renderTarget.height);
-
-  geometry.drawFullscreenQuad(shader);
-
-
-}
 
 
 function inititalizeFBO() {
   // also clear the fbo
-  bindFBO(global.renderTarget);
+  bindFBO(renderer.renderTarget);
 
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.clearColor(renderer.clearColor[0], renderer.clearColor[1], renderer.clearColor[2], 1.0); 
@@ -208,12 +178,12 @@ function inititalizeFBO() {
   if (global.showSolution)
     markers.draw();
 
-  disableFBO(global.renderTarget, renderer.viewport);
+  disableFBO(renderer.renderTarget, renderer.viewport);
 }
 
 function updateFBO() {
 
-  bindFBO(global.renderTarget);
+  bindFBO(renderer.renderTarget);
 
   gl.depthMask(true);
   gl.enable(gl.DEPTH_TEST);
@@ -256,7 +226,7 @@ function updateFBO() {
   }
 
 
-  disableFBO(global.renderTarget, renderer.viewport);
+  disableFBO(renderer.renderTarget, renderer.viewport);
 
 }
 
@@ -322,7 +292,7 @@ function updateVisibility() {
     if (global.enableDensityCulling) {
 
       renderer.visibleList.forEach(function(node) {
-        octree.updateScreenArea(node, global.modelViewProjection, [global.renderTarget.width, global.renderTarget.height]);
+        octree.updateScreenArea(node, global.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
       });
 
 
@@ -372,8 +342,8 @@ function loop() {
 
   }
 
-  drawFBO();
-  
+ 
+  renderer.drawRenderTarget(gl); 
  
   global.stats.end();
 
@@ -554,8 +524,8 @@ function resetCamera() {
 
 function startCameraMove() {
   global.camera.isMoving = true;
-  global.renderTargetResolution.old = global.renderTargetResolution;
-  resizeFBO(global.renderTarget, [global.renderTargetResolution[0]/2, global.renderTargetResolution[1]/2]);
+  renderer.renderTargetResolution.old = renderer.renderTargetResolution;
+  resizeFBO(renderer.renderTarget, [renderer.renderTargetResolution[0]/2, renderer.renderTargetResolution[1]/2]);
 
   window.renderer.updateVisibility = true;
 
@@ -563,7 +533,7 @@ function startCameraMove() {
 
 function stopCameraMove() {
   global.camera.isMoving = false;
-  resizeFBO(global.renderTarget, global.renderTargetResolution.old);
+  resizeFBO(renderer.renderTarget, renderer.renderTargetResolution.old);
 
   window.renderer.updateVisibility = true;
 }
@@ -731,13 +701,11 @@ function init(datapath, shaderpath) {
 
   if (isMobile()) {
 
-    global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 50000;
     global.maxRecursion = 1;
     global.maxConcurrentLoads = 3;
 
   } else { 
-    global.renderTarget = createFBO(1024, 1024);
     global.maxPointsRendered = 250000;
     global.maxRecursion = 2;
     global.maxConcurrentLoads = 8;
@@ -803,7 +771,7 @@ function main(datapath, shaderpath) {
   geometry.loadJsonModel('data/arrow.json', 'arrow');
  // markers.load("data/markers.json");
 
-  window.renderer.init();
+  renderer.init();
   console.log(renderer);
 
   loop();
