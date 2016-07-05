@@ -23,9 +23,10 @@ THE SOFTWARE.
 */
 
 
-function createFBO(width, height) { 
+var framebuffer = framebuffer || {};
 
 
+framebuffer.create = function(width, height) { 
 	var fbo = gl.createFramebuffer();
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
@@ -56,10 +57,11 @@ function createFBO(width, height) {
 	gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	return fbo;
+
 }
 
 
-function destroyFBO(fbo) {
+framebuffer.destroy = function(fbo) {
 	gl.deleteTexture(fbo.texture);
 	gl.deleteRenderbuffer(fbo.renderbuffer);
 	gl.deleteFramebuffer(fbo);
@@ -67,7 +69,7 @@ function destroyFBO(fbo) {
 	fbo = null;
 }
 
-function resizeFBO(fbo, resolution) { 
+framebuffer.resize = function(fbo, resolution) { 
 	fbo.width = resolution[0];
 	fbo.height = resolution[1];
 
@@ -85,7 +87,10 @@ function resizeFBO(fbo, resolution) {
 
 }
 
-function bindFBO(fbo) {
+framebuffer.bind = function(fbo) {
+
+	// TODO: save original viewport dimensions here
+	fbo._originalViewport = [];
 
 	gl.viewport(0,0, fbo.width, fbo.height);
    	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -93,11 +98,14 @@ function bindFBO(fbo) {
    	//debugger;
 }
 
-function disableFBO(fbo, viewport) { 
+framebuffer.disable = function(fbo) { 
 
 	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.bindTexture(gl.TEXTURE_2D, null);
-	gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3] );
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+
+	//gl.viewport(fbo._originalViewport[0], fbo._originalViewport[1], fbo._originalViewport[2], fbo._originalViewport[3] );
+	
 }

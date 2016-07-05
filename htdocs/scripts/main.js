@@ -124,7 +124,7 @@ function resizeCanvas() {
 
 function inititalizeFBO() {
   // also clear the fbo
-  bindFBO(renderer.renderTarget);
+  framebuffer.bind(renderer.renderTarget);
 
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.clearColor(renderer.clearColor[0], renderer.clearColor[1], renderer.clearColor[2], 1.0); 
@@ -172,12 +172,13 @@ function inititalizeFBO() {
   if (global.showSolution)
     markers.draw();
 
-  disableFBO(renderer.renderTarget, renderer.viewport);
+  framebuffer.disable(renderer.renderTarget);
+  gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
 }
 
 function updateFBO() {
 
-  bindFBO(renderer.renderTarget);
+  framebuffer.bind(renderer.renderTarget);
 
   gl.depthMask(true);
   gl.enable(gl.DEPTH_TEST);
@@ -220,8 +221,8 @@ function updateFBO() {
   }
 
 
-  disableFBO(renderer.renderTarget, renderer.viewport);
-
+  framebuffer.disable(renderer.renderTarget, renderer.viewport);
+  gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
 }
 
 

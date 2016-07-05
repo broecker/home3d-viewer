@@ -50,7 +50,7 @@ window.renderer = {
         this.inverseModelViewProjection = mat4.create();
 
         this.renderTargetResolution = [1024, 1024];
-        this.renderTarget = createFBO(this.renderTargetResolution[0], this.renderTargetResolution[1]);
+        this.renderTarget = framebuffer.create(this.renderTargetResolution[0], this.renderTargetResolution[1]);
 
     },
 
@@ -86,7 +86,7 @@ window.renderer = {
     startCameraMove : function() {
       this.camera.isMoving = true;
       this.renderTargetResolution.old = this.renderTargetResolution;
-      resizeFBO(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
+      framebuffer.resize(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
 
       this.updateVisibility = true;
 
@@ -94,7 +94,7 @@ window.renderer = {
 
     stopCameraMove : function() {
       this.camera.isMoving = false;
-      resizeFBO(this.renderTarget, this.renderTargetResolution.old);
+      framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
 
       this.updateVisibility = true;
     },
