@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Hello Pointcloud!</title>
+	<title>Home3D Viewer</title>
 
 	<style>
 	html, body {
@@ -42,7 +42,7 @@
 		left: 10px;
 		bottom:10px;
 		color:#f0f0f0;
-		font-size: 10pt;
+		font-size: 12pt;
 	}
 	
 	.pointInfo { 
@@ -115,6 +115,14 @@
 	.close:hover { background: #00d9ff; }
 
 
+	a.button {
+	    -webkit-appearance: button;
+	    -moz-appearance: button;
+	    appearance: button;
+
+	    text-decoration: none;
+	    color: initial;
+	}
 
 
 
@@ -149,6 +157,7 @@
 	<script src="scripts/octree.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src='scripts/nprogress.js'></script>
+	<script src='scripts/reimg.js'></script>
 
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
@@ -164,11 +173,11 @@
 		<button type="button" class="btn" onclick="increaseDetail()">Increase Detail</button>
 		<button type="button" class="btn" onclick="decreaseDetail()">Decrease Detail</button>
 		<!--<button type="button" class="btn" onclick="toggleFXAA()">Toggle Anti-aliasing</button> -->
-		<button type="button" class="btn" onclick="saveScreenShot()">ScreenShot</button>
+		<button type="button" class="btn" onclick="saveCanvasToFile()">Save View</button>
 		<button type="button" class="btn" onclick="location.href='#openHelp';">Help</button>
 	</div>
 
-	<div class="buildInfo">Build: 20160418</div>
+	<div class="buildInfo">Build: 20160715</div>
 		<button type="button" class="btn" onclick="location.href='#openHelp';">Help</button>
 		<button type="button" class="btn" onclick="toggleSolution(this)" id="SolutionButton">Show Solution</button>
 	<div class="pointInfo" id="pointsLoaded">Points: 0</div>

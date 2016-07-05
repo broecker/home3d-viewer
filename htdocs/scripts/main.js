@@ -773,11 +773,20 @@ function toggleBBox() {
 }
 
 /// saves the current opengl canvas in an image and opens it in a new window 
-function saveScreenShot() {
+function saveScreenShotInEditor() {
   var image = new Image();
   image.src = canvas.toDataURL("image/png");
    window.open(image.src);  
 }
+
+
+function saveCanvasToFile() {
+  var filename = 'home3d_canvas_' + Date.now() + ".png";
+  ReImg.fromCanvas(document.getElementById('canvas')).downloadPng();
+
+
+}
+
 
 function toggleFXAA() { 
   global.enableFXAA = !global.enableFXAA;
