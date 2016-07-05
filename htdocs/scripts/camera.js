@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
+var camera = camera || {};
+
 function deg2rad(angle) {
   //  discuss at: http://phpjs.org/functions/deg2rad/
   // original by: Enrique Gonzalez
@@ -42,12 +45,10 @@ function rad2deg(angle) {
   return angle * 57.29577951308232; // angle / Math.PI * 180
 }
 
-var centerWidget = null;
-
-function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
+camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
 	var i, a, x, z;
 
-	if (centerWidget == null) {
+	if (camera.drawFocus.centerWidget === undefined) {
 		var centerColors = [];
 		var centerVertices = []
 
@@ -123,8 +124,8 @@ function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
 		colorBuffer2.numItems = 37;
 
 
-		centerWidget = { vertexBuffer: [circleBuffer0, circleBuffer1, circleBuffer2], colorBuffer: [colorBuffer0, colorBuffer1, colorBuffer2], primType:gl.LINES };
-		console.log("Created new camera widget, " + centerWidget);
+		camera.drawFocus.centerWidget = { vertexBuffer: [circleBuffer0, circleBuffer1, circleBuffer2], colorBuffer: [colorBuffer0, colorBuffer1, colorBuffer2], primType:gl.LINES };
+		console.log("Created new camera widget, " + camera.drawFocus.centerWidget);
 	}
 
 
@@ -141,16 +142,17 @@ function drawCameraFocus(gl, shader, projMatrix, viewMatrix, camera) {
   	gl.enableVertexAttribArray(shader.vertexColorAttribute);
 
   	for (i = 0; i < 3; ++i) {
-	  	gl.bindBuffer(gl.ARRAY_BUFFER, centerWidget.vertexBuffer[i]);
-	  	gl.vertexAttribPointer(shader.vertexPositionAttribute, centerWidget.vertexBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
-	  	gl.bindBuffer(gl.ARRAY_BUFFER, centerWidget.colorBuffer[i]);
-	  	gl.vertexAttribPointer(shader.vertexColorAttribute, centerWidget.colorBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
-	  	gl.drawArrays(gl.LINE_LOOP, 0, centerWidget.vertexBuffer[i].numItems);
+	  	gl.bindBuffer(gl.ARRAY_BUFFER, camera.drawFocus.centerWidget.vertexBuffer[i]);
+	  	gl.vertexAttribPointer(shader.vertexPositionAttribute, camera.drawFocus.centerWidget.vertexBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
+	  	gl.bindBuffer(gl.ARRAY_BUFFER, camera.drawFocus.centerWidget.colorBuffer[i]);
+	  	gl.vertexAttribPointer(shader.vertexColorAttribute, camera.drawFocus.centerWidget.colorBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
+	  	gl.drawArrays(gl.LINE_LOOP, 0, camera.drawFocus.centerWidget.vertexBuffer[i].numItems);
 	}
   	
 }
 
-function createOrbitalCamera() {
+
+camera.createOrbitalCamera = function() {
 	var tgt = [0.0, 0.0, 0.0];
 	var up = [0.0, 1.0, 0.0];
 	var fov = 60.0 * Math.PI / 180.0;
@@ -159,12 +161,11 @@ function createOrbitalCamera() {
 	var phi = deg2rad(10);
 	var radius = 5.0;
 
-	camera = {fovy:fov, aspect:1.3, near:0.1, far:100.0, target:tgt, up:up, theta:theta, phi:phi, radius:radius};
-	return camera;
+	return {fovy:fov, aspect:1.3, near:0.1, far:100.0, target:tgt, up:up, theta:theta, phi:phi, radius:radius};
 }
 
 // calculates the camera's position from its angles and target
-function getPosition(camera) { 
+camera.getPosition = function(camera) { 
 	var pos = vec3.create();
 	pos[0] = camera.target[0] + camera.radius * Math.sin(camera.theta)*Math.sin(camera.phi);
 	pos[2] = camera.target[2] + camera.radius * Math.sin(camera.theta)*Math.cos(camera.phi);
@@ -183,7 +184,7 @@ function clampAngles(sphericalCoords) {
 }
 
 /// pans the camera along the current pane
-function panCamera(camera, deltaX, deltaY, deltaZ) {
+camera.pan = function(camera, deltaX, deltaY, deltaZ) {
 	var forward = vec3.create();
 	vec3.sub(forward, getPosition(camera), camera.target);
 	vec3.normalize(forward, forward);
@@ -209,7 +210,7 @@ function panCamera(camera, deltaX, deltaY, deltaZ) {
 }
 
 
-function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
+camera.rotateAroundTarget = function(camera, deltaTheta, deltaPhi) {
 
 	camera.theta -= deltaTheta;
 	camera.phi += deltaPhi;
@@ -217,7 +218,7 @@ function rotateCameraAroundTarget(camera, deltaTheta, deltaPhi) {
 	clampAngles(camera);
 }
 
-function moveCameraTowardsTarget(camera, delta) { 
+camera.moveTowardsTarget = function(camera, delta) { 
 	camera.radius += delta;
 
 	camera.radius = Math.max(0.2, camera.radius);
@@ -227,14 +228,12 @@ function moveCameraTowardsTarget(camera, delta) {
 
 }
 
-function setProjectionMatrix(camera, projMatrix) {
-
+camera.retrieveProjectionMatrix = function(cam, projMatrix) {
   	mat4.identity(projMatrix);
-  	mat4.perspective(projMatrix, camera.fovy, camera.aspect, camera.near,camera.far);
+  	mat4.perspective(projMatrix, cam.fovy, cam.aspect, cam.near,cam.far);
 }
 
-function setViewMatrix(camera, viewMatrix) {
+camera.retrieveViewMatrix = function(cam, viewMatrix) {
 	mat4.identity(viewMatrix);
-	mat4.lookAt(viewMatrix, getPosition(camera), camera.target, camera.up);
-	return viewMatrix;
+	mat4.lookAt(viewMatrix, camera.getPosition(cam), cam.target, cam.up);
 }

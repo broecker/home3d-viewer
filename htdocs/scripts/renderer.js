@@ -35,7 +35,7 @@ window.renderer = {
 
         this.updateVisibilityFlag = true;
 
-        this.camera = createOrbitalCamera();
+        this.camera = camera.createOrbitalCamera();
         this.camera.radius = 20.0;
 
         this.clearColor = [0,0,0,0];
@@ -104,8 +104,8 @@ window.renderer = {
         this.camera.aspect = this.viewport[2] / this.viewport[3]; //canvas.clientWidth / canvas.clientHeight;
 
         //  setup the camera matrices
-        setProjectionMatrix(this.camera, this.projMatrix);
-        setViewMatrix(this.camera, this.viewMatrix);
+        camera.retrieveProjectionMatrix(this.camera, this.projMatrix);
+        camera.retrieveViewMatrix(this.camera, this.viewMatrix);
 
         mat4.multiply(this.modelViewProjection, this.projMatrix, this.viewMatrix);
         mat4.invert(this.inverseModelViewProjection, this.modelViewProjection);
@@ -125,7 +125,7 @@ window.renderer = {
 
             octree.setInvisible(geometry.octree);
             octree.updateVisibility(geometry.octree, mat);
-            octree.updateLOD(geometry.octree, getPosition(this.camera));
+            octree.updateLOD(geometry.octree, window.camera.getPosition(this.camera));
             octree.getVisibleNodes(geometry.octree, this.visibleList);
         }
 

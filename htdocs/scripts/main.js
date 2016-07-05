@@ -146,8 +146,8 @@ function inititalizeFBO() {
     geometry.drawGrid();
 
   //if (global.mouse.button[0] || global.mouse.button[2])
-  if (camera.isMoving && (!shaders.objectShader === null))
-    drawCameraFocus(gl, shaders.objectShader, renderer.projMatrix, renderer.viewMatrix, camera);
+  if (renderer.camera.isMoving && (!shaders.objectShader === null))
+    camera.drawFocus(renderer.camera, shaders.objectShader, renderer.projMatrix, renderer.viewMatrix);
 
 
   shader = shaders.gridShader;
@@ -300,22 +300,22 @@ function handleMouseMotion(event) {
   if (global.mouse.button[0]) {
 
     if (global.shiftHeld === true) 
-      panCamera(renderer.camera, deltaX*4.0, -deltaY*4.0);
+      camera.pan(renderer.camera, deltaX*4.0, -deltaY*4.0);
     else if (global.ctrlHeld === true)
-      moveCameraTowardsTarget(renderer.camera, deltaY*10);
+      camera.moveTowardsTarget(renderer.camera, deltaY*10);
     else
-      rotateCameraAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
+      camera.rotateAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
 
     window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[1]) {
-    moveCameraTowardsTarget(renderer.camera, deltaY*10);
+    camera.moveTowardsTarget(renderer.camera, deltaY*10);
     window.renderer.updateVisibility = true;
   }
 
   else if (global.mouse.button[2]) {
-    panCamera(renderer.camera, deltaX*4.0, -deltaY*4.0);
+    camera.pan(renderer.camera, deltaX*4.0, -deltaY*4.0);
     window.renderer.updateVisibility = true;
   }
 
@@ -328,7 +328,7 @@ function handleMouseMotion(event) {
 function handleMouseWheel(event) {
   
   var delta = event.wheelDelta* 0.05;;
- moveCameraTowardsTarget(renderer.camera, delta);
+  camera.moveTowardsTarget(renderer.camera, delta);
 
   window.renderer.updateVisibility = true;
 }
@@ -373,7 +373,7 @@ function handleTouchMove(event) {
     // scale to -1..1
    // deltaY *= 180.0 / Math.PI;
     
-    rotateCameraAroundTarget(renderer.camera, deltaY*Math.PI, deltaX*Math.PI);
+    camera.rotateAroundTarget(renderer.camera, deltaY*Math.PI, deltaX*Math.PI);
 
   } else {
 
@@ -404,7 +404,7 @@ function handleTouchMove(event) {
       move[1] *= -0.01;
 
 
-      panCamera(renderer.camera, move[0], move[1]);
+      camera.pan(renderer.camera, move[0], move[1]);
 
 
     }
@@ -412,7 +412,7 @@ function handleTouchMove(event) {
     if (global.prevTouchDelta != undefined && mode === 'zoom') { 
 
       var factor = global.prevTouchDelta-delta;
-      moveCameraTowardsTarget(renderer.camera, factor*0.01);
+      camera.moveTowardsTarget(renderer.camera, factor*0.01);
     }
 
 
@@ -641,6 +641,8 @@ function main(datapath, shaderpath) {
 
   renderer.init();
   console.log(renderer);
+  console.log(camera);
+
 
   loop();
 }
