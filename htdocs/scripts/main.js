@@ -181,17 +181,17 @@ function handleMouseMotion(event) {
     else
       camera.rotateAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
 
-    window.renderer.updateVisibility = true;
+    window.renderer.udpateVisibilityFlag = true;
   }
 
   else if (global.mouse.button[1]) {
     camera.moveTowardsTarget(renderer.camera, deltaY*10);
-    window.renderer.updateVisibility = true;
+    window.renderer.udpateVisibilityFlag = true;
   }
 
   else if (global.mouse.button[2]) {
     camera.pan(renderer.camera, deltaX*4.0, -deltaY*4.0);
-    window.renderer.updateVisibility = true;
+    window.renderer.udpateVisibilityFlag = true;
   }
 
 
@@ -205,7 +205,7 @@ function handleMouseWheel(event) {
   var delta = event.wheelDelta* 0.05;;
   camera.moveTowardsTarget(renderer.camera, delta);
 
-  window.renderer.updateVisibility = true;
+  window.renderer.udpateVisibilityFlag = true;
 }
 
 
@@ -303,13 +303,13 @@ function handleTouchMove(event) {
 
   global.touches = event.targetTouches;
   global.mouse.lastPosition = mousePosition;
-  window.renderer.updateVisibility = true;
+  window.renderer.udpateVisibilityFlag = true;
 }
 
 
 function increaseDetail() { 
   ++global.maxRecursion;
-  window.renderer.updateVisibility =  true;
+  renderer.udpateVisibilityFlag =  true;
 }
 
 function decreaseDetail() { 
@@ -317,7 +317,7 @@ function decreaseDetail() {
   if (global.maxRecursion < 0)
     global.maxRecursion = 0; 
 
-  window.renderer.updateVisibility = true;
+  window.renderer.udpateVisibilityFlag = true;
 }
 
 
@@ -457,7 +457,7 @@ function init(datapath, shaderpath) {
 
     global.maxPointsRendered = 50000;
     global.maxRecursion = 1;
-    global.maxConcurrentLoads = 3;
+    global.maxConcurrentLoads = 2;
 
   } else { 
     global.maxPointsRendered = 250000;

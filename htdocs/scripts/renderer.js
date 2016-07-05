@@ -77,7 +77,7 @@ window.renderer = {
 
     resetCamera : function() {
       
-      this.updateVisibility = true;
+      this.updateVisibilityFlag = true;
 
       this.camera = createOrbitalCamera();
       this.camera.radius = 20.0;
@@ -88,7 +88,7 @@ window.renderer = {
       this.renderTargetResolution.old = this.renderTargetResolution;
       framebuffer.resize(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
 
-      this.updateVisibility = true;
+      this.updateVisibilityFlag = true;
 
     },
 
@@ -96,7 +96,7 @@ window.renderer = {
       this.camera.isMoving = false;
       framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
 
-      this.updateVisibility = true;
+      this.updateVisibilityFlag = true;
     },
 
     updateCamera : function() {
@@ -114,7 +114,7 @@ window.renderer = {
     },
 
 
-    updateVisibilityList : function() {
+    updateVisibleList : function() {
         this.visibleList = [];
 
 
@@ -156,7 +156,7 @@ window.renderer = {
         }
 
 
-        this.updateVisibilityFlag = false;
+
     },
 
 
@@ -187,8 +187,8 @@ window.renderer = {
 
 
     draw : function() {
-        if (this.updateVisibility) { 
-            this.updateVisibilityList();
+        if (this.updateVisibilityFlag) { 
+            this.updateVisibleList();
             this.updateCamera();
             this.drawFirstFrame();
         } 
