@@ -536,7 +536,6 @@ function init(datapath, shaderpath) {
   }, false);
 
 
-
   gl = initWebGL(canvas);      // Initialize the GL context
   resizeCanvas();
 
@@ -578,8 +577,6 @@ function init(datapath, shaderpath) {
   // disable the following line to disable drawing
   document.body.appendChild(global.stats.domElement);
 
-  //var tree = octree.load(path);
-
 
   if (isMobile()) {
 
@@ -602,6 +599,9 @@ function init(datapath, shaderpath) {
   window.setInterval(octree.updateLoadQueue, 200);
 
 
+  renderer.init();
+
+  //geometry.loadJsonModel('data/arrow.json', 'arrow');
 
   // create trickle progress bar
   NProgress.start();
@@ -637,11 +637,6 @@ function main(datapath, shaderpath) {
   
   init(datapath, shaderpath);
 
-  geometry.loadJsonModel('data/arrow.json', 'arrow');
-
-  renderer.init();
-  console.log(renderer);
-  console.log(camera);
 
 
   loop();

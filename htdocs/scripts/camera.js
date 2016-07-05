@@ -184,13 +184,13 @@ function clampAngles(sphericalCoords) {
 }
 
 /// pans the camera along the current pane
-camera.pan = function(camera, deltaX, deltaY, deltaZ) {
+camera.pan = function(cam, deltaX, deltaY, deltaZ) {
 	var forward = vec3.create();
-	vec3.sub(forward, getPosition(camera), camera.target);
+	vec3.sub(forward, camera.getPosition(cam), cam.target);
 	vec3.normalize(forward, forward);
 
 	var right = vec3.create();
-	vec3.cross(right, forward, camera.up)
+	vec3.cross(right, forward, cam.up)
 	vec3.normalize(right, right);
 
 	var up = vec3.create();
@@ -199,12 +199,12 @@ camera.pan = function(camera, deltaX, deltaY, deltaZ) {
 	vec3.scale(up, up, deltaY );
 	vec3.scale(right, right, deltaX );
 
-	vec3.add(camera.target, camera.target, up);
-	vec3.add(camera.target, camera.target, right); 
+	vec3.add(cam.target, cam.target, up);
+	vec3.add(cam.target, cam.target, right); 
 
 	if (deltaZ != undefined) { 
 		vec3.scale(forward, forward, deltaZ);
-		vec3.add(camera.target, camera.target, forward);
+		vec3.add(cam.target, cam.target, forward);
 	}
 
 }
