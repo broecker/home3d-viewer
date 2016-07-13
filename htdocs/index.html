@@ -1,10 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Home3D Viewer</title>
+	<title>Home3D Viewer Bootstrap</title>
+
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/templatemo_justified.css" rel="stylesheet"/>
+
+	<style>
+	.btn {
+		background:rgba(52, 152,219, 0.4);
+		font-family: Arial;
+		color: #ffffff;
+		font-size: 15px;
+		border: solid #c40c40 0px;
+		padding: 6px 20px 6px 20px;
+	}
+
+	.btn:hover {
+		background:rgba(60,176,253, 0.9);
+		text-decoration: none;
+	}
+
+	.buttonBar { 
+		float:left;
+		position: absolute;
+		left: 10px;
+		top: 10px;
+		z-index: 100;
+	}
+	</style>
 
 </head>
 <body>
+ <img src="images/webviewer.jpg" alt="SON apartmen" class="img-responsive img-rounded img_bottom" />
+	<form action="viewer.html?id=012512552" method="GET">
+		<input type="submit" value="Open Viewer">
+	</form>
+
 </body>
 </html>
 
