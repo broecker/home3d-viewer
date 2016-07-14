@@ -39,7 +39,8 @@ global.ctrlHeld = false;
 
 global.stats = null;
 
-global.maxConcurrentLoads = 20;
+global.maxConcurrentLoads = 10;
+global.maxRecursion = 1;
 
 // store shaders
 var shaders = shaders || {};
@@ -141,8 +142,7 @@ function loop() {
   global.stats.end();
 
   window.requestAnimationFrame(loop, canvas);
-  
-    
+
 } 
 
 
@@ -154,6 +154,7 @@ function handleMouseDown(event) {
   global.mouse.lastPosition = [event.clientX, event.clientY];
 
   renderer.startCameraMove();
+
 }
 
 function handleMouseUp(event) {
@@ -170,6 +171,8 @@ function handleMouseMotion(event) {
  
   // scale to -1..1
  // deltaY *= 180.0 / Math.PI;
+
+
   
 
   if (global.mouse.button[0]) {
@@ -180,23 +183,16 @@ function handleMouseMotion(event) {
       camera.moveTowardsTarget(renderer.camera, deltaY*10);
     else
       camera.rotateAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
-
-    window.renderer.udpateVisibilityFlag = true;
   }
 
   else if (global.mouse.button[1]) {
     camera.moveTowardsTarget(renderer.camera, deltaY*10);
-    window.renderer.udpateVisibilityFlag = true;
   }
 
   else if (global.mouse.button[2]) {
     camera.pan(renderer.camera, deltaX*4.0, -deltaY*4.0);
-    window.renderer.udpateVisibilityFlag = true;
   }
-
-
-
-
+  
   global.mouse.lastPosition = mousePosition;
 }
 
@@ -329,26 +325,26 @@ function handleKeydown(event) {
 
   // up
   if (event.keyCode == 38)
-    panCamera(renderer.camera, 0, 0, -2.0);
+    camera.pan(renderer.camera, 0, 0, -2.0);
 
   // down
   if (event.keyCode == 40) 
-    panCamera(renderer.camera, 0, 0, 2.0);
+    camera.pan(renderer.camera, 0, 0, 2.0);
 
   // left
   if (event.keyCode == 37)
-    panCamera(renderer.camera, 2.0, 0, 0);
+    camera.pan(renderer.camera, 2.0, 0, 0);
 
   // right
   if (event.keyCode == 39)
-    panCamera(renderer.camera, -2, 0, 0);
+    camera.pan(renderer.camera, -2, 0, 0);
 
   // page down
   if (event.keyCode == 34)
-    panCamera(renderer.camera, 0, -2, 0);
+    camera.pan(renderer.camera, 0, -2, 0);
   //page up
   if (event.keyCode == 33)
-    panCamera(renderer.camera, 0, 2, 0);
+    camera.pan(renderer.camera, 0, 2, 0);
 
   // 'c' - center camera
   if (event.keyCode == 67) {
@@ -437,6 +433,9 @@ function init(datapath, shaderpath) {
   }
 
   
+  if (shaderpath === undefined)
+    shaderpath = ' ';
+
 
   shader.loadAll(shaders, shaderpath);
 
@@ -471,7 +470,7 @@ function init(datapath, shaderpath) {
   octree.initLoadQueue(global.maxConcurrentLoads);
   geometry.octree = octree.parseJSON(datapath);
 
-  window.setInterval(octree.updateLoadQueue, 200);
+  window.setInterval(octree.updateLoadQueue, 100);
 
 
   renderer.init();
@@ -511,8 +510,27 @@ function getBasePath(address) {
   return basepath;
 }
 
-function main(datapath, shaderpath) {
+function main() {
   
-  init(datapath, shaderpath);
+  init(decodeURL());
   loop();
+}
+
+function decodeURL() {
+
+  var pathDB = {'son':'data/son/son.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
+  var allParams = location.search.substring(1).split("&");
+
+  var p0 = allParams[0].split('=')
+  var path = pathDB[p0[1]];
+
+  console.log(allParams, p0, path);
+
+
+  if (path == '' || path === undefined) {
+    console.error('No valid path found for dataset "' + p0[1] + '"');
+
+  }
+
+  return path;
 }

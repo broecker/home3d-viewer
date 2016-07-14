@@ -96,7 +96,7 @@ window.renderer = {
       this.camera.isMoving = false;
       framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
 
-      this.updateVisibilityFlag = true;
+      this.updateVisibilityFlag = false;
     },
 
     updateCamera : function() {
@@ -155,7 +155,7 @@ window.renderer = {
 
         }
 
-
+        //this.updateVisibilityFlag = false;
 
     },
 
@@ -187,23 +187,31 @@ window.renderer = {
 
 
     draw : function() {
-        if (this.updateVisibilityFlag) { 
+        if (this.updateVisibilityFlag) {
+
             this.updateVisibleList();
             this.updateCamera();
             this.drawFirstFrame();
-        } 
 
-        if (this.visibleList.length > 0)
+            //this.updateVisibilityFlag = false;
+        
+        }
+
+        
+        if (this.visibleList.length > 0) {
+
             this.drawIncrementalFrame();
-
+            //this.updateVisibilityFlag = false;
+        }
     },
-
 
     // the following two functions handle the incremental rendering implemented for this project
 
     // clears the render target and draws the first set of points
     drawFirstFrame : function() {
         framebuffer.bind(this.renderTarget);
+
+        //console.log('first frame.');
 
         // also clear the fbo
         gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -261,6 +269,8 @@ window.renderer = {
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
 
+
+        //console.log('next frame.');
 
         var shader = shaders.pointsShader;
         if (geometry.octree && shader) {
