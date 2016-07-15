@@ -66,7 +66,6 @@ octree.init = function(isMobile) {
 	octree.maxConcurrentLoads = 8;
 	octree.autoRecursion = false;
 
-
 	if (isMobile) {
 
 		octree.maxPointsRendered = 50000;
@@ -117,6 +116,8 @@ octree.updateLoadQueue = function() {
 	if (octree._nodeBacklog.length === 0) {
 	
 		if (octree.autoRecursion) {
+			// if we ran out of elements to load perform a breadth-first search and add elements of the next level to the load queue
+
 
 
 		}
@@ -508,7 +509,6 @@ octree.parseJSON = function(jsonUrl) {
 
 			console.log('Calculated octree depth to be ' + maxNodeDepth);
 			root.maxDepth = maxNodeDepth;
-			console.log(root);
 
 			renderer.updateVisibility = true;
 
