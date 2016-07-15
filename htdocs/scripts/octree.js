@@ -49,6 +49,13 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+function max(a, b) { 
+	if (a >= b)
+		return a;
+	else 
+		return b;
+}
+
 var octree = octree || {}
 
 
@@ -396,6 +403,8 @@ octree.parseJSON = function(jsonUrl) {
 				nodeDict[nodes[i].file] = nodes[i];
 
 
+			var maxNodeDepth = 0;
+
 			for (var i = 0; i < nodes.length; ++i) {
 				var node = nodes[i];
 
@@ -446,6 +455,8 @@ octree.parseJSON = function(jsonUrl) {
 				node.colorBuffer = null;
 				node.depth = octree.getDepth(node);
 
+				maxNodeDepth = max(maxNodeDepth, node.depth);
+
 			}
 
 			/*
@@ -473,6 +484,10 @@ octree.parseJSON = function(jsonUrl) {
 
 			// reset visibility
 			octree.setInvisible(root);
+
+			console.log('Calculated octree depth to be ' + maxNodeDepth);
+			root.maxDepth = maxNodeDepth;
+			console.log(root);
 
 			global.updateVisibility = true;
 

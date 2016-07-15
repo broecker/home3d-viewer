@@ -31,10 +31,7 @@ window.renderer = {
         this.enableGrid = true;
         this.enableBBoxes = false;
         this.enableFXAA = true;
-
-
-        this.updateVisibilityFlag = true;
-
+    
         this.camera = camera.createOrbitalCamera();
         this.camera.radius = 20.0;
 
@@ -51,6 +48,7 @@ window.renderer = {
 
         this.renderTargetResolution = [1024, 1024];
         this.renderTarget = framebuffer.create(this.renderTargetResolution[0], this.renderTargetResolution[1]);
+        this.updateVisibilityFlag = true;
 
     },
 
@@ -76,9 +74,6 @@ window.renderer = {
 
 
     resetCamera : function() {
-      
-      this.updateVisibilityFlag = true;
-
       this.camera = createOrbitalCamera();
       this.camera.radius = 20.0;
     },
@@ -87,16 +82,12 @@ window.renderer = {
       this.camera.isMoving = true;
       this.renderTargetResolution.old = this.renderTargetResolution;
       framebuffer.resize(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
-
-      this.updateVisibilityFlag = true;
-
     },
 
     stopCameraMove : function() {
       this.camera.isMoving = false;
+      this.updateVisibilityFlag = true;
       framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
-
-      this.updateVisibilityFlag = false;
     },
 
     updateCamera : function() {
@@ -115,6 +106,7 @@ window.renderer = {
 
 
     updateVisibleList : function() {
+
         this.visibleList = [];
 
 
@@ -187,28 +179,33 @@ window.renderer = {
 
 
     draw : function() {
-        if (this.updateVisibilityFlag) {
+
+        if (this.drawCallCounter === undefined)
+            this.drawCallCounter = 0;
+
+        //console.log('draw call ' + this.drawCallCounter++ + ", vl: " + this.visibleList.length);
+
+
+        if (this.updateVisibilityFlag || this.camera.isMoving) {
 
             this.updateVisibleList();
             this.updateCamera();
-            this.drawFirstFrame();
+            this.clearFrame();
 
-            //this.updateVisibilityFlag = false;
-        
+            this.updateVisibilityFlag = false;
         }
 
+        //console.log("visible list (" + this.visibleList.length + "): ", this.visibleList);
         
         if (this.visibleList.length > 0) {
-
-            this.drawIncrementalFrame();
-            //this.updateVisibilityFlag = false;
+            this.drawSomePoints();
         }
     },
 
     // the following two functions handle the incremental rendering implemented for this project
 
-    // clears the render target and draws the first set of points
-    drawFirstFrame : function() {
+    // clears the render target and draws the grid etc and bboxes 
+    clearFrame : function() {
         framebuffer.bind(this.renderTarget);
 
         //console.log('first frame.');
@@ -258,10 +255,12 @@ window.renderer = {
         framebuffer.disable(this.renderTarget);
         gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
 
+        
+
+
     },
 
-    drawIncrementalFrame : function() {
-
+    drawSomePoints : function() {
 
         framebuffer.bind(this.renderTarget);
 
@@ -288,14 +287,22 @@ window.renderer = {
 
 
             global.pointsDrawn = 0;
-
+            //console.log('draw points: ' + global.pointsDrawn + "/" + global.maxPointsRendered)
 
             for (var i = 0; i < this.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
                 var node = this.visibleList[i];
 
                 if (node.loaded === true) {
                     octree.drawNode(node, shader);
+                    
+                    //console.log("visibleList pre render: " + this.visibleList.length)
+
                     this.visibleList.splice(i, 1);
+
+                    //console.log("visibleList post render: " + this.visibleList.length)
+
+
+
                 } else {
 
                     if (node.loaded === false && node.depth <= global.maxRecursion)
