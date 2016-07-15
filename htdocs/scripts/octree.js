@@ -58,12 +58,27 @@ function max(a, b) {
 
 var octree = octree || {}
 
+octree.init = function(isMobile) { 
 
-octree.initLoadQueue = function(numRequests) { 
+
+	octree.maxRecursion = 2;
+	octree.maxPointsRendered = 64000;
+	octree.maxConcurrentLoads = 8;
+	octree.autoRecursion = false;
+
+
+	if (isMobile) {
+
+		octree.maxPointsRendered = 50000;
+		octree.maxRecursion = 1;
+		octree.maxConcurrentLoads = 2;
+
+	} 
+ 
 	octree._nodeBacklog = [];
 
 	octree._xmlRequests = [];
-	for (var i = 0; i < numRequests; ++i) {
+	for (var i = 0; i < octree.maxConcurrentLoads; ++i) {
 		var request = {xhr:new XMLHttpRequest(), node:null};
 		octree._xmlRequests.push(request);
 	}
@@ -100,6 +115,13 @@ octree.updateLoadQueue = function() {
 	}
 
 	if (octree._nodeBacklog.length === 0) {
+	
+		if (octree.autoRecursion) {
+
+
+		}
+
+
 		NProgress.done();
 		NProgress.configure.showSpinner = false;
 
@@ -215,17 +237,17 @@ octree.drawNode = function(tree, shader) {
 
 
 	gl.drawArrays(gl.POINTS, 0, tree.points);
-	global.pointsDrawn += tree.points;
+	octree.pointsDrawn += tree.points;
 }
 
 
 // draws an octree recursivlely
 octree.draw = function(tree, shader, recurse) {
 
-	if (tree.depth > global.octree.maxRecursion)
+	if (tree.depth > octree.maxRecursion)
 		return;
 
-	if (global.pointsDrawn > global.maxPointsRendered)
+	if (octree.pointsDrawn > octree.maxPointsRendered)
 		return;
 
 	// shall we recurse automatically?
@@ -235,7 +257,7 @@ octree.draw = function(tree, shader, recurse) {
 		drawOctreeNode(tree, shader);
 	} else if (tree.loaded === false) {
 
-		if (!global.updateVisibility)
+		if (!renderer.updateVisibilityFlag)
 			octree.load(tree);
 	}
 
@@ -276,7 +298,7 @@ octree.updateVisibility = function(tree, matrix) {
 	tree.visible = aabb.clipBox(tree.bbox, matrix);
 
 
-	if (tree.children != null && tree.depth < global.maxRecursion) {
+	if (tree.children != null && tree.depth < octree.maxRecursion) {
 
 		for (var i = 0; i < tree.children.length; ++i) {
 			// clipping -- test children individually
@@ -305,7 +327,7 @@ octree.getVisibleNodes = function(tree, list) {
 	if (tree.visible > 0) {
 		list.push(tree);
 
-		if (tree.children != null && tree.depth < global.maxRecursion) { 
+		if (tree.children != null && tree.depth < octree.maxRecursion) { 
 			for (var i = 0; i < tree.children.length; ++i) { 
 				octree.getVisibleNodes(tree.children[i], list);
 			}
@@ -347,7 +369,7 @@ octree.drawBBoxes = function(tree, shader) {
 
 	//drawAABB(tree.bbox, shader);
 
-	if (tree.children != null && tree.depth < global.maxRecursion)
+	if (tree.children != null && tree.depth < octree.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
 			octree.drawBBoxes(tree.children[i], shader);
 	else
@@ -366,7 +388,7 @@ octree.drawBboxBounds = function(tree, shader) {
 
 		drawScreenspaceBounds(tree.bbox, shader);
 
-		if (tree.children != null && tree.depth < global.maxRecursion) { 
+		if (tree.children != null && tree.depth < octree.maxRecursion) { 
 			for (var i = 0; i < tree.children.length; ++i)
 				octree.drawBboxBounds(tree.children[i], shader);
 		}
@@ -479,7 +501,6 @@ octree.parseJSON = function(jsonUrl) {
 			// load the root node
 			octree.load(root);
 
-			// global 
 			geometry.octree = root;
 
 			// reset visibility
@@ -489,7 +510,7 @@ octree.parseJSON = function(jsonUrl) {
 			root.maxDepth = maxNodeDepth;
 			console.log(root);
 
-			global.updateVisibility = true;
+			renderer.updateVisibility = true;
 
 			return root;
 		}

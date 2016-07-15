@@ -39,9 +39,6 @@ global.ctrlHeld = false;
 
 global.stats = null;
 
-global.maxConcurrentLoads = 10;
-global.maxRecursion = 1;
-
 // store shaders
 var shaders = shaders || {};
 
@@ -304,14 +301,14 @@ function handleTouchMove(event) {
 
 
 function increaseDetail() { 
-  ++global.maxRecursion;
+  ++octree.maxRecursion;
   renderer.udpateVisibilityFlag =  true;
 }
 
 function decreaseDetail() { 
-  -- global.maxRecursion;
-  if (global.maxRecursion < 0)
-    global.maxRecursion = 0; 
+  -- octree.maxRecursion;
+  if (octree.maxRecursion < 0)
+    octree.maxRecursion = 0; 
 
   window.renderer.udpateVisibilityFlag = true;
 }
@@ -452,22 +449,8 @@ function init(datapath, shaderpath) {
   document.body.appendChild(global.stats.domElement);
 
 
-  if (isMobile()) {
-
-    global.maxPointsRendered = 50000;
-    global.maxRecursion = 1;
-    global.maxConcurrentLoads = 2;
-
-  } else { 
-    global.maxPointsRendered = 250000;
-    global.maxRecursion = 2;
-    global.maxConcurrentLoads = 8;
-
-  }
-
-
-  // initialize octree
-  octree.initLoadQueue(global.maxConcurrentLoads);
+   // initialize octree
+  octree.init(isMobile());
   geometry.octree = octree.parseJSON(datapath);
 
   window.setInterval(octree.updateLoadQueue, 100);

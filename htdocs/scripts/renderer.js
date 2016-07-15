@@ -286,10 +286,10 @@ window.renderer = {
             gl.uniform1f(shader.viewportHeightUniform, viewportHeight);
 
 
-            global.pointsDrawn = 0;
+            octree.pointsDrawn = 0;
             //console.log('draw points: ' + global.pointsDrawn + "/" + global.maxPointsRendered)
 
-            for (var i = 0; i < this.visibleList.length && global.pointsDrawn < global.maxPointsRendered; ++i) {
+            for (var i = 0; i < this.visibleList.length && octree.pointsDrawn < octree.maxPointsRendered; ++i) {
                 var node = this.visibleList[i];
 
                 if (node.loaded === true) {
@@ -305,7 +305,7 @@ window.renderer = {
 
                 } else {
 
-                    if (node.loaded === false && node.depth <= global.maxRecursion)
+                    if (node.loaded === false && node.depth <= octree.maxRecursion)
                         octree.load(node);
 
 
