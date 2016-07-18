@@ -27,6 +27,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_GRAPHICS -DNO_TIMER -Wall -std=c++0
 # set(CMAKE_CXX_COMPILER "g++-4.7")
 
 # add source file to executable
-add_executable(makeOctree main.cpp Octree.cpp AABB.cpp)
+add_executable(makeOctree main.cpp Octree.h Octree.cpp AABB.h AABB.cpp Point.h)
 target_link_libraries (makeOctree)
 
