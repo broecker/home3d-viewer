@@ -61,10 +61,9 @@ var octree = octree || {}
 octree.init = function(isMobile) { 
 
 
-	octree.maxRecursion = 2;
-	octree.maxPointsRendered = 64000;
+	octree.maxRecursion = 3;
+	octree.maxPointsRendered = 128000;
 	octree.maxConcurrentLoads = 8;
-	octree.autoRecursion = false;
 
 	if (isMobile) {
 
@@ -81,6 +80,11 @@ octree.init = function(isMobile) {
 		var request = {xhr:new XMLHttpRequest(), node:null};
 		octree._xmlRequests.push(request);
 	}
+}
+
+octree.doneLoading = function() { 
+	console.log(octree._nodeBacklog);
+	return octree._nodeBacklog.length === 0;
 }
 
 octree.updateLoadQueue = function() { 
@@ -115,13 +119,6 @@ octree.updateLoadQueue = function() {
 
 	if (octree._nodeBacklog.length === 0) {
 	
-		if (octree.autoRecursion) {
-			// if we ran out of elements to load perform a breadth-first search and add elements of the next level to the load queue
-
-
-
-		}
-
 
 		NProgress.done();
 		NProgress.configure.showSpinner = false;
@@ -296,6 +293,7 @@ octree.setInvisible = function(tree) {
 
 // performs view-frustum culling recursively on the tree
 octree.updateVisibility = function(tree, matrix) { 
+
 	tree.visible = aabb.clipBox(tree.bbox, matrix);
 
 

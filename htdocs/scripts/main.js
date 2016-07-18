@@ -307,8 +307,8 @@ function increaseDetail() {
 
 function decreaseDetail() { 
   -- octree.maxRecursion;
-  if (octree.maxRecursion < 0)
-    octree.maxRecursion = 0; 
+  if (octree.maxRecursion < 1)
+    octree.maxRecursion = 1; 
 
   window.renderer.udpateVisibilityFlag = true;
 }
@@ -452,6 +452,8 @@ function init(datapath, shaderpath) {
    // initialize octree
   octree.init(isMobile());
   geometry.octree = octree.parseJSON(datapath);
+
+  octree.autoRecursion = true;
 
   window.setInterval(octree.updateLoadQueue, 100);
 
