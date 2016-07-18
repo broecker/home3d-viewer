@@ -16,33 +16,9 @@ find_package (Boost)
 include_directories(${include_directories} ${Boost_INCLUDE_DIRS})
 link_directories(${link_directories} ${Boost_LIBRARY_DIRS})
 
-<<<<<<< HEAD
-# add eigen
-include_directories(${include_directories} "/mnt/ws/home/mbroecker/include/eigen3")
-
-# add pcl libraries
-include_directories(${include_directories} "/mnt/ws/home/mbroecker/include/pcl-1.7")
-link_directories(${link_directories} "/mnt/ws/home/mbroecker/lib")
-
-# add glm
-include_directories(${include_directories} "/mnt/ws/home/mbroecker/include/glm")
-
-# set no-graphis
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_GRAPHICS -DENABLE_PCL -DNO_TIMER -Wall -std=c++0x -fopenmp")
-
-# set recent g++ on the cluster
-set(CMAKE_CXX_COMPILER "g++-4.7")
-
-# add source file to executable
-add_executable(makeOctree main.cpp Octree.cpp AABB.cpp)
-target_link_libraries (makeOctree pcl_common pcl_io)
-
-=======
->>>>>>> FETCH_HEAD
 # add glm
 find_package(GLM)
 include_directories(${GLM_INCLUDE_DIRS})
-
 
 # set no-graphis
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_GRAPHICS -DNO_TIMER -Wall -std=c++0x -fopenmp")
@@ -54,7 +30,3 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_GRAPHICS -DNO_TIMER -Wall -std=c++0
 add_executable(makeOctree main.cpp Octree.cpp AABB.cpp)
 target_link_libraries (makeOctree)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> FETCH_HEAD
