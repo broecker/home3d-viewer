@@ -377,8 +377,9 @@ function handleKeydown(event) {
     global.ctrlHeld = true;
   
   // 'space bar'
-  if (event.keyCode == 32)
-    toggleAnimation();
+  if (event.keyCode == 32) {
+
+  }
 
   
 }
@@ -457,6 +458,8 @@ function init(datapath, shaderpath) {
 
   window.setInterval(octree.updateLoadQueue, 100);
 
+  // todo: integrate this with the other data loading
+  metadata.load('data/son/metadata.json');
 
   renderer.init();
   renderer.clearFrame();

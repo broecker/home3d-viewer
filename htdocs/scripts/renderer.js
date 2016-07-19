@@ -31,9 +31,10 @@ window.renderer = {
         this.enableGrid = true;
         this.enableBBoxes = false;
         this.enableFXAA = true;
-    
+        this.enableMetadata = true;
+
         this.camera = camera.createOrbitalCamera();
-        this.camera.radius = 20.0;
+        this.camera.radius = 20.0;        
 
         this.clearColor = [0,0,0,0];
         this.viewport = [0,0,800,600];
@@ -49,6 +50,9 @@ window.renderer = {
         this.renderTargetResolution = [1024, 1024];
         this.renderTarget = framebuffer.create(this.renderTargetResolution[0], this.renderTargetResolution[1]);
         this.updateVisibilityFlag = true;
+
+        this.updateCamera();
+
 
     },
 
@@ -241,16 +245,15 @@ window.renderer = {
 
         shader = shaders.gridShader;
         if (this.enableBBoxes && geometry.octree && !(shader === null)) { 
-            gl.useProgram(shader);
-            gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-
-            gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
-            gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
-            gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
-
             octree.drawBBoxes(geometry.octree, shader);
-
         }
+
+
+
+        if (this.enableMetadata) { 
+            metadata.draw(shader);
+        }
+
 
         framebuffer.disable(this.renderTarget);
         gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
@@ -311,6 +314,10 @@ window.renderer = {
 
                 }
             }
+        }
+
+        if (this.enableMetadata) { 
+            metadata.draw(shaders.gridShader);
         }
 
 

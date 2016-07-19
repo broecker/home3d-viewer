@@ -61,7 +61,7 @@ var octree = octree || {}
 octree.init = function(isMobile) { 
 
 
-	octree.maxRecursion = 3;
+	octree.maxRecursion = 2;
 	octree.maxPointsRendered = 128000;
 	octree.maxConcurrentLoads = 8;
 
@@ -366,12 +366,10 @@ octree.drawBBoxes = function(tree, shader) {
 	else
 		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
 
-	//drawAABB(tree.bbox, shader);
-
 	if (tree.children != null && tree.depth < octree.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
 			octree.drawBBoxes(tree.children[i], shader);
-	else
+	//else
 		aabb.drawAABB(tree.bbox, shader);
 }
 

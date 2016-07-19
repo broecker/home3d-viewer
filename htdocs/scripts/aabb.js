@@ -201,7 +201,7 @@ aabb.clipBox = function(bbox, matrix) {
 aabb.drawAABB = function(bbox, shader) {
   
   // 'pseudo static' -- check if the unchanging variables have been initialized (once)
-  if (typeof aabb.vertexBuffer == 'undefined') {
+  if (aabb.vertexBuffer === undefined) {
     console.log("creating AABB vertex buffers ");
     
     const bboxIndices = [ 0,1,1,2,2,3,3,0,
