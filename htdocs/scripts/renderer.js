@@ -322,8 +322,6 @@ window.renderer = {
 
         if (renderer.enableMetadata) { 
             metadata.draw(shaders.gridShader);
-        
-            console.log('drawing metadata bboxes');
         }
 
 

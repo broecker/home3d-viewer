@@ -464,8 +464,6 @@ function init(datapath, shaderpath) {
   renderer.init();
   renderer.clearFrame();
 
-  renderer.enableMetadata = false;
-
   resizeCanvas();
 
 
