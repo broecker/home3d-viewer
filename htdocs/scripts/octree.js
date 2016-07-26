@@ -62,7 +62,7 @@ octree.init = function(isMobile) {
 
 
 	octree.maxRecursion = 2;
-	octree.maxPointsRendered = 128000;
+	octree.maxPointsRendered = 50000; //128000;
 	octree.maxConcurrentLoads = 8;
 
 	if (isMobile) {

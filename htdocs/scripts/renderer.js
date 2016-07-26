@@ -31,7 +31,7 @@ window.renderer = {
         this.enableGrid = true;
         this.enableBBoxes = false;
         this.enableFXAA = true;
-        this.enableMetadata = true;
+        this.enableMetadata = false;
 
         this.camera = camera.createOrbitalCamera();
         this.camera.radius = 20.0;        
@@ -182,6 +182,10 @@ window.renderer = {
     },
 
 
+    requestNewFrame : function() {
+        this.updateVisibilityFlag = true;
+    },
+
     draw : function() {
 
         if (this.drawCallCounter === undefined)
@@ -316,8 +320,10 @@ window.renderer = {
             }
         }
 
-        if (this.enableMetadata) { 
+        if (renderer.enableMetadata) { 
             metadata.draw(shaders.gridShader);
+        
+            console.log('drawing metadata bboxes');
         }
 
 

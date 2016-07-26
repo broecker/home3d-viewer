@@ -464,6 +464,8 @@ function init(datapath, shaderpath) {
   renderer.init();
   renderer.clearFrame();
 
+  renderer.enableMetadata = false;
+
   resizeCanvas();
 
 
@@ -499,6 +501,26 @@ function getBasePath(address) {
   return basepath;
 }
 
+function toggleMetadata() {
+  renderer.enableMetadata = !renderer.enableMetadata;
+
+
+  var md = document.getElementById("metadata-labels");
+  var mdb = document.getElementById("mdbutton");
+
+  if (renderer.enableMetadata) { 
+    mdb.innerHTML = "Hide Metadata";
+    md.style.display = 'block';
+  } else { 
+    mdb.innerHTML = "Show Metadata";
+    md.style.display = 'none';
+  }
+
+
+  renderer.requestNewFrame();  
+
+}
+
 function main() {
   
   init(decodeURL());
@@ -507,7 +529,7 @@ function main() {
 
 function decodeURL() {
 
-  var pathDB = {'son':'data/son/son.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
+  var pathDB = {'son':'data/son/son.json', 'son2':'data/son2/son2.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
   var allParams = location.search.substring(1).split("&");
 
   var p0 = allParams[0].split('=')

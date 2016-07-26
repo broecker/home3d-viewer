@@ -49,12 +49,28 @@ metadata.load = function(jsonUrl) {
 					
 
 
+				// also append the text to the document
+
+				var container = document.getElementById("metadata-labels");
+
+				var div = document.createElement("div");
+				div.className = "floating-div";
+				div.id = metadata.items[i].name;
+
+				var textNode = document.createTextNode(metadata.items[i].name);
+				div.appendChild(textNode);
+
+				container.appendChild(div);
+
+
+				metadata.items[i].htmlElement = div;
+
 
 			}
 	
 
-			console.log("Loaded " + metadata.items.length + " metadata entries.");
-			console.log(metadata.items);
+			//console.log("Loaded " + metadata.items.length + " metadata entries.");
+			//console.log(metadata.items);
 		}
 	}
 
@@ -87,11 +103,37 @@ metadata.draw = function(shader) {
 			}
 		}
 
-		// draw text ehere
-
-
-
 		gl.lineWidth(1.0);
+
+		// draw text here
+
+		for (var e in metadata.items) { 
+			var item = metadata.items[e];
+
+
+			var c = aabb.getCentroid(item.bbox);
+			var v = vec4.fromValues(c[0], c[1], c[2], 1);
+
+		    vec4.transformMat4(v, v, renderer.modelViewProjection);
+		    
+		   
+		    // homogenous transform
+    		vec4.scale(v, v, 1.0 / v[3]);
+
+			var pixelX = (v[0] *  0.5 + 0.5) * gl.canvas.width;
+			var pixelY = (v[1] * -0.5 + 0.5) * gl.canvas.height;
+
+
+		    //console.log(c, pixelX, pixelY);
+
+			item.htmlElement.style.left = Math.floor(pixelX) + "px";
+			item.htmlElement.style.top  = Math.floor(pixelY) + "px";
+			item.htmlElement.style.alignContent="center";
+			item.htmlElement.style.alignSelf="center";
+				
+		}
+
+
 
 
 	}
