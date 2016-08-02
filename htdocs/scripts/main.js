@@ -504,7 +504,7 @@ function main() {
 
 function decodeURL() {
 
-  var pathDB = {'son':'data/son/son.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
+  var pathDB = {'son':'data/son/son.json', 'curiosity':'data/curiosity.sol1112/sol1112.json', 'son2':'data/son2/son2.json'};
   var allParams = location.search.substring(1).split("&");
 
   var p0 = allParams[0].split('=')
