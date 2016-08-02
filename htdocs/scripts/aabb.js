@@ -102,10 +102,10 @@ aabb.extractVertices = function(bbox) {
 }
 
 aabb.getCentroid = function(bbox) {
+
   return [(bbox.min[0] + bbox.max[0])*0.5,
           (bbox.min[1] + bbox.max[1])*0.5,
           (bbox.min[2] + bbox.max[2])*0.5];  
-
 }
 
 aabb.getSpanLength = function(bbox) {
@@ -201,7 +201,7 @@ aabb.clipBox = function(bbox, matrix) {
 aabb.drawAABB = function(bbox, shader) {
   
   // 'pseudo static' -- check if the unchanging variables have been initialized (once)
-  if (typeof aabb.vertexBuffer == 'undefined') {
+  if (aabb.vertexBuffer === undefined) {
     console.log("creating AABB vertex buffers ");
     
     const bboxIndices = [ 0,1,1,2,2,3,3,0,
@@ -243,7 +243,7 @@ aabb.drawAABB = function(bbox, shader) {
 aabb.calculateScreenspaceBounds = function(bbox, matrix) { 
   // extract bounds vertices
   var clipVertices = [[0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1]];
-  var vertices = extractVertices(bbox);
+  var vertices = aabb.extractVertices(bbox);
 
   for (var i = 0; i < 8; ++i) {
 
@@ -306,6 +306,14 @@ aabb.calculateScreenspaceArea = function(bbox, resolution) {
     return area * resolution[0]*resolution[1];
 }
 
+aabb.getScreenspaceCentroid = function(bbox) { 
+
+  var c = vec2.create();
+  c[0] = (bbox.screenSpaceBounds.max[0] - bbox.screenSpaceBounds.min[0]) / 2;
+  c[1] = (bbox.screenSpaceBounds.max[1] - bbox.screenSpaceBounds.min[1]) /2 ;
+
+  return c;
+}
 
 aabb.drawScreenspaceBounds = function(bbox, shader) { 
 

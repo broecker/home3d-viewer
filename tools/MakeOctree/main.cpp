@@ -228,6 +228,11 @@ static void parseOptions(int argc, const char** argv)
 			std::cout << "[Option] Max node size: " << option_nodeSize << std::endl;
 		}
 
+		if (strcmp(argv[i], "-pointcount") == 0)
+		{
+			option_pointCount = atoi(argv[++i]);
+			std::cout << "[Option] Max total pointcount is: " << option_pointCount << std::endl;
+		}
 
 
 	}
@@ -259,6 +264,8 @@ int main(int argc, const char** argv)
 	}
 	assert(!points.empty());
 	
+	if (option_pointCount < points.size())
+		resamplePoints(points);
 
 	if (option_flipY)
 		flipY(points);

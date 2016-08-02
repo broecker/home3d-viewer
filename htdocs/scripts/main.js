@@ -377,8 +377,9 @@ function handleKeydown(event) {
     global.ctrlHeld = true;
   
   // 'space bar'
-  if (event.keyCode == 32)
-    toggleAnimation();
+  if (event.keyCode == 32) {
+
+  }
 
   
 }
@@ -457,6 +458,8 @@ function init(datapath, shaderpath) {
 
   window.setInterval(octree.updateLoadQueue, 100);
 
+  // todo: integrate this with the other data loading
+  metadata.load('data/son/metadata.json');
 
   renderer.init();
   renderer.clearFrame();
@@ -496,6 +499,26 @@ function getBasePath(address) {
   return basepath;
 }
 
+function toggleMetadata() {
+  renderer.enableMetadata = !renderer.enableMetadata;
+
+
+  var md = document.getElementById("metadata-labels");
+  var mdb = document.getElementById("mdbutton");
+
+  if (renderer.enableMetadata) { 
+    mdb.innerHTML = "Hide Metadata";
+    md.style.display = 'block';
+  } else { 
+    mdb.innerHTML = "Show Metadata";
+    md.style.display = 'none';
+  }
+
+
+  renderer.requestNewFrame();  
+
+}
+
 function main() {
   
   init(decodeURL());
@@ -504,7 +527,7 @@ function main() {
 
 function decodeURL() {
 
-  var pathDB = {'son':'data/son/son.json', 'curiosity':'data/curiosity.sol1112/sol1112.json', 'son2':'data/son2/son2.json'};
+  var pathDB = {'son':'data/son/son.json', 'son2':'data/son2/son2.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
   var allParams = location.search.substring(1).split("&");
 
   var p0 = allParams[0].split('=')

@@ -135,7 +135,22 @@
 		height: 100%;
 		z-index: 0;
 	}
-	
+
+
+	#metadata-labels {
+	    position: absolute;
+	    left: 0px;
+	    top: 0px;
+	    width: 400px;
+	    height: 300px;
+	    z-index: 1;
+	    color:yellow;
+	 
+	}
+	 
+	.floating-div {
+	    position: absolute;
+	}
 	
 
 
@@ -159,12 +174,14 @@
 	<script src='scripts/nprogress.js'></script>
 	<script src='scripts/reimg.js'></script>
 	<script src='scripts/renderer.js'></script>
+	<script src='scripts/spatial-metadata.js'></script>
 
 	<link rel='stylesheet' href='styles/nprogress.css'/>
 
 </head>
 	<body onload="main(); " >
 	<canvas id="canvas" width="800" height="600"></canvas>
+	<div id="metadata-labels"></div>
 
 	<div class="buttonBar">
 		<button type="button" class="btn" onclick="renderer.toggleGrid()">Toggle Grid</button>
@@ -178,6 +195,7 @@
 		<!--<button type="button" class="btn" onclick="toggleFXAA()">Toggle Anti-aliasing</button> -->
 		<button type="button" class="btn" onclick="saveCanvasToFile()">Save View</button>
 		<button type="button" class="btn" onclick="location.href='#openHelp';">Help</button>
+		<button type="button" class="btn" id="mdbutton" onclick="toggleMetadata();">Show Metadata</button>
 	</div>
 
 	<div class="buildInfo">Build: 20160715</div>
