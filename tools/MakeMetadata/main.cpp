@@ -14,8 +14,6 @@
 #endif
 
 
-
-
 struct SegmentationRecord
 {
 	std::string			name;
@@ -89,17 +87,16 @@ int main(int argc, const char** argv)
 		
 	vector<SegmentationRecord> records;
 
+
 	ifstream inFile(argv[1]);
 	if (!inFile.is_open())
 	{
 		cerr << "[Error] Unable to open file \"" << argv[0] << "\"!\n";
 		return -1;
 	}
-
+	
 	while (!inFile.eof())
 	{
-
-
 		SegmentationRecord r;
 		inFile >> r.name;
 		
