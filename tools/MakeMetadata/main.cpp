@@ -19,14 +19,35 @@
 struct SegmentationRecord
 {
 	std::string			name;
-	std::string			aat_id;
+
+	std::string			room;
+
+	unsigned int		aat_id;
+	std::string			aat_link;
 
 	struct BBox
 	{
 		glm::mat4		transform;
 		glm::vec3		min, max;
 	}					bbox;
+	
 };
+
+
+std::ostream& operator << (std::ostream& os, const SegmentationRecord& r)
+{
+	os << "{\n";
+	os << "\"name\":\"" << r.name << "\"\n,";
+	os << "\"room\":\"" << r.room << "\"\n,";
+	os << "\"aat_id\": " << r.aat_id << "\n,"; // 000000000000, \n";
+	os << "\"aat_link\": \"" << r.aat_link << "\"\n,";
+	os << "\"bbox_min\": [" << r.bbox.min[0] << "," << r.bbox.min[1] << "," << r.bbox.min[2] << "]\n,";
+	os << "\"bbox_max\": [" << r.bbox.max[0] << "," << r.bbox.max[1] << "," << r.bbox.max[2] << "]\n";
+	os << "}";
+
+	return os;
+}
+
 
 std::vector<std::string> tokenize(std::string input)
 {
@@ -82,6 +103,17 @@ int main(int argc, const char** argv)
 		SegmentationRecord r;
 		inFile >> r.name;
 		
+
+		size_t n = r.name.find_first_of("_");
+		if (n == string::npos)
+			continue;
+		else
+		{
+			r.room = r.name.substr(0, n);
+			r.name = r.name.substr(n + 1);
+		}
+		
+
 		float* mat = glm::value_ptr(r.bbox.transform);
 		for (int i = 0; i < 16; ++i)
 			inFile >> mat[i];
@@ -89,7 +121,8 @@ int main(int argc, const char** argv)
 		r.bbox.min = glm::vec3(r.bbox.transform * glm::vec4(-1, -1, -1, 1));
 		r.bbox.max = glm::vec3(r.bbox.transform * glm::vec4(1, 1, 1, 1));
 
-		r.aat_id = "UNDEFINED";
+		r.aat_id = 0;
+		r.aat_link = "UNDEFINED";
 
 
 		records.push_back(r);
@@ -103,16 +136,9 @@ int main(int argc, const char** argv)
 	std::ofstream oFile(string(argv[1]) + ".out.json");
 	oFile << "[";
 
-	for (auto r = records.begin(); r != records.end(); ++r)
-	{
-		oFile << "{\n";
-		oFile << "\t\"name\":\"" << r->name << "\",\n";
-		oFile << "\t\"aat_id\": 000000000000,\n";
-		oFile << "\t\"bbox_min\": [" << r->bbox.min[0] << "," << r->bbox.min[1] << "," << r->bbox.min[2] << "]\n";
-		oFile << "\t\"bbox_max\": [" << r->bbox.max[0] << "," << r->bbox.max[1] << "," << r->bbox.max[2] << "]\n";
-		oFile << "},\n";
-	}
-
+	for (size_t i = 0; i < records.size() - 1; ++i)
+		oFile << records[i] << ",";
+	oFile << records.back();
 
 	oFile << "]\n";
 

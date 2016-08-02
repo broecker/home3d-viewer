@@ -459,7 +459,7 @@ function init(datapath, shaderpath) {
   window.setInterval(octree.updateLoadQueue, 100);
 
   // todo: integrate this with the other data loading
-  metadata.load('data/son/metadata.json');
+  metadata.load('data/son2/metadata.json');
 
   renderer.init();
   renderer.clearFrame();
