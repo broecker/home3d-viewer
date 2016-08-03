@@ -54,6 +54,26 @@ window.renderer = {
         this.updateCamera();
 
 
+        this.bboxes = [
+            obb.create(),
+            obb.create()
+        ];
+
+        this.bboxes[0].position = vec3.fromValues(2, 0, 2);
+        this.bboxes[0].halfBounds = vec3.fromValues(2, 1, 0.5);
+
+        this.bboxes[0].yAxis[0] = 0;
+        this.bboxes[0].yAxis[1] = -3;
+        this.bboxes[0].yAxis[2] = 7;
+        vec3.normalize(this.bboxes[0].yAxis, this.bboxes[0].yAxis);
+
+        vec3.cross(this.bboxes[0].zAxis, this.bboxes[0].yAxis, this.bboxes[0].xAxis);
+        vec3.normalize(this.bboxes[0].zAxis, this.bboxes[0].zAxis);
+
+
+        this.bboxes[1].position = vec3.fromValues(-2, 2, -2);
+        this.bboxes[1].halfBounds = vec3.fromValues(0.2, 5, 0.2);
+
     },
 
     // resizes the viewport
@@ -278,6 +298,8 @@ window.renderer = {
 
         //console.log('next frame.');
 
+        /*
+
         var shader = shaders.pointsShader;
         if (geometry.octree && shader) {
             // draw the points
@@ -323,6 +345,28 @@ window.renderer = {
         if (renderer.enableMetadata) { 
             metadata.draw(shaders.gridShader);
         }
+
+        */
+
+        // draw oriented bboxes here
+        shader = shaders.obbShader;
+        if (shader) {
+
+            gl.useProgram(shader);
+            gl.uniform3f(shader.colorUniform, 1, 0, 0);
+            gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
+            gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
+
+            for (var i = 0; i < renderer.bboxes.length; ++i) {
+
+                obb.draw(renderer.bboxes[i], shader);
+
+
+            }
+
+
+        }
+
 
 
         framebuffer.disable(this.renderTarget, this.viewport);

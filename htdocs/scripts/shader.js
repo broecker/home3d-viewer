@@ -384,6 +384,50 @@ shader.loadAll = function(shaders, basepath) {
 		alert('Failed to download "' + url + '"');
 	}); 
 	
+
+	// loading oriented bbox shader 
+	shaders.obbShader = null;	
+	shader._loadFiles([basepath + 'shaders/obb.vert', basepath + 'shaders/grid.frag'], function (shaderText) {
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderText[0]);
+		gl.compileShader(vertexShader);
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(vertexShader));
+			debugger;
+		}
+
+
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderText[1]);
+		gl.compileShader(fragmentShader);
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			alert(gl.getShaderInfoLog(fragmentShader));
+			debugger;
+		}
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+			alert("Could not initialize obb shader");
+
+		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
+		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
+		program.viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+		program.positionUniform = gl.getUniformLocation(program, "position");
+		program.axisXUniform = gl.getUniformLocation(program, "axisX");
+		program.axisYUniform = gl.getUniformLocation(program, "axisY");
+		program.axisZUniform = gl.getUniformLocation(program, "axisZ");
+		program.scaleUniform = gl.getUniformLocation(program, "scale");
+		program.colorUniform = gl.getUniformLocation(program, "color");
+		shaders.obbShader = program;
+
+		}, function (url) {
+		alert('Failed to download "' + url + '"');
+	}); 
+
 	/*
 	// load dynamic points shader 
 	shaders.dynamicPointcloudShader = null;	

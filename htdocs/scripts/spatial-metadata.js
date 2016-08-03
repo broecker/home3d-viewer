@@ -36,11 +36,9 @@ metadata.load = function(jsonUrl) {
 			// remove all newline
 			var items = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
 
-			console.log(items);
-
 			metadata.items = JSON.parse(items);
 
-			console.log(metadata.items);
+			//console.log(metadata.items);
 
 			// parse the data
 			for (var i in metadata.items) {
@@ -140,6 +138,5 @@ metadata.draw = function(shader) {
 
 
 	}
-
 
 }

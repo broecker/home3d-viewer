@@ -62,13 +62,11 @@ aabb.calculate = function(pointcloud) {
   return {min:minVal, max:maxVal}
 }
 
-
 aabb.create = function(minVals, maxVals) {
   minv = vec3.fromValues(minVals[0], minVals[1], minVals[2]);
   maxv = vec3.fromValues(maxVals[0], maxVals[1], maxVals[2]);
   return {min:minv, max:maxv};
 }
-
 
 aabb.extractVertices = function(bbox) {
   /*

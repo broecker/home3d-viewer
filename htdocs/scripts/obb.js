@@ -26,66 +26,45 @@ var obb = obb || {};
 
 
 // creates an oriented bounding box
+// Make sure that the axis vectors are orthonormal
 obb.create = function() { 
 	var bbox = {
 		position : vec3.create(),
-		xAxis : vec3.create(),
-		yAxis : vec3.create(),
-		zAxis : vec3.create(),
-		halfBounds : vec3.create(),
+		xAxis : vec3.fromValues(1,0,0),
+		yAxis : vec3.fromValues(0,1,0),
+		zAxis : vec3.fromValues(0,0,1),
+		halfBounds : vec3.fromValues(1,1,1)
 	};
 
 	return bbox;
 }
 
-
-oob.setPosition = function(bbox, pos) { 
-	
-	bbox._transform[12] = pos.x;
-	bbox._transform[13] = pos.y;
-	bbox._transform[14] = pos.z;
-	bbox._transform[15] = 1;
-	mat4.invert(bbox._inverseTransform, bbox._transform);
-}
-
-oob.getMatrix : function(bbox) { 
+obb.getMatrix = function(bbox) { 
 	var m = mat4.create();
 
-	m[0] = bbox.xAxis[0] * bbox.halfBounds[0];
+	m[0] = bbox.xAxis[0];
 	m[1] = bbox.xAxis[1];
 	m[2] = bbox.xAxis[2];
 	m[4] = bbox.yAxis[0];
-	m[5] = bbox.yAxis[1] * bbox.halfBounds[1];
+	m[5] = bbox.yAxis[1];
 	m[6] = bbox.yAxis[2];
 	m[8] = bbox.zAxis[0];
 	m[9] = bbox.zAxis[1];
-	m[10] = bbox.zAxis[2] * bbox.halfBounds[2];
+	m[10] = bbox.zAxis[2];
 	m[12] = bbox.position[0];
 	m[13] = bbox.position[1];
 	m[14] = bbox.position[2];
 
+	mat4.scale(m, m, bbox.halfBounds);
+
 	return m;
+};
+
+
+obb.getCentroid = function(bbox) { 
+	return bbox.position;
 }
 
-
-obb.extractVertices = function(bbox) {
-
-  /*
-  +-------+
-  |  o->x |
-  |  |    |
-  |  vz   |
-  +-------+
-  
-  lower=min, caps=max
-  xz Xz
-  xZ XZ
-  
-  */
-    
- 
-  return vertices;
-}
 
 obb.draw = function(bbox, shader) { 
 
@@ -106,41 +85,46 @@ obb.draw = function(bbox, shader) {
 						  	 1,  1,  1,
 						  	 1,  1, -1 ];
 
-    aabb.vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, aabb.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(bboxVertices), gl.STATIC_DRAW);
+    obb.vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.STATIC_DRAW);
     
-    aabb.indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, aabb.indexBuffer);
+    obb.indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(bboxIndices), gl.STATIC_DRAW);
     
   }
   
-  gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.INT, false, 0, 0);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, aabb.indexBuffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
+  gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
   
+
+
   // setup shader
   gl.useProgram(shader);
   gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-  
-  
-  //gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.2);
-  gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
-  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
-  gl.uniformMatrix4fv(shader.modelMatrixUniform, false, oob.getMatrix(bbox));
+    
+  gl.uniform3f(shader.positionUniform, bbox.position[0], bbox.position[1], bbox.position[2]);
+  gl.uniform3f(shader.axisXUniform, bbox.xAxis[0], bbox.xAxis[1], bbox.xAxis[2]);
+  gl.uniform3f(shader.axisYUniform, bbox.yAxis[0], bbox.yAxis[1], bbox.yAxis[2]);
+  gl.uniform3f(shader.axisZUniform, bbox.zAxis[0], bbox.zAxis[1], bbox.zAxis[2]);
+  gl.uniform3f(shader.scaleUniform, bbox.halfBounds[0], bbox.halfBounds[1], bbox.halfBounds[2]);
+
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   
-}
+};
 
 
 // checks if the given point [vec4] is inside the bbox
-oob.isInside = function(bbox, pt) { 
+obb.isInside = function(bbox, pt) { 
 
 	var m = oob.getMatrix(bbox);
+	mat4.invert(m, m);
 	var p = vec4.create();
 	vec4.transformMat4(p, bbox._inverseTransform, pt);
 
 	return (p.x >= -1 && p.x <= 1 &&
 			p.y >= -1 && p.y <= 1 &&
 			p.z >= -1 && p.y <= 1);
-}
+};
