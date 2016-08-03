@@ -23,10 +23,13 @@ struct SegmentationRecord
 	unsigned int		aat_id;
 	std::string			aat_link;
 
+	// oriented bounding box
 	struct BBox
 	{
-		glm::mat4		transform;
-		glm::vec3		min, max;
+		glm::vec3		position;
+		glm::vec3		scale;
+		// x,y and z scale
+		glm::vec3		axis[3];
 	}					bbox;
 	
 };
@@ -35,12 +38,16 @@ struct SegmentationRecord
 std::ostream& operator << (std::ostream& os, const SegmentationRecord& r)
 {
 	os << "{\n";
-	os << "\"name\":\"" << r.name << "\"\n,";
-	os << "\"room\":\"" << r.room << "\"\n,";
-	os << "\"aat_id\": " << r.aat_id << "\n,"; // 000000000000, \n";
-	os << "\"aat_link\": \"" << r.aat_link << "\"\n,";
-	os << "\"bbox_min\": [" << r.bbox.min[0] << "," << r.bbox.min[1] << "," << r.bbox.min[2] << "]\n,";
-	os << "\"bbox_max\": [" << r.bbox.max[0] << "," << r.bbox.max[1] << "," << r.bbox.max[2] << "]\n";
+	os << "\"name\":\"" << r.name << "\",\n";
+	os << "\"room\":\"" << r.room << "\",\n";
+	os << "\"aat_id\": " << r.aat_id << ",\n"; // 000000000000, \n";
+	os << "\"aat_link\": \"" << r.aat_link << "\",\n";
+	os << "\"bbox_position\": [" << r.bbox.position.x << "," << r.bbox.position.y << "," << r.bbox.position.z << "],\n";
+	os << "\"bbox_scale\": [" << r.bbox.scale.x << "," << r.bbox.scale.y << "," << r.bbox.scale.z << "],\n";
+	os << "\"bbox_axis_x\": [" << r.bbox.axis[0].x << "," << r.bbox.axis[0].y << "," << r.bbox.axis[0].z << "],\n";
+	os << "\"bbox_axis_y\": [" << r.bbox.axis[1].x << "," << r.bbox.axis[1].y << "," << r.bbox.axis[1].z << "],\n";
+	os << "\"bbox_axis_z\": [" << r.bbox.axis[2].x << "," << r.bbox.axis[2].y << "," << r.bbox.axis[2].z << "]\n";
+
 	os << "}";
 
 	return os;
@@ -110,13 +117,42 @@ int main(int argc, const char** argv)
 			r.name = r.name.substr(n + 1);
 		}
 		
+		float junk[4] = { 0.f, 0.f, 0.f, 0.f };
+		float trans[3] = { 0.f, 0.f, 0.f };
+		
+		glm::vec3 xAxis(0.f);
+		inFile >> xAxis.x;
+		inFile >> xAxis.y;
+		inFile >> xAxis.z;
+		float tmp;
+		inFile >> tmp;
 
-		float* mat = glm::value_ptr(r.bbox.transform);
-		for (int i = 0; i < 16; ++i)
-			inFile >> mat[i];
+		glm::vec3 zAxis(0.f);
+		inFile >> zAxis.x;
+		inFile >> zAxis.y;
+		inFile >> zAxis.z;
+		inFile >> tmp;
 
-		r.bbox.min = glm::vec3(r.bbox.transform * glm::vec4(-1, -1, -1, 1));
-		r.bbox.max = glm::vec3(r.bbox.transform * glm::vec4(1, 1, 1, 1));
+		glm::vec3 yAxis(0.f);
+		inFile >> yAxis.x;
+		inFile >> yAxis.y;
+		inFile >> yAxis.z;
+		inFile >> tmp;
+
+		inFile >> r.bbox.position.x;
+		inFile >> r.bbox.position.z;
+		inFile >> r.bbox.position.y; r.bbox.position.y *= -1;
+		inFile >> tmp;
+
+		r.bbox.scale = glm::vec3(glm::length(xAxis), glm::length(yAxis), glm::length(zAxis));
+		
+		glm::vec3 xA = glm::normalize(xAxis);
+		glm::vec3 yA = glm::normalize(yAxis);
+		glm::vec3 zA = glm::normalize(zAxis);
+		
+		r.bbox.axis[0] = glm::vec3(xA.x, yA.x, zA.x);
+		r.bbox.axis[1] = glm::vec3(xA.y, yA.y, zA.y);
+		r.bbox.axis[2] = glm::vec3(xA.z, yA.z, zA.z);
 
 		r.aat_id = 0;
 		r.aat_link = "UNDEFINED";
@@ -129,6 +165,7 @@ int main(int argc, const char** argv)
 	}
 
 	cout << "[File] Read " << records.size() << " records.\n";
+	
 	
 	std::ofstream oFile(string(argv[1]) + ".out.json");
 	oFile << "[";

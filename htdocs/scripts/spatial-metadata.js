@@ -43,12 +43,23 @@ metadata.load = function(jsonUrl) {
 			// parse the data
 			for (var i in metadata.items) {
 
-				// create bounding boxes
-				metadata.items[i].bbox = aabb.create(metadata.items[i].bbox_min, metadata.items[i].bbox_max);
-				delete metadata.items[i].bbox_min; 
-				delete metadata.items[i].bbox_max;
-					
+				// create oriented bounding boxes
+				var bbox = obb.create();
+				bbox.position = metadata.items[i].bbox_position;
+				bbox.halfBounds = metadata.items[i].bbox_scale;
+				bbox.xAxis = metadata.items[i].bbox_axis_x;
+				bbox.yAxis = metadata.items[i].bbox_axis_y;
+				bbox.zAxis = metadata.items[i].bbox_axis_z;
 
+				metadata.items[i].bbox = bbox;
+
+				delete metadata.items[i].bbox_position;
+				delete metadata.items[i].bbox_scale;
+				delete metadata.items[i].bbox_axis_x;
+				delete metadata.items[i].bbox_axis_y;
+				delete metadata.items[i].bbox_axis_z;
+
+					
 
 				// also append the text to the document
 
@@ -70,8 +81,8 @@ metadata.load = function(jsonUrl) {
 			}
 	
 
-			//console.log("Loaded " + metadata.items.length + " metadata entries.");
-			//console.log(metadata.items);
+			console.log("Loaded " + metadata.items.length + " metadata entries.");
+			console.log(metadata.items);
 		}
 	}
 
@@ -83,60 +94,51 @@ metadata.load = function(jsonUrl) {
 
 
 metadata.draw = function(shader) {
-	if (!(shader === null)) {
 
-		gl.lineWidth(3);
-
-		gl.useProgram(shader);
-		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-		gl.uniform3f(shader.colorUniform, 1, 1, 0);
+	if (shader === undefined)
+		return;
 
 
-		for (var e in metadata.items) { 
+	for (var e in metadata.items) { 
+		
+		var item = metadata.items[e];
+		
+		if (item.bbox) {
 			
-			var item = metadata.items[e];
-			
-			if (item.bbox) {
-				aabb.drawAABB(item.bbox, shader);
+            obb.draw(item.bbox, shader);
 
-				//console.log(item.bbox);
-
-			}
 		}
-
-		gl.lineWidth(1.0);
-
-		// draw text here
-
-		for (var e in metadata.items) { 
-			var item = metadata.items[e];
-
-
-			var c = aabb.getCentroid(item.bbox);
-			var v = vec4.fromValues(c[0], c[1], c[2], 1);
-
-		    vec4.transformMat4(v, v, renderer.modelViewProjection);
-		    
-		   
-		    // homogenous transform
-    		vec4.scale(v, v, 1.0 / v[3]);
-
-			var pixelX = (v[0] *  0.5 + 0.5) * gl.canvas.width;
-			var pixelY = (v[1] * -0.5 + 0.5) * gl.canvas.height;
-
-
-		    //console.log(c, pixelX, pixelY);
-
-			item.htmlElement.style.left = Math.floor(pixelX) + "px";
-			item.htmlElement.style.top  = Math.floor(pixelY) + "px";
-			item.htmlElement.style.alignContent="center";
-			item.htmlElement.style.alignSelf="center";
-				
-		}
-
-
-
-
 	}
 
+}
+
+metadata.drawText = function() { 
+
+	// draw text here
+
+	for (var e in metadata.items) { 
+		var item = metadata.items[e];
+
+
+		var c = item.bbox.position; //aabb.getCentroid(item.bbox);
+		var v = vec4.fromValues(c[0], c[1], c[2], 1);
+
+	    vec4.transformMat4(v, v, renderer.modelViewProjection);
+	    
+	   
+	    // homogenous transform
+		vec4.scale(v, v, 1.0 / v[3]);
+
+		var pixelX = (v[0] *  0.5 + 0.5) * gl.canvas.width;
+		var pixelY = (v[1] * -0.5 + 0.5) * gl.canvas.height;
+
+
+	    //console.log(c, pixelX, pixelY);
+
+		item.htmlElement.style.left = Math.floor(pixelX) + "px";
+		item.htmlElement.style.top  = Math.floor(pixelY) + "px";
+		item.htmlElement.style.alignContent="center";
+		item.htmlElement.style.alignSelf="center";
+			
+	}
 }

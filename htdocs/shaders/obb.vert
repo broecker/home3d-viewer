@@ -21,14 +21,7 @@ void main()
 	modelMatrix[1].xyz = axisY;
 	modelMatrix[2].xyz = axisZ;
 	
-	mat4 scaleMatrix = mat4(1.0);
-	scaleMatrix[0].x = scale.x;
-	scaleMatrix[1].y = scale.y;
-	scaleMatrix[2].z = scale.z;
-
-
-
-	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(positionIn * scale, 1.0);
+	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(positionIn * (scale.xzy * 0.5), 1.0);
 	gl_PointSize = 1.0;
 
 }
