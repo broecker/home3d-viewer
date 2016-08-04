@@ -11,7 +11,10 @@ uniform float viewportHeight;
 varying vec3 color;
 void main()
 {
-	gl_Position = projMatrix * viewMatrix * vec4(positionIn, 1.0);
+	vec3 v = positionIn.xzy;
+	v *= vec3(1.0, 1.0, -1.0);
+
+	gl_Position = projMatrix * viewMatrix * vec4(v, 1.0);
 
 	color = colorIn;
 		

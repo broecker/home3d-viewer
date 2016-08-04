@@ -422,6 +422,8 @@ shader.loadAll = function(shaders, basepath) {
 		program.axisZUniform = gl.getUniformLocation(program, "axisZ");
 		program.scaleUniform = gl.getUniformLocation(program, "scale");
 		program.colorUniform = gl.getUniformLocation(program, "color");
+		program.bboxMatrixUniform = gl.getUniformLocation(program, "bboxMatrix");
+		program.registrationMatrixUniform = gl.getUniformLocation(program, "registrationMatrix");
 		shaders.obbShader = program;
 
 		}, function (url) {

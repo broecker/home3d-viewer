@@ -527,19 +527,16 @@ function main() {
 
 function decodeURL() {
 
-  var pathDB = {'son':'data/son/son.json', 'son2':'data/son2/son2.json', 'curiosity':'data/curiosity.sol1112/sol1112.json'};
   var allParams = location.search.substring(1).split("&");
-
   var p0 = allParams[0].split('=')
-  var path = pathDB[p0[1]];
-
-  console.log(allParams, p0, path);
-
+  var path = 'data/' + p0[1] + '/' + p0[1] + '.json';
 
   if (path == '' || path === undefined) {
     console.error('No valid path found for dataset "' + p0[1] + '"');
 
   }
+
+  console.log('loading dataset from "' + path + '"');
 
   return path;
 }

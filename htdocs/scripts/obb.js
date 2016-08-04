@@ -94,7 +94,7 @@ obb.draw = function(bbox, shader) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(bboxIndices), gl.STATIC_DRAW);
     
   }
-  
+
   gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
@@ -110,6 +110,9 @@ obb.draw = function(bbox, shader) {
   gl.uniform3f(shader.axisYUniform, bbox.yAxis[0], bbox.yAxis[1], bbox.yAxis[2]);
   gl.uniform3f(shader.axisZUniform, bbox.zAxis[0], bbox.zAxis[1], bbox.zAxis[2]);
   gl.uniform3f(shader.scaleUniform, bbox.halfBounds[0], bbox.halfBounds[1], bbox.halfBounds[2]);
+	
+  gl.uniformMatrix4fv(shader.bboxMatrixUniform, false, bbox.matrix);;
+  gl.uniformMatrix4fv(shader.registrationMatrixUniform, false, metadata.alignmentMatrix);		
 
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   

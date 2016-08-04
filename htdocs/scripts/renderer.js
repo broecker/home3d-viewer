@@ -276,7 +276,7 @@ window.renderer = {
 
         //console.log('next frame.');
 
-        /*
+        
 
         var shader = shaders.pointsShader;
         if (geometry.octree && shader) {
@@ -320,11 +320,13 @@ window.renderer = {
             }
         }
 
+        /*
         if (renderer.enableMetadata) { 
             metadata.draw(shaders.gridShader);
         }
-
         */
+
+        
 
         // draw oriented bboxes here
         shader = shaders.obbShader;

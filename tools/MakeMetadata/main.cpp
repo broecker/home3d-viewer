@@ -26,6 +26,8 @@ struct SegmentationRecord
 	// oriented bounding box
 	struct BBox
 	{
+		glm::mat4		matrix;
+
 		glm::vec3		position;
 		glm::vec3		scale;
 		// x,y and z scale
@@ -42,6 +44,11 @@ std::ostream& operator << (std::ostream& os, const SegmentationRecord& r)
 	os << "\"room\":\"" << r.room << "\",\n";
 	os << "\"aat_id\": " << r.aat_id << ",\n"; // 000000000000, \n";
 	os << "\"aat_link\": \"" << r.aat_link << "\",\n";
+	os << "\"bbox_matrix\": [";
+	for (int i = 0; i < 15; ++i)
+		os << glm::value_ptr(r.bbox.matrix)[i] << ",";
+	os << "1],\n";
+
 	os << "\"bbox_position\": [" << r.bbox.position.x << "," << r.bbox.position.y << "," << r.bbox.position.z << "],\n";
 	os << "\"bbox_scale\": [" << r.bbox.scale.x << "," << r.bbox.scale.y << "," << r.bbox.scale.z << "],\n";
 	os << "\"bbox_axis_x\": [" << r.bbox.axis[0].x << "," << r.bbox.axis[0].y << "," << r.bbox.axis[0].z << "],\n";
@@ -117,33 +124,19 @@ int main(int argc, const char** argv)
 			r.name = r.name.substr(n + 1);
 		}
 		
-		float junk[4] = { 0.f, 0.f, 0.f, 0.f };
-		float trans[3] = { 0.f, 0.f, 0.f };
+
+
+		float* mat = glm::value_ptr(r.bbox.matrix);
+		for (int i = 0; i < 16; ++i)
+			inFile >> mat[i];
 		
-		glm::vec3 xAxis(0.f);
-		inFile >> xAxis.x;
-		inFile >> xAxis.y;
-		inFile >> xAxis.z;
-		float tmp;
-		inFile >> tmp;
 
-		glm::vec3 zAxis(0.f);
-		inFile >> zAxis.x;
-		inFile >> zAxis.y;
-		inFile >> zAxis.z;
-		inFile >> tmp;
 
-		glm::vec3 yAxis(0.f);
-		inFile >> yAxis.x;
-		inFile >> yAxis.y;
-		inFile >> yAxis.z;
-		inFile >> tmp;
 
-		inFile >> r.bbox.position.x;
-		inFile >> r.bbox.position.z;
-		inFile >> r.bbox.position.y; r.bbox.position.y *= -1;
-		inFile >> tmp;
-
+		glm::vec3 xAxis(r.bbox.matrix[0]);
+		glm::vec3 zAxis(r.bbox.matrix[1]);
+		glm::vec3 yAxis(r.bbox.matrix[2]);
+		r.bbox.position = glm::vec3(r.bbox.matrix[3]);
 		r.bbox.scale = glm::vec3(glm::length(xAxis), glm::length(yAxis), glm::length(zAxis));
 		
 		glm::vec3 xA = glm::normalize(xAxis);

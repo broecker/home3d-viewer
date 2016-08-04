@@ -27,6 +27,7 @@ var metadata = metadata || {};
 metadata.load = function(jsonUrl) {
 
 	metadata.items = [];
+	metadata.alignmentMatrix = mat4.create();
 
 	// parse json file here
 	var xmlhttp = new XMLHttpRequest();
@@ -51,8 +52,14 @@ metadata.load = function(jsonUrl) {
 				bbox.yAxis = metadata.items[i].bbox_axis_y;
 				bbox.zAxis = metadata.items[i].bbox_axis_z;
 
+				
+				bbox.matrix = mat4.create();
+				for (var k = 0; k < 16; ++k)
+					bbox.matrix[k] = metadata.items[i].bbox_matrix[k];
+
 				metadata.items[i].bbox = bbox;
 
+				delete metadata.items[i].bbox_matrix;
 				delete metadata.items[i].bbox_position;
 				delete metadata.items[i].bbox_scale;
 				delete metadata.items[i].bbox_axis_x;
@@ -80,9 +87,15 @@ metadata.load = function(jsonUrl) {
 
 			}
 	
-
 			console.log("Loaded " + metadata.items.length + " metadata entries.");
 			console.log(metadata.items);
+
+
+
+			// setting the alignment here
+			mat4.rotate(metadata.alignmentMatrix, metadata.alignmentMatrix, Math.PI/2, [-1,0,0]);
+			mat4.translate(metadata.alignmentMatrix, metadata.alignmentMatrix, [1.4, -1, 2.25]);
+
 		}
 	}
 
@@ -116,6 +129,12 @@ metadata.drawText = function() {
 
 	// draw text here
 
+	// create correct transformation matrix
+	var m = mat4.create();
+
+	mat4.multiply(m, renderer.modelViewProjection, metadata.alignmentMatrix);
+
+
 	for (var e in metadata.items) { 
 		var item = metadata.items[e];
 
@@ -123,8 +142,9 @@ metadata.drawText = function() {
 		var c = item.bbox.position; //aabb.getCentroid(item.bbox);
 		var v = vec4.fromValues(c[0], c[1], c[2], 1);
 
-	    vec4.transformMat4(v, v, renderer.modelViewProjection);
-	    
+	    //vec4.transformMat4(v, v, renderer.modelViewProjection);
+		vec4.transformMat4(v, v, m);
+	     
 	   
 	    // homogenous transform
 		vec4.scale(v, v, 1.0 / v[3]);
