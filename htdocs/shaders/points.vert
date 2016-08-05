@@ -9,12 +9,16 @@ uniform mat4 projMatrix;
 uniform float viewportHeight;
 
 varying vec3 color;
+varying vec3 worldPos;
+
 void main()
 {
 	vec3 v = positionIn.xzy;
 	v *= vec3(1.0, 1.0, -1.0);
 
 	gl_Position = projMatrix * viewMatrix * vec4(v, 1.0);
+
+	worldPos = v;
 
 	color = colorIn;
 		

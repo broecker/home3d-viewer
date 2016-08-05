@@ -378,6 +378,7 @@ shader.loadAll = function(shaders, basepath) {
 		program.pointSizeUniform = gl.getUniformLocation(program, "pointSize");
 		program.minPointSizeUniform = gl.getUniformLocation(program, "minPointSize");
 		program.viewportHeightUniform = gl.getUniformLocation(program, "viewportHeight");
+		program.ceilingUniform = gl.getUniformLocation(program, "ceiling");
 		shaders.pointsShader = program;
 
 		}, function (url) {

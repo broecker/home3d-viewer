@@ -28,6 +28,7 @@ metadata.load = function(jsonUrl) {
 
 	metadata.items = [];
 	metadata.alignmentMatrix = mat4.create();
+	metadata.ceiling = -1;
 
 	// parse json file here
 	var xmlhttp = new XMLHttpRequest();
@@ -118,6 +119,9 @@ metadata.loadRegistration = function(jsonUrl) {
 			// setting the alignment here
 			mat4.rotate(metadata.alignmentMatrix, metadata.alignmentMatrix, Math.PI/2, [-1,0,0]);
 			mat4.translate(metadata.alignmentMatrix, metadata.alignmentMatrix, items.translation); //[1.4, -1, 2.25]);
+
+			if (items.ceiling != undefined)
+				metadata.ceiling = items.ceiling;
 
 		}
 

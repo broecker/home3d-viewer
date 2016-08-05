@@ -287,6 +287,8 @@ window.renderer = {
             gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
             gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
 
+            gl.uniform1f(shader.ceilingUniform, metadata.ceiling);
+
 
             var viewportHeight = canvas.height / (2.0 * Math.tan(0.5*Math.PI / 180 * this.camera.fovy));
             viewportHeight = 1.15 * 1024.0;
