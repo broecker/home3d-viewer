@@ -28,7 +28,7 @@ window.renderer = {
 
     // creates the member variables and initializes them
     init : function() {
-        this.enableGrid = true;
+        this.enableGrid = false;
         this.enableBBoxes = false;
         this.enableFXAA = true;
         this.enableMetadata = false;
@@ -320,30 +320,26 @@ window.renderer = {
             }
         }
 
-        /*
         if (renderer.enableMetadata) { 
-            metadata.draw(shaders.gridShader);
-        }
-        */
-
         
 
-        // draw oriented bboxes here
-        shader = shaders.obbShader;
-        if (shader) {
+            // draw oriented bboxes here
+            shader = shaders.obbShader;
+            if (shader) {
 
-            gl.useProgram(shader);
-            gl.uniform3f(shader.colorUniform, 1, 0, 0);
-            gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
-            gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
+                gl.useProgram(shader);
+                gl.uniform3f(shader.colorUniform, 1, 0, 0);
+                gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
+                gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
 
 
-            metadata.draw(shader);
+                metadata.draw(shader);
+
+            }
+
+            metadata.drawText();
 
         }
-
-        metadata.drawText();
-
 
 
         framebuffer.disable(this.renderTarget, this.viewport);
