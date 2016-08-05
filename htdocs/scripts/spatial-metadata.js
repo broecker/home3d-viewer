@@ -92,17 +92,41 @@ metadata.load = function(jsonUrl) {
 
 
 
-			// setting the alignment here
-			mat4.rotate(metadata.alignmentMatrix, metadata.alignmentMatrix, Math.PI/2, [-1,0,0]);
-			mat4.translate(metadata.alignmentMatrix, metadata.alignmentMatrix, [1.4, -1, 2.25]);
-
 		}
 	}
 
 	xmlhttp.open("GET", jsonUrl, true)
 	xmlhttp.send();
 
+}
 
+metadata.loadRegistration = function(jsonUrl) {
+
+
+	// load registration file
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+			// remove all newline
+			var items = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
+
+			items = JSON.parse(items);
+
+			console.log(items);
+
+			// setting the alignment here
+			mat4.rotate(metadata.alignmentMatrix, metadata.alignmentMatrix, Math.PI/2, [-1,0,0]);
+			mat4.translate(metadata.alignmentMatrix, metadata.alignmentMatrix, items.translation); //[1.4, -1, 2.25]);
+
+		}
+
+	}
+
+	
+
+	xmlhttp.open("GET", jsonUrl, true)
+	xmlhttp.send();
 }
 
 

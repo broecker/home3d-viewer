@@ -460,6 +460,7 @@ function init(datapath, shaderpath) {
 
   // todo: integrate this with the other data loading
   metadata.load('data/son2/metadata.json');
+  metadata.loadRegistration('data/son2/registration.json');
 
   renderer.init();
   renderer.clearFrame();
