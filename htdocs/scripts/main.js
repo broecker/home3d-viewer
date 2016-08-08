@@ -473,6 +473,9 @@ function init(datapath, shaderpath) {
   // create trickle progress bar
   NProgress.start();
 
+  renderer.enableMetadata = true;
+  toggleMetadata();
+
 }
 
 /// saves the current opengl canvas in an image and opens it in a new window 
