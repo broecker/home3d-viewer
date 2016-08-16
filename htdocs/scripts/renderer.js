@@ -76,7 +76,7 @@ window.renderer = {
 
 
     resetCamera : function() {
-      this.camera = createOrbitalCamera();
+      this.camera = camera.createOrbitalCamera();
       this.camera.radius = 20.0;
     },
 
