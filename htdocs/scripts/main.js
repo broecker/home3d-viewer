@@ -452,15 +452,15 @@ function init(datapath, shaderpath) {
 
    // initialize octree
   octree.init(isMobile());
-  geometry.octree = octree.parseJSON(datapath);
+  geometry.octree = octree.parseJSON(datapath + 'octree.json');
 
   octree.autoRecursion = true;
 
   window.setInterval(octree.updateLoadQueue, 100);
 
   // todo: integrate this with the other data loading
-  metadata.load('data/son2/metadata.json');
-  metadata.loadRegistration('data/son2/registration.json');
+  metadata.load(datapath + 'metadata.json');
+  metadata.loadRegistration(datapath + 'registration.json');
 
   renderer.init();
   renderer.clearFrame();
@@ -533,7 +533,7 @@ function decodeURL() {
 
   var allParams = location.search.substring(1).split("&");
   var p0 = allParams[0].split('=')
-  var path = 'data/' + p0[1] + '/' + p0[1] + '.json';
+  var path = 'data/' + p0[1] + '/';
 
   if (path == '' || path === undefined) {
     console.error('No valid path found for dataset "' + p0[1] + '"');

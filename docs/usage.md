@@ -22,10 +22,10 @@ The complete folder structure underneath `htdocs`looks like this:
     - viewer.html
 
 
-Place all your created files into a new folder in `data/`. Both the folder name and the octree json file should have the same name and will be used as the identifier for the GET request. For example, let's say we create a new *test* data set. `htdocs/data/` will then look like:
+Place all your created files into a new folder in `data/`. The folder will be used as the identifier for the GET request. For example, let's say we create a new *test* data set. `htdocs/data/` will then look like:
 
 	- data/test/
-    -   test.json
+    -   octree.json
     - 	metadata.json
     - 	registration.json
     - 	node-0111.blob
@@ -34,7 +34,7 @@ Place all your created files into a new folder in `data/`. Both the folder name 
     - 	....
 
 ### Description of Files
-`test.json` is the description of the octree and will reference all the nodes blob files. It is created through the `makeoctree` tool. Apart from renaming it you should not touch the contents at all. The file name must be the folder name. This file is essential and *must* be present.
+`octree.json` is the description of the octree and will reference all the nodes blob files. It is created through the `makeoctree` tool. Apart from renaming it you should not touch the contents at all. The file name must be the folder name. This file is essential and *must* be present.
 
 `metadata.json` is a description of the metadata contents of the scan. For example, in an apartment it contains all the oriented bounding boxes of all the furniture, etc. If the file is not present no metadata will be displayed. Create this file by either copy-pasting and editing an existing one or by running the `createMetadata' tool on an exported VizHome segmentation list. 
 
@@ -45,7 +45,7 @@ The base data is an XYZ point cloud exported from scene. Each line in the file s
 
 One important option is the `-maxPoint <NNNN>` flag which specifies to how many points *in total* this data set should be subsampled to. For example, let's say the initial data set has some 150 million points then the flag `-maxPoints 1500000` will resample the point cloud to 1.5 million points by dropping points evenly. 
 
-The tool will create the octree hierarchy consisting of lots of `node-XXXX` files, each depicting a single octant in the tree. It will also create a json file describing the hierarchy. This file initially bears the name of the input data set and must be renamed to conform with the future folder name (see above). 
+The tool will create the octree hierarchy consisting of lots of `node-XXXX` files, each depicting a single octant in the tree. It will also create a json file describing the hierarchy. Make sure the output file is called `octree.json`.
 
 Once all files are created they can be copied to a new folder within the data directory. 
 
@@ -62,4 +62,5 @@ Scene creates point clouds in a left-handed coordinate system with **z** pointin
 A quick hack is currently involved which swizzles the **Y** and **Z** coordinate in the shaders for both points and metadata bounding box rendering. This leads to correct display but does not provide correct bounding boxes for culling. In most cases it still works acceptably. 
 
 # Changelog and notes
+- 8/17/2016 Updated octree.json description
 - 8/16/2016 Started working on this documentation
