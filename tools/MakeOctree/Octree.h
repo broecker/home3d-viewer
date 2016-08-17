@@ -47,7 +47,7 @@ public:
 
 	bool hasChildren() const;
 		
-	void build(const SplitConfig& config, const std::string& basename);
+	void build(const SplitConfig& config);
 
 	
 private:

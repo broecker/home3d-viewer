@@ -2,6 +2,7 @@
 #include "Octree.h"
 
 
+#include <limits>
 #include <fstream>
 #include <cassert>
 #include <iostream>
@@ -19,7 +20,7 @@
 
 bool option_centerPoints = true;
 size_t option_pointCount = 100000000;
-unsigned int option_nodeSize = 60000;
+unsigned int option_nodeSize = 64000;
 bool option_hasNormals = false;
 
 bool option_flipY = false;
@@ -277,17 +278,14 @@ int main(int argc, const char** argv)
 		centerPoints(points);
 	
 	SplitConfig config;
-	config.minNodeSize = 100;
 	config.maxNodeSize = option_nodeSize;
+	config.minNodeSize = std::numeric_limits<unsigned short>::max() - config.maxNodeSize;
 
-	
-	std::string basename(argv[1]);
-	basename = basename.substr(0, basename.find_last_of("."));
-	basename = basename.substr(basename.find_last_of("/")+1);
+	std::cout << "[Debug] Setting node size to [" << config.minNodeSize << "->" << config.maxNodeSize << "]\n";
 
 	Octree* tree = new Octree(points, nullptr);
-	
-	tree->build(config, basename);
+	tree->build(config);
+	delete tree;
 
 	system("pause");
 

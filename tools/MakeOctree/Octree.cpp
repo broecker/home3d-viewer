@@ -11,7 +11,6 @@
 
 #include <glm/gtx/io.hpp>
 
-
 static std::string getJSONString(const AABB& bbox)
 {
 	std::stringstream ss;
@@ -51,7 +50,7 @@ bool Octree::hasChildren() const
 }
 
 
-void Octree::build(const SplitConfig& config, const std::string& basename)
+void Octree::build(const SplitConfig& config)
 {
 	if (this->hasChildren())
 		return;
@@ -60,12 +59,12 @@ void Octree::build(const SplitConfig& config, const std::string& basename)
 	recurseSplit(this, config);
 	std::cout << " done.\n";
 	
-	std::cout << "[Octree] Saving tree structure to \"" << basename + ".json ... \n";
+	std::cout << "[Octree] Saving tree structure to \"" << "octree.json ... \n";
 
 	recurseSave(this);
 
 	// save tree structure
-	std::ofstream jsonFile(basename + ".json");
+	std::ofstream jsonFile("./octree.json");
 	jsonFile << "[\n";
 
 	jsonFile << recurseBuildJSON(this);
@@ -174,11 +173,18 @@ void Octree::split(const SplitConfig& config)
 			}
 			else
 			{
-				// if the child node has too few points, push them back onto the parent again
-
+				// if the child node has too few points, push them back onto the parent again 
 				points.insert(points.end(), sectors[i].begin(), sectors[i].end());
-				//std::cout << "Split resulted in node with too few points (" << sectors[i].size() << "), discarding ... \n";
 
+				// make sure we stay below the max webgl limit of 16bit indices
+				if (points.size() >= 64535)
+				{
+					// do something
+
+
+
+				}
+				
 			}
 		}
 	}
@@ -314,7 +320,7 @@ std::string Octree::getJSONEntry() const
 
 	}
 	else
-		ss << "\"children\":null";
+		ss << "\"children\":null\n";
 
 	ss << "}";
 
