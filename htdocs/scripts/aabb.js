@@ -350,9 +350,11 @@ aabb.drawScreenspaceBounds = function(bbox, shader) {
 aabb.swapYZ = function(bbox) { 
   var temp = bbox.min[1];
   bbox.min[1] = bbox.min[2];
-  bbox.min[2] = temp;
+  bbox.min[2] = temp * -1;
 
   temp = bbox.max[1];
   bbox.max[1] = bbox.max[2];
-  bbox.max[2] = temp;
+  bbox.max[2] = temp * -1;
+
+
 }
