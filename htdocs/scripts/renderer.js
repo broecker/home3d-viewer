@@ -198,7 +198,8 @@ window.renderer = {
             this.updateCamera();
             this.clearFrame();
 
-            this.updateVisibilityFlag = false;
+            if (this.visibleList.length > 0)
+                this.updateVisibilityFlag = false;
         }
 
         //console.log("visible list (" + this.visibleList.length + "): ", this.visibleList);

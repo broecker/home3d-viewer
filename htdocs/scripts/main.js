@@ -111,7 +111,6 @@ function resizeCanvas() {
   renderer.resize([0, 0, width, height])
 
   //console.log("Resizing canvas to " + width + "x" + height);
-
 }
 
 
@@ -475,6 +474,8 @@ function init(datapath, shaderpath) {
 
   renderer.enableMetadata = true;
   toggleMetadata();
+
+
 
 }
 
