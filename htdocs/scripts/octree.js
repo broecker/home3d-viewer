@@ -401,6 +401,11 @@ octree.parseJSON = function(jsonUrl) {
 
 	var nodes = null;
 	
+	// swap Y and Z coordinates in bboxes (for home3D)
+	const swapYZBBox = true;
+	
+
+
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -415,11 +420,19 @@ octree.parseJSON = function(jsonUrl) {
 			//var relinkStart = 	performance.now();
 			console.log("Read " + nodes.length + " nodes, relinking tree ... ");
 
-
 			// create an associative container to speed up searching for nodes
 			var nodeDict = {};
 			for (var i = 0; i < nodes.length; ++i)
 				nodeDict[nodes[i].file] = nodes[i];
+
+			if (swapYZBBox) {
+				console.log('Swapping Y and Z in bboxes');
+
+				for (var i = 0; i < nodes.length; ++i)
+					aabb.swapYZ(nodes[i].bbox);
+
+
+			}
 
 
 			var maxNodeDepth = 0;
@@ -507,6 +520,8 @@ octree.parseJSON = function(jsonUrl) {
 			root.maxDepth = maxNodeDepth;
 
 			renderer.updateVisibility = true;
+
+			console.log(root);
 
 			return root;
 		}
