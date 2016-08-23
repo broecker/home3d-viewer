@@ -67,7 +67,11 @@ metadata.load = function(jsonUrl) {
 				delete metadata.items[i].bbox_axis_y;
 				delete metadata.items[i].bbox_axis_z;
 
-					
+
+
+				// create the AAT link from the AAT id
+				metadata.items[i].aat_link = "http://www.getty.edu/vow/AATFullDisplay?find=stove&logic=AND&note=&english=N&prev_page=1&subjectid=" + metadata.items[i].aat_id.toString()
+			
 
 				// also append the text to the document
 
@@ -94,6 +98,21 @@ metadata.load = function(jsonUrl) {
 
 
 		}
+
+		if (xmlhttp.status == 404) { 
+			console.error('Unable to load metadata - not present?');
+			console.error('Metadata path: ' + jsonUrl);
+
+			// disable metadata button
+			renderer.enableMetadata = false;
+
+			var bbar = document.getElementById("buttons");
+			var mdb = document.getElementById("mdbutton");
+
+			if (bbar && mdb)
+				bbar.removeChild(mdb);
+		}
+
 	}
 
 	xmlhttp.open("GET", jsonUrl, true)
@@ -126,12 +145,8 @@ metadata.loadRegistration = function(jsonUrl) {
 		}
 
 		if (xmlhttp.status == 404) { 
-			console.error('unable to load metadata -- not present?');
-
-			// disable metadata button
-			renderer.
-
-
+			console.error('Unable to load registration - not present?');
+			console.error('registration path: ' + jsonUrl);
 		}
 
 	}
