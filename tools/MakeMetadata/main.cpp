@@ -21,8 +21,7 @@ struct SegmentationRecord
 	std::string			room;
 
 	unsigned int		aat_id;
-	std::string			aat_link;
-
+	
 	// oriented bounding box
 	struct BBox
 	{
@@ -43,7 +42,6 @@ std::ostream& operator << (std::ostream& os, const SegmentationRecord& r)
 	os << "\"name\":\"" << r.name << "\",\n";
 	os << "\"room\":\"" << r.room << "\",\n";
 	os << "\"aat_id\": " << r.aat_id << ",\n"; // 000000000000, \n";
-	os << "\"aat_link\": \"" << r.aat_link << "\",\n";
 	os << "\"bbox_matrix\": [";
 	for (int i = 0; i < 15; ++i)
 		os << glm::value_ptr(r.bbox.matrix)[i] << ",";
@@ -148,9 +146,7 @@ int main(int argc, const char** argv)
 		r.bbox.axis[2] = glm::vec3(xA.z, yA.z, zA.z);
 
 		r.aat_id = 0;
-		r.aat_link = "UNDEFINED";
-
-
+		
 		records.push_back(r);
 	
 		cout << "[File] Read record \"" << r.name << "\"\n";

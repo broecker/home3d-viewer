@@ -225,6 +225,12 @@ octree.loadBlob = function(tree, blob) {
 
 
 octree.drawNode = function(tree, shader) {
+	if (tree.points.length <= 0 || tree.points.length > 65535) {
+		console.error('Invalid point number in tree', tree);
+
+	}
+
+
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, tree.pointBuffer);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -358,6 +364,8 @@ octree.updateLOD = function(tree, cameraPosition) {
 
 octree.drawBBoxes = function(tree, shader) {
 
+
+	console.log(shader);
 
 	if (tree.visible == 0)
 		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);

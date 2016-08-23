@@ -125,6 +125,15 @@ metadata.loadRegistration = function(jsonUrl) {
 
 		}
 
+		if (xmlhttp.status == 404) { 
+			console.error('unable to load metadata -- not present?');
+
+			// disable metadata button
+			renderer.
+
+
+		}
+
 	}
 
 	

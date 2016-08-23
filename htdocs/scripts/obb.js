@@ -98,7 +98,6 @@ obb.draw = function(bbox, shader) {
   gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
-  
 
 
   // setup shader

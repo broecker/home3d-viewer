@@ -326,6 +326,7 @@ window.renderer = {
         if (renderer.enableMetadata) { 
         
 
+            /*
             // draw oriented bboxes here
             shader = shaders.obbShader;
             if (shader) {
@@ -339,7 +340,9 @@ window.renderer = {
                 metadata.draw(shader);
 
             }
+            */
 
+            // update and draw the text labels 
             metadata.drawText();
 
         }
