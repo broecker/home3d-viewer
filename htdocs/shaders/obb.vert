@@ -12,7 +12,12 @@ uniform vec3 position;
 
 void main()
 {
-	gl_Position = projMatrix * viewMatrix * registrationMatrix * vec4(positionIn.xyz, 1.0); 
+
+	vec3 delta = (positionIn * scale.xzy * 0.5);
+	vec3 v = position;
+	v += axisX * delta.x + axisY * delta.y + axisZ * delta.z;
+
+	gl_Position = projMatrix * viewMatrix * registrationMatrix * vec4(v, 1.0); 
 	gl_PointSize = 1.0;
 
 }

@@ -124,17 +124,21 @@ obb.draw = function(bbox, shader) {
   // setup shader
   gl.useProgram(shader);
   gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-    
+
+  
   gl.uniform3f(shader.positionUniform, bbox.position[0], bbox.position[1], bbox.position[2]);
   gl.uniform3f(shader.axisXUniform, bbox.xAxis[0], bbox.xAxis[1], bbox.xAxis[2]);
   gl.uniform3f(shader.axisYUniform, bbox.yAxis[0], bbox.yAxis[1], bbox.yAxis[2]);
   gl.uniform3f(shader.axisZUniform, bbox.zAxis[0], bbox.zAxis[1], bbox.zAxis[2]);
   gl.uniform3f(shader.scaleUniform, bbox.halfBounds[0], bbox.halfBounds[1], bbox.halfBounds[2]);
-	
-  gl.uniform3f(shader.colorUniform, 0.6, 0.9, 0.2);
-
+ 
+ 
   gl.uniformMatrix4fv(shader.bboxMatrixUniform, false, bbox.matrix);;
   gl.uniformMatrix4fv(shader.registrationMatrixUniform, false, metadata.alignmentMatrix);		
+  
+  gl.uniform3f(shader.colorUniform, 0.6, 0.9, 0.2);
+  gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);;
+  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);;
 
 
   gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);

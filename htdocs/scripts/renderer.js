@@ -249,18 +249,10 @@ window.renderer = {
 
         if (this.enableGrid && shaders.gridShader)
             geometry.drawGrid();
-        /*
-        //if (global.mouse.button[0] || global.mouse.button[2])
-        if (this.camera.isMoving && (!shaders.objectShader === null))
-            camera.drawFocus(this.camera, shaders.objectShader, this.projMatrix, this.viewMatrix);
-        */
-        
 
         if (this.enableMetadata && !(shaders.obbShader === null)) {
             metadata.draw(shaders.obbShader);
         } 
-        
-
 
         framebuffer.disable(this.renderTarget);
         gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
