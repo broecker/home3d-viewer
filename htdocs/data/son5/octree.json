@@ -1,0 +1,2690 @@
+[
+{
+"parent":null,
+"file":"node-root",
+"points":64000,
+"bbox":{ "min":[-5.6967,-4.14295,-1.6247], "max":[5.6967,4.14295,1.6247]},
+"children":["node-0", "node-1", "node-2", "node-3", "node-4", "node-5", "node-6", "node-7"]
+},
+{
+"parent":"node-root",
+"file":"node-0",
+"points":64000,
+"bbox":{ "min":[-5.1547,4.95911e-005,-1.5719], "max":[-0.000100136,3.72735,-0.000100136]},
+"children":["node-00", "node-01", "node-02", "node-03", "node-04", "node-05", "node-06", "node-07"]
+},
+{
+"parent":"node-0",
+"file":"node-00",
+"points":25695,
+"bbox":{ "min":[-3.9473,1.86375,-1.2264], "max":[-2.5777,3.36815,-0.7861]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-01",
+"points":64000,
+"bbox":{ "min":[-4.8346,1.86375,-0.786], "max":[-2.5775,3.63205,-0.000100136]},
+"children":["node-010", "node-011", "node-012", "node-013", "node-014", "node-015", null, null]
+},
+{
+"parent":"node-01",
+"file":"node-010",
+"points":2909,
+"bbox":{ "min":[-3.9638,2.74795,-0.786], "max":[-3.7061,3.34495,-0.3931]},
+"children":null
+},
+{
+"parent":"node-01",
+"file":"node-011",
+"points":10329,
+"bbox":{ "min":[-4.6224,2.74795,-0.393], "max":[-3.7061,3.55715,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-01",
+"file":"node-012",
+"points":38942,
+"bbox":{ "min":[-3.706,2.90095,-0.393], "max":[-2.5775,3.63205,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-01",
+"file":"node-013",
+"points":16374,
+"bbox":{ "min":[-3.706,2.89005,-0.786], "max":[-2.5775,3.30835,-0.3931]},
+"children":null
+},
+{
+"parent":"node-01",
+"file":"node-014",
+"points":11454,
+"bbox":{ "min":[-3.812,1.86375,-0.786], "max":[-3.7512,2.74785,-0.3931]},
+"children":null
+},
+{
+"parent":"node-01",
+"file":"node-015",
+"points":20890,
+"bbox":{ "min":[-4.8346,1.86375,-0.393], "max":[-3.7459,2.74785,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-02",
+"points":60691,
+"bbox":{ "min":[-2.5774,2.76125,-0.786], "max":[-0.000100136,3.72735,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-03",
+"points":61807,
+"bbox":{ "min":[-2.5774,1.86375,-1.2848], "max":[-0.000100136,3.61135,-0.7861]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-04",
+"points":64383,
+"bbox":{ "min":[-4.5307,4.95911e-005,-1.5719], "max":[-2.5775,1.86365,-0.7861]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-05",
+"points":48499,
+"bbox":{ "min":[-4.7652,4.95911e-005,-0.786], "max":[-2.5776,1.86365,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-06",
+"points":54442,
+"bbox":{ "min":[-2.5774,4.95911e-005,-0.786], "max":[-0.000100136,1.83265,-0.000199795]},
+"children":null
+},
+{
+"parent":"node-0",
+"file":"node-07",
+"points":66283,
+"bbox":{ "min":[-2.5774,4.95911e-005,-1.2813], "max":[-0.000100136,1.86365,-0.7861]},
+"children":["node-070", null, null, "node-073", "node-074", null, null, "node-077"]
+},
+{
+"parent":"node-07",
+"file":"node-070",
+"points":8970,
+"bbox":{ "min":[-2.5774,0.93185,-1.2243], "max":[-1.2888,1.86355,-1.034]},
+"children":null
+},
+{
+"parent":"node-07",
+"file":"node-073",
+"points":5981,
+"bbox":{ "min":[-1.2887,0.93215,-1.1288], "max":[-0.0010004,1.86355,-1.0338]},
+"children":null
+},
+{
+"parent":"node-07",
+"file":"node-074",
+"points":4349,
+"bbox":{ "min":[-2.5757,0.000149727,-1.1503], "max":[-1.2888,0.93155,-1.034]},
+"children":null
+},
+{
+"parent":"node-07",
+"file":"node-077",
+"points":5575,
+"bbox":{ "min":[-1.2887,4.95911e-005,-1.134], "max":[-0.000200272,0.93125,-1.0359]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-1",
+"points":64001,
+"bbox":{ "min":[-5.6967,0.000149727,0], "max":[-0.000100136,3.70405,1.6154]},
+"children":["node-10", "node-11", "node-12", "node-13", "node-14", "node-15", null, "node-17"]
+},
+{
+"parent":"node-1",
+"file":"node-10",
+"points":64420,
+"bbox":{ "min":[-5.6281,1.85215,0], "max":[-2.8485,3.57385,0.8076]},
+"children":["node-100", null, "node-102", "node-103", "node-104", "node-105", "node-106", null]
+},
+{
+"parent":"node-10",
+"file":"node-100",
+"points":3493,
+"bbox":{ "min":[-4.4325,2.71315,0], "max":[-4.2384,3.54615,0.3961]},
+"children":null
+},
+{
+"parent":"node-10",
+"file":"node-102",
+"points":16574,
+"bbox":{ "min":[-4.0926,2.71305,0.4038], "max":[-2.8485,3.54545,0.8076]},
+"children":null
+},
+{
+"parent":"node-10",
+"file":"node-103",
+"points":10953,
+"bbox":{ "min":[-4.2373,2.71355,0], "max":[-2.8486,3.57305,0.4037]},
+"children":null
+},
+{
+"parent":"node-10",
+"file":"node-104",
+"points":5632,
+"bbox":{ "min":[-4.6105,1.85225,0.000200272], "max":[-4.2393,2.71295,0.4037]},
+"children":null
+},
+{
+"parent":"node-10",
+"file":"node-105",
+"points":4109,
+"bbox":{ "min":[-4.4035,1.85225,0.4045], "max":[-4.2387,2.44765,0.8076]},
+"children":null
+},
+{
+"parent":"node-10",
+"file":"node-106",
+"points":2938,
+"bbox":{ "min":[-4.2373,2.42765,0.4038], "max":[-4.046,2.71295,0.8075]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-11",
+"points":58454,
+"bbox":{ "min":[-4.4656,1.85215,0.8077], "max":[-2.8485,3.59615,1.6131]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-12",
+"points":31794,
+"bbox":{ "min":[-2.8484,3.20125,0.8077], "max":[-0.000100136,3.64085,1.6131]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-13",
+"points":68680,
+"bbox":{ "min":[-2.8484,2.75765,0], "max":[-0.000100136,3.69795,0.8076]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-14",
+"points":38341,
+"bbox":{ "min":[-4.4776,0.000149727,0], "max":[-3.9508,1.85205,0.8076]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-15",
+"points":27221,
+"bbox":{ "min":[-4.4495,0.00055027,0.8077], "max":[-4.0081,1.85205,1.6153]},
+"children":null
+},
+{
+"parent":"node-1",
+"file":"node-17",
+"points":3712,
+"bbox":{ "min":[-0.0549002,0.00164986,0.000200272], "max":[-0.000100136,0.22065,0.7434]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-2",
+"points":64000,
+"bbox":{ "min":[0,4.95911e-005,0], "max":[5.6967,3.76125,1.6226]},
+"children":["node-20", "node-21", "node-22", "node-23", "node-24", "node-25", "node-26", "node-27"]
+},
+{
+"parent":"node-2",
+"file":"node-20",
+"points":61438,
+"bbox":{ "min":[0.000499725,2.01395,0], "max":[2.8483,3.76125,0.8112]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-21",
+"points":57134,
+"bbox":{ "min":[0.000100136,2.04885,0.8113], "max":[2.8479,3.67945,1.6201]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-22",
+"points":64000,
+"bbox":{ "min":[2.8491,1.88065,0.8113], "max":[5.5569,3.75295,1.6226]},
+"children":["node-220", "node-221", "node-222", "node-223", "node-224", "node-225", "node-226", "node-227"]
+},
+{
+"parent":"node-22",
+"file":"node-220",
+"points":22321,
+"bbox":{ "min":[2.8494,2.81695,0.8113], "max":[4.203,3.74125,1.2169]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-221",
+"points":16820,
+"bbox":{ "min":[2.8495,2.81685,1.217], "max":[4.2029,3.70685,1.6218]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-222",
+"points":22896,
+"bbox":{ "min":[4.2032,2.81685,1.217], "max":[5.5281,3.71915,1.6226]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-223",
+"points":31969,
+"bbox":{ "min":[4.2032,2.81685,0.8113], "max":[5.5286,3.75125,1.2169]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-224",
+"points":16180,
+"bbox":{ "min":[2.9541,1.88065,0.8113], "max":[3.7192,2.81665,1.2169]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-225",
+"points":11678,
+"bbox":{ "min":[2.9348,1.88065,1.217], "max":[3.7191,2.81675,1.619]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-226",
+"points":7426,
+"bbox":{ "min":[5.5227,1.88095,1.217], "max":[5.5526,2.81675,1.6209]},
+"children":null
+},
+{
+"parent":"node-22",
+"file":"node-227",
+"points":9324,
+"bbox":{ "min":[5.484,1.88065,0.8113], "max":[5.5569,2.81675,1.2169]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-23",
+"points":64000,
+"bbox":{ "min":[2.8484,1.88065,0], "max":[5.5467,3.70895,0.8112]},
+"children":["node-230", "node-231", "node-232", "node-233", "node-234", "node-235", "node-236", "node-237"]
+},
+{
+"parent":"node-23",
+"file":"node-230",
+"points":64894,
+"bbox":{ "min":[2.8484,2.79485,0], "max":[4.1975,3.70355,0.4055]},
+"children":[null, null, "node-2302", "node-2303", null, null, "node-2306", "node-2307"]
+},
+{
+"parent":"node-230",
+"file":"node-2302",
+"points":9445,
+"bbox":{ "min":[3.5238,3.24945,0.2028], "max":[4.1975,3.69485,0.4055]},
+"children":null
+},
+{
+"parent":"node-230",
+"file":"node-2303",
+"points":12452,
+"bbox":{ "min":[3.5249,3.24925,0], "max":[4.1975,3.69395,0.2027]},
+"children":null
+},
+{
+"parent":"node-230",
+"file":"node-2306",
+"points":9124,
+"bbox":{ "min":[3.5613,2.79505,0.2028], "max":[4.0957,3.24915,0.4055]},
+"children":null
+},
+{
+"parent":"node-230",
+"file":"node-2307",
+"points":5482,
+"bbox":{ "min":[3.562,2.79485,0], "max":[3.7119,3.24915,0.2027]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-231",
+"points":69065,
+"bbox":{ "min":[2.8484,2.79485,0.4056], "max":[4.1975,3.69075,0.8112]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-232",
+"points":64011,
+"bbox":{ "min":[4.1976,2.79485,0.4056], "max":[5.5301,3.70805,0.8112]},
+"children":["node-2320", "node-2321", "node-2322", "node-2323", null, null, "node-2326", "node-2327"]
+},
+{
+"parent":"node-232",
+"file":"node-2320",
+"points":2814,
+"bbox":{ "min":[4.1976,3.67845,0.4056], "max":[4.8636,3.69855,0.6083]},
+"children":null
+},
+{
+"parent":"node-232",
+"file":"node-2321",
+"points":1786,
+"bbox":{ "min":[4.1978,3.67875,0.6085], "max":[4.8626,3.69895,0.8112]},
+"children":null
+},
+{
+"parent":"node-232",
+"file":"node-2322",
+"points":1569,
+"bbox":{ "min":[4.8642,3.25155,0.6085], "max":[5.1606,3.70565,0.8112]},
+"children":null
+},
+{
+"parent":"node-232",
+"file":"node-2323",
+"points":1697,
+"bbox":{ "min":[4.8656,3.25155,0.4056], "max":[5.1609,3.70425,0.6084]},
+"children":null
+},
+{
+"parent":"node-232",
+"file":"node-2326",
+"points":1670,
+"bbox":{ "min":[4.9594,2.79545,0.6085], "max":[5.5296,3.25075,0.8107]},
+"children":null
+},
+{
+"parent":"node-232",
+"file":"node-2327",
+"points":1843,
+"bbox":{ "min":[4.9542,2.79545,0.4057], "max":[5.5291,3.25135,0.608]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-233",
+"points":64000,
+"bbox":{ "min":[4.1976,2.79485,0], "max":[5.5293,3.70475,0.4055]},
+"children":["node-2330", "node-2331", "node-2332", "node-2333", null, null, "node-2336", "node-2337"]
+},
+{
+"parent":"node-233",
+"file":"node-2330",
+"points":21706,
+"bbox":{ "min":[4.1977,3.67545,0], "max":[4.8634,3.70475,0.2027]},
+"children":null
+},
+{
+"parent":"node-233",
+"file":"node-2331",
+"points":13865,
+"bbox":{ "min":[4.1976,3.67725,0.2028], "max":[4.8634,3.69855,0.4055]},
+"children":null
+},
+{
+"parent":"node-233",
+"file":"node-2332",
+"points":7457,
+"bbox":{ "min":[4.8635,3.24985,0.2028], "max":[5.1604,3.70375,0.4055]},
+"children":null
+},
+{
+"parent":"node-233",
+"file":"node-2333",
+"points":9525,
+"bbox":{ "min":[4.8636,3.24995,0], "max":[5.1618,3.70275,0.2027]},
+"children":null
+},
+{
+"parent":"node-233",
+"file":"node-2336",
+"points":7953,
+"bbox":{ "min":[4.9467,2.79485,0.2028], "max":[5.5292,3.24945,0.4055]},
+"children":null
+},
+{
+"parent":"node-233",
+"file":"node-2337",
+"points":9706,
+"bbox":{ "min":[4.9364,2.79515,0], "max":[5.529,3.24975,0.2027]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-234",
+"points":48428,
+"bbox":{ "min":[3.5294,1.88065,0], "max":[3.828,2.79475,0.4055]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-235",
+"points":29462,
+"bbox":{ "min":[3.5263,1.88065,0.4056], "max":[3.7177,2.79475,0.8112]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-236",
+"points":16234,
+"bbox":{ "min":[5.4841,1.88075,0.4056], "max":[5.5436,2.79475,0.8112]},
+"children":null
+},
+{
+"parent":"node-23",
+"file":"node-237",
+"points":16779,
+"bbox":{ "min":[5.4875,1.88065,0], "max":[5.5467,2.79475,0.4055]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-24",
+"points":64004,
+"bbox":{ "min":[0,4.95911e-005,0], "max":[2.8483,1.30725,0.8112]},
+"children":[null, null, null, null, "node-244", "node-245", "node-246", "node-247"]
+},
+{
+"parent":"node-24",
+"file":"node-244",
+"points":27554,
+"bbox":{ "min":[0,4.95911e-005,0], "max":[1.3615,0.48995,0.4055]},
+"children":null
+},
+{
+"parent":"node-24",
+"file":"node-245",
+"points":26109,
+"bbox":{ "min":[0,4.95911e-005,0.4056], "max":[1.3599,0.43435,0.8112]},
+"children":null
+},
+{
+"parent":"node-24",
+"file":"node-246",
+"points":59717,
+"bbox":{ "min":[2.0602,0.19555,0.4056], "max":[2.8483,0.38115,0.8112]},
+"children":null
+},
+{
+"parent":"node-24",
+"file":"node-247",
+"points":65860,
+"bbox":{ "min":[2.0485,0.19505,0], "max":[2.8483,0.38055,0.4055]},
+"children":["node-2470", "node-2471", null, null, null, null, null, null]
+},
+{
+"parent":"node-247",
+"file":"node-2470",
+"points":1776,
+"bbox":{ "min":[2.0612,0.28785,0], "max":[2.4481,0.37955,0.2026]},
+"children":null
+},
+{
+"parent":"node-247",
+"file":"node-2471",
+"points":2365,
+"bbox":{ "min":[2.0593,0.28835,0.2028], "max":[2.4476,0.38045,0.4055]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-25",
+"points":64000,
+"bbox":{ "min":[0.175,4.95911e-005,0.8113], "max":[2.8483,0.44155,1.6192]},
+"children":["node-250", "node-251", "node-252", "node-253", "node-254", "node-255", "node-256", "node-257"]
+},
+{
+"parent":"node-25",
+"file":"node-250",
+"points":10937,
+"bbox":{ "min":[0.2029,0.22085,0.8113], "max":[1.5115,0.41175,1.2152]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-251",
+"points":5966,
+"bbox":{ "min":[0.175,0.22085,1.2153], "max":[1.5116,0.34385,1.6186]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-252",
+"points":21614,
+"bbox":{ "min":[1.5117,0.22085,1.2153], "max":[2.8483,0.36585,1.6192]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-253",
+"points":46090,
+"bbox":{ "min":[1.5117,0.22085,0.8113], "max":[2.8483,0.37205,1.2152]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-254",
+"points":5310,
+"bbox":{ "min":[0.199699,4.95911e-005,0.8114], "max":[1.5116,0.22075,1.215]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-255",
+"points":2827,
+"bbox":{ "min":[0.213099,0.000249863,1.2153], "max":[1.5106,0.22065,1.6184]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-256",
+"points":2939,
+"bbox":{ "min":[1.5117,0.17105,1.2153], "max":[2.8482,0.22075,1.6117]},
+"children":null
+},
+{
+"parent":"node-25",
+"file":"node-257",
+"points":3224,
+"bbox":{ "min":[1.5118,0.18315,0.8118], "max":[2.8483,0.22075,1.2149]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-26",
+"points":64000,
+"bbox":{ "min":[2.8484,4.95911e-005,0.8113], "max":[5.5754,1.88055,1.6194]},
+"children":["node-260", "node-261", "node-262", "node-263", "node-264", "node-265", "node-266", "node-267"]
+},
+{
+"parent":"node-26",
+"file":"node-260",
+"points":66199,
+"bbox":{ "min":[3.0498,0.94035,0.8113], "max":[3.7561,1.88055,1.2153]},
+"children":[null, null, null, null, null, null, null, "node-2607"]
+},
+{
+"parent":"node-260",
+"file":"node-2607",
+"points":8151,
+"bbox":{ "min":[3.5783,0.94045,0.8114], "max":[3.755,1.41025,1.0132]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-261",
+"points":20534,
+"bbox":{ "min":[3.2255,0.94045,1.2154], "max":[3.7724,1.88045,1.6194]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-262",
+"points":9643,
+"bbox":{ "min":[4.6474,0.94035,1.2154], "max":[5.5608,1.88055,1.6191]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-263",
+"points":13348,
+"bbox":{ "min":[4.6386,0.94035,0.8113], "max":[5.5698,1.88055,1.2153]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-264",
+"points":64000,
+"bbox":{ "min":[2.8484,4.95911e-005,0.8113], "max":[4.2118,0.94025,1.2153]},
+"children":[null, null, "node-2642", "node-2643", "node-2644", "node-2645", "node-2646", "node-2647"]
+},
+{
+"parent":"node-264",
+"file":"node-2642",
+"points":1609,
+"bbox":{ "min":[3.5763,0.47075,1.0135], "max":[3.7638,0.93985,1.2153]},
+"children":null
+},
+{
+"parent":"node-264",
+"file":"node-2643",
+"points":16550,
+"bbox":{ "min":[3.583,0.47025,0.8113], "max":[4.2114,0.94025,1.0133]},
+"children":null
+},
+{
+"parent":"node-264",
+"file":"node-2644",
+"points":10731,
+"bbox":{ "min":[2.8485,0.22555,0.8113], "max":[3.5299,0.37795,1.0133]},
+"children":null
+},
+{
+"parent":"node-264",
+"file":"node-2645",
+"points":8371,
+"bbox":{ "min":[2.8485,0.19045,1.0134], "max":[3.53,0.39085,1.2153]},
+"children":null
+},
+{
+"parent":"node-264",
+"file":"node-2646",
+"points":7317,
+"bbox":{ "min":[3.5302,0.00055027,1.0134], "max":[4.2117,0.46975,1.2153]},
+"children":null
+},
+{
+"parent":"node-264",
+"file":"node-2647",
+"points":10471,
+"bbox":{ "min":[3.5301,0.000149727,0.8113], "max":[4.1248,0.47005,1.0133]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-265",
+"points":63055,
+"bbox":{ "min":[2.8484,4.95911e-005,1.2154], "max":[4.2118,0.94025,1.6193]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-266",
+"points":26355,
+"bbox":{ "min":[4.2119,0.38285,1.2154], "max":[5.5685,0.94025,1.6163]},
+"children":null
+},
+{
+"parent":"node-26",
+"file":"node-267",
+"points":28132,
+"bbox":{ "min":[4.2119,0.38225,0.8113], "max":[5.5754,0.93975,1.2153]},
+"children":null
+},
+{
+"parent":"node-2",
+"file":"node-27",
+"points":64000,
+"bbox":{ "min":[2.8484,4.95911e-005,0], "max":[5.6967,1.88055,0.8112]},
+"children":["node-270", "node-271", "node-272", "node-273", "node-274", "node-275", "node-276", "node-277"]
+},
+{
+"parent":"node-27",
+"file":"node-270",
+"points":64000,
+"bbox":{ "min":[3.5372,1.12525,0], "max":[4.2123,1.88055,0.4055]},
+"children":["node-2700", "node-2701", null, null, "node-2704", "node-2705", null, null]
+},
+{
+"parent":"node-270",
+"file":"node-2700",
+"points":2193,
+"bbox":{ "min":[3.5372,1.50315,0], "max":[3.7918,1.88045,0.2027]},
+"children":null
+},
+{
+"parent":"node-270",
+"file":"node-2701",
+"points":1560,
+"bbox":{ "min":[3.5541,1.50315,0.2028], "max":[3.7636,1.88015,0.4055]},
+"children":null
+},
+{
+"parent":"node-270",
+"file":"node-2704",
+"points":6007,
+"bbox":{ "min":[3.5689,1.30055,0], "max":[3.7438,1.50275,0.2027]},
+"children":null
+},
+{
+"parent":"node-270",
+"file":"node-2705",
+"points":10155,
+"bbox":{ "min":[3.5781,1.31845,0.2028], "max":[3.743,1.50285,0.4055]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-271",
+"points":63036,
+"bbox":{ "min":[3.5399,1.30175,0.4056], "max":[3.7456,1.88055,0.8112]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-272",
+"points":10191,
+"bbox":{ "min":[4.3676,0.94105,0.4056], "max":[5.6219,1.88055,0.8112]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-273",
+"points":9450,
+"bbox":{ "min":[4.2778,0.94035,0], "max":[5.6659,1.88055,0.4055]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-274",
+"points":64000,
+"bbox":{ "min":[2.8484,4.95911e-005,0], "max":[4.2725,0.59545,0.4055]},
+"children":["node-2740", "node-2741", "node-2742", "node-2743", "node-2744", "node-2745", "node-2746", "node-2747"]
+},
+{
+"parent":"node-274",
+"file":"node-2740",
+"points":10377,
+"bbox":{ "min":[2.8484,0.35605,0], "max":[3.5603,0.41955,0.2027]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2741",
+"points":10966,
+"bbox":{ "min":[2.8485,0.35605,0.2028], "max":[3.5604,0.42145,0.4055]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2742",
+"points":29083,
+"bbox":{ "min":[3.5615,0.37455,0.2028], "max":[4.2725,0.59545,0.4055]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2743",
+"points":26221,
+"bbox":{ "min":[3.5619,0.37465,0], "max":[4.2725,0.59455,0.2027]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2744",
+"points":17926,
+"bbox":{ "min":[2.8486,0.22305,0], "max":[3.5604,0.24405,0.2027]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2745",
+"points":20768,
+"bbox":{ "min":[2.8484,0.22455,0.2028], "max":[3.5604,0.24425,0.4055]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2746",
+"points":32051,
+"bbox":{ "min":[3.5605,4.95911e-005,0.2028], "max":[4.1151,0.25435,0.4055]},
+"children":null
+},
+{
+"parent":"node-274",
+"file":"node-2747",
+"points":26949,
+"bbox":{ "min":[3.5605,4.95911e-005,0], "max":[4.1167,0.25445,0.2027]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-275",
+"points":64000,
+"bbox":{ "min":[2.8484,4.95911e-005,0.4056], "max":[4.2725,0.59805,0.8112]},
+"children":["node-2750", "node-2751", "node-2752", "node-2753", "node-2754", "node-2755", "node-2756", "node-2757"]
+},
+{
+"parent":"node-275",
+"file":"node-2750",
+"points":10024,
+"bbox":{ "min":[2.8485,0.35505,0.4056], "max":[3.5601,0.41845,0.6084]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2751",
+"points":9175,
+"bbox":{ "min":[2.8484,0.35535,0.6085], "max":[3.5601,0.41735,0.8112]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2752",
+"points":20928,
+"bbox":{ "min":[3.5607,0.37425,0.6085], "max":[4.2724,0.59795,0.8112]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2753",
+"points":25914,
+"bbox":{ "min":[3.5606,0.37445,0.4056], "max":[4.2725,0.59575,0.6084]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2754",
+"points":18422,
+"bbox":{ "min":[2.8487,0.22505,0.4056], "max":[3.5604,0.24535,0.6084]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2755",
+"points":14574,
+"bbox":{ "min":[2.8484,0.22485,0.6085], "max":[3.5604,0.24405,0.8112]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2756",
+"points":21278,
+"bbox":{ "min":[3.5605,4.95911e-005,0.6085], "max":[4.1149,0.25525,0.8112]},
+"children":null
+},
+{
+"parent":"node-275",
+"file":"node-2757",
+"points":28363,
+"bbox":{ "min":[3.5605,4.95911e-005,0.4056], "max":[4.115,0.25445,0.6084]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-276",
+"points":37396,
+"bbox":{ "min":[4.2726,0.38895,0.4056], "max":[5.6967,0.94025,0.8112]},
+"children":null
+},
+{
+"parent":"node-27",
+"file":"node-277",
+"points":40636,
+"bbox":{ "min":[4.2726,0.39095,0], "max":[5.6946,0.93955,0.4055]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-3",
+"points":64000,
+"bbox":{ "min":[0,4.95911e-005,-1.5561], "max":[5.6395,4.14295,-0.000100136]},
+"children":["node-30", "node-31", "node-32", "node-33", "node-34", "node-35", "node-36", "node-37"]
+},
+{
+"parent":"node-3",
+"file":"node-30",
+"points":48509,
+"bbox":{ "min":[0,2.07155,-1.313], "max":[2.8197,3.89635,-0.7782]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-31",
+"points":59114,
+"bbox":{ "min":[0.00039959,2.07275,-0.7781], "max":[2.8197,3.85275,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-32",
+"points":64000,
+"bbox":{ "min":[2.8198,2.07155,-0.7781], "max":[5.5759,4.14295,-0.000100136]},
+"children":["node-320", "node-321", "node-322", "node-323", "node-324", "node-325", "node-326", "node-327"]
+},
+{
+"parent":"node-32",
+"file":"node-320",
+"points":64000,
+"bbox":{ "min":[3.6886,3.10735,-0.7781], "max":[4.1978,3.69725,-0.3892]},
+"children":["node-3200", "node-3201", "node-3202", "node-3203", "node-3204", "node-3205", null, null]
+},
+{
+"parent":"node-320",
+"file":"node-3200",
+"points":4961,
+"bbox":{ "min":[3.6888,3.40235,-0.7781], "max":[3.9432,3.68165,-0.5837]},
+"children":null
+},
+{
+"parent":"node-320",
+"file":"node-3201",
+"points":4716,
+"bbox":{ "min":[3.6925,3.40255,-0.5836], "max":[3.9432,3.67925,-0.3892]},
+"children":null
+},
+{
+"parent":"node-320",
+"file":"node-3202",
+"points":4510,
+"bbox":{ "min":[3.9433,3.64585,-0.5835], "max":[4.1978,3.69435,-0.3892]},
+"children":null
+},
+{
+"parent":"node-320",
+"file":"node-3203",
+"points":3970,
+"bbox":{ "min":[3.9433,3.61735,-0.778], "max":[4.1978,3.69355,-0.5837]},
+"children":null
+},
+{
+"parent":"node-320",
+"file":"node-3204",
+"points":3931,
+"bbox":{ "min":[3.6921,3.10735,-0.7781], "max":[3.8402,3.40225,-0.5837]},
+"children":null
+},
+{
+"parent":"node-320",
+"file":"node-3205",
+"points":3019,
+"bbox":{ "min":[3.6962,3.10745,-0.5836], "max":[3.7069,3.40225,-0.3892]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-321",
+"points":64649,
+"bbox":{ "min":[2.8198,3.10735,-0.3891], "max":[4.1978,3.78665,-0.000100136]},
+"children":[null, null, "node-3212", "node-3213", null, null, "node-3216", "node-3217"]
+},
+{
+"parent":"node-321",
+"file":"node-3212",
+"points":12319,
+"bbox":{ "min":[3.5404,3.44715,-0.1946], "max":[4.1978,3.70695,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-321",
+"file":"node-3213",
+"points":12527,
+"bbox":{ "min":[3.5095,3.44715,-0.3891], "max":[4.1978,3.71435,-0.1947]},
+"children":null
+},
+{
+"parent":"node-321",
+"file":"node-3216",
+"points":4534,
+"bbox":{ "min":[3.559,3.10755,-0.1946], "max":[3.7065,3.44685,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-321",
+"file":"node-3217",
+"points":4802,
+"bbox":{ "min":[3.5091,3.10735,-0.3891], "max":[3.7061,3.44695,-0.1948]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-322",
+"points":65338,
+"bbox":{ "min":[4.1979,3.10735,-0.3891], "max":[5.2395,4.14295,-0.000100136]},
+"children":["node-3220", "node-3221", "node-3222", "node-3223", null, null, "node-3226", "node-3227"]
+},
+{
+"parent":"node-322",
+"file":"node-3220",
+"points":40685,
+"bbox":{ "min":[4.1979,3.62525,-0.3891], "max":[4.7186,4.14295,-0.1947]},
+"children":null
+},
+{
+"parent":"node-322",
+"file":"node-3221",
+"points":34597,
+"bbox":{ "min":[4.1979,3.64115,-0.1946], "max":[4.7186,3.73575,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-322",
+"file":"node-3222",
+"points":10090,
+"bbox":{ "min":[4.7187,3.62525,-0.1946], "max":[5.1549,3.72915,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-322",
+"file":"node-3223",
+"points":9527,
+"bbox":{ "min":[4.7188,3.62525,-0.3891], "max":[5.1546,3.73045,-0.1947]},
+"children":null
+},
+{
+"parent":"node-322",
+"file":"node-3226",
+"points":10436,
+"bbox":{ "min":[4.9024,3.10735,-0.1946], "max":[5.1743,3.62515,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-322",
+"file":"node-3227",
+"points":9881,
+"bbox":{ "min":[5.0728,3.10735,-0.3891], "max":[5.2395,3.62515,-0.1947]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-323",
+"points":64000,
+"bbox":{ "min":[4.1979,3.10735,-0.7781], "max":[5.4994,3.72535,-0.3892]},
+"children":["node-3230", "node-3231", "node-3232", "node-3233", null, null, "node-3236", "node-3237"]
+},
+{
+"parent":"node-323",
+"file":"node-3230",
+"points":23142,
+"bbox":{ "min":[4.1979,3.62175,-0.7781], "max":[4.8486,3.70315,-0.5837]},
+"children":null
+},
+{
+"parent":"node-323",
+"file":"node-3231",
+"points":27462,
+"bbox":{ "min":[4.1979,3.64845,-0.5836], "max":[4.8486,3.70215,-0.3892]},
+"children":null
+},
+{
+"parent":"node-323",
+"file":"node-3232",
+"points":8114,
+"bbox":{ "min":[4.8487,3.41645,-0.5836], "max":[5.1764,3.70685,-0.3892]},
+"children":null
+},
+{
+"parent":"node-323",
+"file":"node-3233",
+"points":8136,
+"bbox":{ "min":[4.8487,3.41645,-0.7781], "max":[5.2574,3.71415,-0.5837]},
+"children":null
+},
+{
+"parent":"node-323",
+"file":"node-3236",
+"points":4977,
+"bbox":{ "min":[5.0315,3.10745,-0.5836], "max":[5.4767,3.41605,-0.3892]},
+"children":null
+},
+{
+"parent":"node-323",
+"file":"node-3237",
+"points":5247,
+"bbox":{ "min":[4.9882,3.10735,-0.7781], "max":[5.4874,3.41615,-0.5837]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-324",
+"points":65943,
+"bbox":{ "min":[2.8199,2.07155,-0.7781], "max":[4.1978,3.10725,-0.3892]},
+"children":[null, null, "node-3242", "node-3243", null, null, "node-3246", "node-3247"]
+},
+{
+"parent":"node-324",
+"file":"node-3242",
+"points":13871,
+"bbox":{ "min":[3.5346,2.58945,-0.5836], "max":[3.7112,3.10725,-0.3892]},
+"children":null
+},
+{
+"parent":"node-324",
+"file":"node-3243",
+"points":45585,
+"bbox":{ "min":[3.5535,2.58945,-0.7781], "max":[4.1978,3.10725,-0.5837]},
+"children":null
+},
+{
+"parent":"node-324",
+"file":"node-3246",
+"points":21995,
+"bbox":{ "min":[3.5749,2.07155,-0.5836], "max":[3.8225,2.58935,-0.3892]},
+"children":null
+},
+{
+"parent":"node-324",
+"file":"node-3247",
+"points":55177,
+"bbox":{ "min":[3.5748,2.07165,-0.7781], "max":[4.1944,2.58935,-0.5837]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-325",
+"points":64787,
+"bbox":{ "min":[2.8203,2.07155,-0.3891], "max":[3.8525,3.10725,-0.000100136]},
+"children":[null, null, "node-3252", "node-3253", null, null, "node-3256", "node-3257"]
+},
+{
+"parent":"node-325",
+"file":"node-3252",
+"points":8649,
+"bbox":{ "min":[3.3398,2.58945,-0.1946], "max":[3.7111,3.10715,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-325",
+"file":"node-3253",
+"points":9644,
+"bbox":{ "min":[3.3371,2.58945,-0.3891], "max":[3.7106,3.10725,-0.1947]},
+"children":null
+},
+{
+"parent":"node-325",
+"file":"node-3256",
+"points":16533,
+"bbox":{ "min":[3.576,2.07155,-0.1946], "max":[3.8499,2.58935,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-325",
+"file":"node-3257",
+"points":18943,
+"bbox":{ "min":[3.5756,2.07165,-0.3891], "max":[3.8157,2.58935,-0.1947]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-326",
+"points":51169,
+"bbox":{ "min":[4.9411,2.07155,-0.3891], "max":[5.5714,3.10725,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-32",
+"file":"node-327",
+"points":64000,
+"bbox":{ "min":[4.1979,2.07155,-0.7781], "max":[5.5759,3.10725,-0.3892]},
+"children":["node-3270", "node-3271", "node-3272", "node-3273", "node-3274", null, "node-3276", "node-3277"]
+},
+{
+"parent":"node-327",
+"file":"node-3270",
+"points":24874,
+"bbox":{ "min":[4.1979,2.91415,-0.7781], "max":[4.8867,3.08305,-0.5837]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3271",
+"points":1917,
+"bbox":{ "min":[4.5804,2.87255,-0.5835], "max":[4.7371,3.08695,-0.4302]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3272",
+"points":9279,
+"bbox":{ "min":[4.9368,2.58965,-0.5836], "max":[5.5759,3.10725,-0.3892]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3273",
+"points":10497,
+"bbox":{ "min":[4.8869,2.58945,-0.7781], "max":[5.5322,3.10725,-0.5837]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3274",
+"points":5485,
+"bbox":{ "min":[4.7642,2.24915,-0.7781], "max":[4.8868,2.57035,-0.6304]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3276",
+"points":3244,
+"bbox":{ "min":[5.3171,2.07185,-0.5836], "max":[5.5388,2.58935,-0.3892]},
+"children":null
+},
+{
+"parent":"node-327",
+"file":"node-3277",
+"points":8588,
+"bbox":{ "min":[4.8869,2.07175,-0.7781], "max":[5.5411,2.58935,-0.5837]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-33",
+"points":65519,
+"bbox":{ "min":[2.8198,2.07155,-1.2237], "max":[5.5833,3.71315,-0.7782]},
+"children":[null, "node-331", "node-332", "node-333", "node-334", "node-335", "node-336", "node-337"]
+},
+{
+"parent":"node-33",
+"file":"node-331",
+"points":47320,
+"bbox":{ "min":[3.4924,2.89245,-1.0009], "max":[4.2015,3.65365,-0.7782]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-332",
+"points":70445,
+"bbox":{ "min":[4.2016,2.89245,-1.0009], "max":[5.4162,3.71315,-0.7782]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-333",
+"points":13547,
+"bbox":{ "min":[4.2016,2.89245,-1.1538], "max":[5.1707,3.49885,-1.001]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-334",
+"points":22387,
+"bbox":{ "min":[2.8201,2.07155,-1.1685], "max":[4.2015,2.89235,-1.001]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-335",
+"points":15404,
+"bbox":{ "min":[2.8203,2.07155,-1.0009], "max":[4.2012,2.89095,-0.7782]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-336",
+"points":15616,
+"bbox":{ "min":[4.2016,2.07175,-1.0009], "max":[5.5762,2.89235,-0.7782]},
+"children":null
+},
+{
+"parent":"node-33",
+"file":"node-337",
+"points":64002,
+"bbox":{ "min":[4.2016,2.07155,-1.2237], "max":[5.5663,2.89235,-1.001]},
+"children":[null, "node-3371", "node-3372", null, null, "node-3375", "node-3376", null]
+},
+{
+"parent":"node-337",
+"file":"node-3371",
+"points":6537,
+"bbox":{ "min":[4.202,2.48205,-1.1029], "max":[4.8839,2.89235,-1.0086]},
+"children":null
+},
+{
+"parent":"node-337",
+"file":"node-3372",
+"points":1955,
+"bbox":{ "min":[4.8841,2.48325,-1.1018], "max":[5.5402,2.89235,-1.0013]},
+"children":null
+},
+{
+"parent":"node-337",
+"file":"node-3375",
+"points":6102,
+"bbox":{ "min":[4.2017,2.07155,-1.096], "max":[4.8839,2.48195,-1.0011]},
+"children":null
+},
+{
+"parent":"node-337",
+"file":"node-3376",
+"points":1748,
+"bbox":{ "min":[4.884,2.07165,-1.101], "max":[5.5329,2.48185,-1.0012]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-34",
+"points":64416,
+"bbox":{ "min":[0,4.95911e-005,-1.5561], "max":[2.8197,2.07145,-0.7782]},
+"children":[null, "node-341", "node-342", null, null, "node-345", "node-346", null]
+},
+{
+"parent":"node-34",
+"file":"node-341",
+"points":27260,
+"bbox":{ "min":[0.000200272,1.03575,-1.1027], "max":[1.4098,2.07145,-0.8025]},
+"children":null
+},
+{
+"parent":"node-34",
+"file":"node-342",
+"points":44856,
+"bbox":{ "min":[1.4099,1.03575,-1.1151], "max":[2.8197,2.07145,-1.0032]},
+"children":null
+},
+{
+"parent":"node-34",
+"file":"node-345",
+"points":24220,
+"bbox":{ "min":[0.000100136,4.95911e-005,-1.1664], "max":[1.4095,1.03565,-0.7782]},
+"children":null
+},
+{
+"parent":"node-34",
+"file":"node-346",
+"points":26327,
+"bbox":{ "min":[1.4099,4.95911e-005,-1.1403], "max":[2.8197,1.03565,-0.7782]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-35",
+"points":64011,
+"bbox":{ "min":[0,4.95911e-005,-0.7781], "max":[2.8197,1.92675,-0.000100136]},
+"children":[null, null, null, null, "node-354", "node-355", "node-356", "node-357"]
+},
+{
+"parent":"node-35",
+"file":"node-354",
+"points":9159,
+"bbox":{ "min":[0,0.000249863,-0.7781], "max":[1.3611,0.84375,-0.3892]},
+"children":null
+},
+{
+"parent":"node-35",
+"file":"node-355",
+"points":14577,
+"bbox":{ "min":[0,4.95911e-005,-0.3891], "max":[1.3609,0.91215,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-35",
+"file":"node-356",
+"points":20786,
+"bbox":{ "min":[2.0432,0.19495,-0.3891], "max":[2.8197,0.37115,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-35",
+"file":"node-357",
+"points":8107,
+"bbox":{ "min":[2.0603,0.19325,-0.7781], "max":[2.8195,0.36955,-0.3892]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-36",
+"points":64000,
+"bbox":{ "min":[2.8198,4.95911e-005,-0.7781], "max":[5.6395,2.07145,-0.000100136]},
+"children":["node-360", "node-361", "node-362", "node-363", "node-364", "node-365", "node-366", "node-367"]
+},
+{
+"parent":"node-36",
+"file":"node-360",
+"points":34515,
+"bbox":{ "min":[2.8281,1.30995,-0.7781], "max":[3.7504,2.07145,-0.3892]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-361",
+"points":45342,
+"bbox":{ "min":[3.2062,1.32005,-0.3891], "max":[3.8473,2.07145,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-362",
+"points":44001,
+"bbox":{ "min":[4.7879,1.03575,-0.3891], "max":[5.6395,2.07145,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-363",
+"points":46890,
+"bbox":{ "min":[4.8989,1.03585,-0.7781], "max":[5.5434,2.07145,-0.3892]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-364",
+"points":66248,
+"bbox":{ "min":[2.8199,0.000249863,-0.7781], "max":[4.2296,0.59465,-0.3892]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-365",
+"points":64000,
+"bbox":{ "min":[2.8198,4.95911e-005,-0.3891], "max":[4.2296,0.59535,-0.000100136]},
+"children":["node-3650", "node-3651", "node-3652", "node-3653", "node-3654", "node-3655", "node-3656", "node-3657"]
+},
+{
+"parent":"node-365",
+"file":"node-3650",
+"points":5300,
+"bbox":{ "min":[2.8199,0.35575,-0.3891], "max":[3.5246,0.37775,-0.1947]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3651",
+"points":6182,
+"bbox":{ "min":[2.82,0.35575,-0.1946], "max":[3.5246,0.37795,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3652",
+"points":13410,
+"bbox":{ "min":[3.5248,0.36755,-0.1946], "max":[4.2296,0.59535,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3653",
+"points":10487,
+"bbox":{ "min":[3.5247,0.36815,-0.3891], "max":[4.2296,0.59455,-0.1947]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3654",
+"points":6142,
+"bbox":{ "min":[2.82,0.223249,-0.3891], "max":[3.5245,0.24615,-0.1947]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3655",
+"points":8419,
+"bbox":{ "min":[2.8198,0.21215,-0.1946], "max":[3.5246,0.24335,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3656",
+"points":13810,
+"bbox":{ "min":[3.5248,4.95911e-005,-0.1946], "max":[4.123,0.25365,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-365",
+"file":"node-3657",
+"points":9790,
+"bbox":{ "min":[3.5247,4.95911e-005,-0.3891], "max":[4.1176,0.25335,-0.1947]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-366",
+"points":40415,
+"bbox":{ "min":[4.2297,0.38905,-0.3891], "max":[5.5771,1.03565,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-36",
+"file":"node-367",
+"points":29896,
+"bbox":{ "min":[4.2297,0.38895,-0.7781], "max":[4.9743,1.03565,-0.3892]},
+"children":null
+},
+{
+"parent":"node-3",
+"file":"node-37",
+"points":64000,
+"bbox":{ "min":[2.8198,4.95911e-005,-1.2897], "max":[5.6364,2.07145,-0.7782]},
+"children":["node-370", "node-371", "node-372", "node-373", "node-374", "node-375", "node-376", "node-377"]
+},
+{
+"parent":"node-37",
+"file":"node-370",
+"points":63085,
+"bbox":{ "min":[2.8198,1.03575,-1.2593], "max":[4.228,2.07145,-1.034]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-371",
+"points":16907,
+"bbox":{ "min":[2.8871,1.28415,-1.0339], "max":[4.068,2.07145,-0.7782]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-372",
+"points":17752,
+"bbox":{ "min":[4.9209,1.03575,-1.0338], "max":[5.6364,2.07145,-0.7782]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-373",
+"points":64947,
+"bbox":{ "min":[4.2281,1.03575,-1.0952], "max":[5.5241,2.07145,-1.034]},
+"children":["node-3730", null, null, "node-3733", "node-3734", null, null, null]
+},
+{
+"parent":"node-373",
+"file":"node-3730",
+"points":7321,
+"bbox":{ "min":[4.2282,1.55365,-1.0941], "max":[4.8758,2.07145,-1.0681]},
+"children":null
+},
+{
+"parent":"node-373",
+"file":"node-3733",
+"points":1752,
+"bbox":{ "min":[4.8761,1.55445,-1.094], "max":[5.5236,2.07115,-1.0647]},
+"children":null
+},
+{
+"parent":"node-373",
+"file":"node-3734",
+"points":3536,
+"bbox":{ "min":[4.2282,1.03575,-1.0941], "max":[4.8758,1.55355,-1.0661]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-374",
+"points":32786,
+"bbox":{ "min":[2.8198,4.95911e-005,-1.2897], "max":[4.228,1.03565,-1.034]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-375",
+"points":16802,
+"bbox":{ "min":[2.8199,0.19465,-1.0339], "max":[4.228,0.59315,-0.7782]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-376",
+"points":14001,
+"bbox":{ "min":[4.2281,0.38845,-1.0339], "max":[5.0293,1.03565,-0.7782]},
+"children":null
+},
+{
+"parent":"node-37",
+"file":"node-377",
+"points":20814,
+"bbox":{ "min":[4.2281,0.40685,-1.1017], "max":[5.039,1.03565,-1.034]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-4",
+"points":64000,
+"bbox":{ "min":[-4.3722,-4.14295,-1.6247], "max":[-0.000100136,-5.05447e-005,-0.000100136]},
+"children":["node-40", "node-41", "node-42", "node-43", "node-44", "node-45", "node-46", "node-47"]
+},
+{
+"parent":"node-4",
+"file":"node-40",
+"points":57149,
+"bbox":{ "min":[-4.3268,-2.07145,-1.6247], "max":[-2.1862,-5.05447e-005,-0.8125]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-41",
+"points":17222,
+"bbox":{ "min":[-4.3308,-2.07145,-0.8124], "max":[-2.1862,-5.05447e-005,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-42",
+"points":65888,
+"bbox":{ "min":[-2.186,-2.07145,-0.8124], "max":[-0.000100136,-0.000149727,-0.0584998]},
+"children":[null, null, "node-422", "node-423", null, null, "node-426", "node-427"]
+},
+{
+"parent":"node-42",
+"file":"node-422",
+"points":2412,
+"bbox":{ "min":[-0.3943,-1.03575,-0.4354], "max":[-0.000499725,-0.38535,-0.059]},
+"children":null
+},
+{
+"parent":"node-42",
+"file":"node-423",
+"points":1575,
+"bbox":{ "min":[-0.3954,-1.03535,-0.8124], "max":[-0.000499725,-0.68425,-0.4356]},
+"children":null
+},
+{
+"parent":"node-42",
+"file":"node-426",
+"points":6273,
+"bbox":{ "min":[-0.4202,-2.07145,-0.4354], "max":[-0.000100136,-1.03595,-0.0601001]},
+"children":null
+},
+{
+"parent":"node-42",
+"file":"node-427",
+"points":6627,
+"bbox":{ "min":[-0.3688,-2.07145,-0.8123], "max":[-0.00360012,-1.03585,-0.4358]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-43",
+"points":65673,
+"bbox":{ "min":[-2.1861,-2.07145,-1.2064], "max":[-0.000100136,-5.05447e-005,-0.8125]},
+"children":["node-430", null, null, "node-433", "node-434", null, "node-436", "node-437"]
+},
+{
+"parent":"node-43",
+"file":"node-430",
+"points":19160,
+"bbox":{ "min":[-2.1861,-1.03535,-1.1167], "max":[-1.0931,-5.05447e-005,-1.0095]},
+"children":null
+},
+{
+"parent":"node-43",
+"file":"node-433",
+"points":15736,
+"bbox":{ "min":[-1.093,-1.03495,-1.1079], "max":[-0.000100136,-5.05447e-005,-1.0106]},
+"children":null
+},
+{
+"parent":"node-43",
+"file":"node-434",
+"points":20054,
+"bbox":{ "min":[-2.1861,-2.07145,-1.095], "max":[-1.0931,-1.03595,-1.0519]},
+"children":null
+},
+{
+"parent":"node-43",
+"file":"node-436",
+"points":4975,
+"bbox":{ "min":[-0.367001,-2.07145,-1.0094], "max":[-0.00460052,-1.03665,-0.8125]},
+"children":null
+},
+{
+"parent":"node-43",
+"file":"node-437",
+"points":17544,
+"bbox":{ "min":[-1.093,-2.07145,-1.2064], "max":[-0.1058,-1.03575,-1.0097]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-44",
+"points":20774,
+"bbox":{ "min":[-4.3236,-4.07355,-1.1704], "max":[-2.1862,-2.07155,-0.8125]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-45",
+"points":39393,
+"bbox":{ "min":[-4.3722,-4.14295,-0.8124], "max":[-2.1862,-2.07155,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-46",
+"points":64000,
+"bbox":{ "min":[-2.1861,-4.02575,-0.8124], "max":[-0.000100136,-2.07155,-0.000100136]},
+"children":["node-460", "node-461", "node-462", "node-463", "node-464", "node-465", "node-466", "node-467"]
+},
+{
+"parent":"node-46",
+"file":"node-460",
+"points":21664,
+"bbox":{ "min":[-2.1861,-3.04865,-0.8124], "max":[-1.096,-2.11365,-0.4063]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-461",
+"points":1884,
+"bbox":{ "min":[-2.1858,-2.67125,-0.4062], "max":[-1.6348,-2.31855,-0.0953999]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-462",
+"points":46187,
+"bbox":{ "min":[-0.6686,-3.03055,-0.4062], "max":[-0.000100136,-2.07165,-0.000199795]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-463",
+"points":64760,
+"bbox":{ "min":[-1.0876,-3.04865,-0.8124], "max":[-0.000100136,-2.07155,-0.4063]},
+"children":[null, null, "node-4632", "node-4633", null, "node-4635", null, null]
+},
+{
+"parent":"node-463",
+"file":"node-4632",
+"points":6812,
+"bbox":{ "min":[-0.4076,-2.55825,-0.6093], "max":[-0.000400543,-2.07235,-0.4063]},
+"children":null
+},
+{
+"parent":"node-463",
+"file":"node-4633",
+"points":2989,
+"bbox":{ "min":[-0.3936,-2.55895,-0.8123], "max":[-0.000200272,-2.07165,-0.6094]},
+"children":null
+},
+{
+"parent":"node-463",
+"file":"node-4635",
+"points":5415,
+"bbox":{ "min":[-0.7528,-2.92875,-0.6093], "max":[-0.5688,-2.80455,-0.4063]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-464",
+"points":18222,
+"bbox":{ "min":[-2.1861,-3.99525,-0.8124], "max":[-1.0931,-3.04875,-0.4063]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-465",
+"points":12947,
+"bbox":{ "min":[-2.1859,-3.99955,-0.4062], "max":[-1.0933,-3.47185,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-466",
+"points":21349,
+"bbox":{ "min":[-1.093,-4.02485,-0.4062], "max":[-0.000100136,-3.55145,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-46",
+"file":"node-467",
+"points":34147,
+"bbox":{ "min":[-1.0928,-4.01485,-0.8124], "max":[-0.000100136,-3.04875,-0.4063]},
+"children":null
+},
+{
+"parent":"node-4",
+"file":"node-47",
+"points":65494,
+"bbox":{ "min":[-2.1861,-4.00385,-1.2746], "max":[-0.000100136,-2.07155,-0.8125]},
+"children":["node-470", null, "node-472", "node-473", "node-474", "node-475", "node-476", "node-477"]
+},
+{
+"parent":"node-47",
+"file":"node-470",
+"points":45227,
+"bbox":{ "min":[-2.1861,-3.03765,-1.091], "max":[-1.0931,-2.07155,-1.0436]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-472",
+"points":12482,
+"bbox":{ "min":[-0.8731,-3.01355,-1.0435], "max":[-0.000100136,-2.07205,-0.8125]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-473",
+"points":59103,
+"bbox":{ "min":[-1.093,-3.03765,-1.1495], "max":[-0.000100136,-2.07155,-1.0436]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-474",
+"points":5225,
+"bbox":{ "min":[-2.1857,-3.57515,-1.2293], "max":[-1.0931,-3.03775,-1.0468]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-475",
+"points":1942,
+"bbox":{ "min":[-2.1824,-3.66725,-1.0085], "max":[-1.0931,-3.04875,-0.8125]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-476",
+"points":10764,
+"bbox":{ "min":[-1.093,-4.00385,-1.0435], "max":[-0.000100136,-3.03935,-0.8125]},
+"children":null
+},
+{
+"parent":"node-47",
+"file":"node-477",
+"points":45043,
+"bbox":{ "min":[-1.093,-3.99865,-1.2558], "max":[-0.000100136,-3.03775,-1.0436]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-5",
+"points":64041,
+"bbox":{ "min":[-4.5922,-4.13615,0], "max":[-0.000100136,-5.05447e-005,1.6245]},
+"children":["node-50", "node-51", null, null, "node-54", "node-55", "node-56", "node-57"]
+},
+{
+"parent":"node-5",
+"file":"node-50",
+"points":13209,
+"bbox":{ "min":[-4.3268,-2.06805,0], "max":[-3.9774,-5.05447e-005,0.8122]},
+"children":null
+},
+{
+"parent":"node-5",
+"file":"node-51",
+"points":11449,
+"bbox":{ "min":[-4.327,-2.06805,0.8123], "max":[-3.7415,-0.00055027,1.6189]},
+"children":null
+},
+{
+"parent":"node-5",
+"file":"node-54",
+"points":23633,
+"bbox":{ "min":[-4.5903,-4.13615,0], "max":[-2.2962,-2.06815,0.8122]},
+"children":null
+},
+{
+"parent":"node-5",
+"file":"node-55",
+"points":20463,
+"bbox":{ "min":[-4.5688,-4.07555,0.8123], "max":[-2.2962,-2.06825,1.6227]},
+"children":null
+},
+{
+"parent":"node-5",
+"file":"node-56",
+"points":37328,
+"bbox":{ "min":[-2.296,-4.08515,0.8123], "max":[-0.000200272,-3.69515,1.6245]},
+"children":null
+},
+{
+"parent":"node-5",
+"file":"node-57",
+"points":57828,
+"bbox":{ "min":[-2.2961,-4.06445,0], "max":[-0.000100136,-2.95175,0.8122]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-6",
+"points":64000,
+"bbox":{ "min":[0,-4.10955,0], "max":[5.0552,-5.05447e-005,1.6247]},
+"children":["node-60", "node-61", "node-62", "node-63", "node-64", "node-65", "node-66", "node-67"]
+},
+{
+"parent":"node-6",
+"file":"node-60",
+"points":64201,
+"bbox":{ "min":[0.0705996,-2.05475,0], "max":[2.3967,-5.05447e-005,0.8123]},
+"children":["node-600", "node-601", "node-602", "node-603", "node-604", "node-605", null, null]
+},
+{
+"parent":"node-60",
+"file":"node-600",
+"points":10776,
+"bbox":{ "min":[0.0892,-1.02735,0.000100136], "max":[1.2283,-5.05447e-005,0.4061]},
+"children":null
+},
+{
+"parent":"node-60",
+"file":"node-601",
+"points":10048,
+"bbox":{ "min":[0.0798998,-1.02725,0.4062], "max":[1.2027,-5.05447e-005,0.8123]},
+"children":null
+},
+{
+"parent":"node-60",
+"file":"node-602",
+"points":8458,
+"bbox":{ "min":[1.2354,-1.02225,0.4062], "max":[2.3843,-5.05447e-005,0.8123]},
+"children":null
+},
+{
+"parent":"node-60",
+"file":"node-603",
+"points":8508,
+"bbox":{ "min":[1.2822,-0.81795,0.000100136], "max":[2.3967,-5.05447e-005,0.4061]},
+"children":null
+},
+{
+"parent":"node-60",
+"file":"node-604",
+"points":24931,
+"bbox":{ "min":[0.1037,-2.05475,0], "max":[1.1581,-1.02745,0.4061]},
+"children":null
+},
+{
+"parent":"node-60",
+"file":"node-605",
+"points":19457,
+"bbox":{ "min":[0.0997,-2.05475,0.4062], "max":[1.1465,-1.02745,0.8123]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-61",
+"points":64000,
+"bbox":{ "min":[0.1851,-2.05475,0.8124], "max":[2.4555,-5.05447e-005,1.622]},
+"children":["node-610", "node-611", null, "node-613", "node-614", "node-615", null, null]
+},
+{
+"parent":"node-61",
+"file":"node-610",
+"points":5764,
+"bbox":{ "min":[0.2192,-1.02735,0.8124], "max":[1.2576,-0.000849724,1.2171]},
+"children":null
+},
+{
+"parent":"node-61",
+"file":"node-611",
+"points":6371,
+"bbox":{ "min":[0.22,-1.02705,1.2172], "max":[1.1459,-0.000149727,1.6199]},
+"children":null
+},
+{
+"parent":"node-61",
+"file":"node-613",
+"points":1709,
+"bbox":{ "min":[1.3209,-0.63815,0.8124], "max":[1.3649,-5.05447e-005,0.9837]},
+"children":null
+},
+{
+"parent":"node-61",
+"file":"node-614",
+"points":8563,
+"bbox":{ "min":[0.1886,-2.05465,0.8124], "max":[1.1464,-1.02755,1.2171]},
+"children":null
+},
+{
+"parent":"node-61",
+"file":"node-615",
+"points":7246,
+"bbox":{ "min":[0.2365,-2.05465,1.2172], "max":[1.153,-1.02745,1.6218]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-62",
+"points":65337,
+"bbox":{ "min":[2.6996,-2.05465,0.8124], "max":[4.1751,-5.05447e-005,1.6137]},
+"children":[null, null, "node-622", "node-623", null, null, null, "node-627"]
+},
+{
+"parent":"node-62",
+"file":"node-622",
+"points":4809,
+"bbox":{ "min":[4.0443,-1.02715,1.2131], "max":[4.141,-5.05447e-005,1.6136]},
+"children":null
+},
+{
+"parent":"node-62",
+"file":"node-623",
+"points":10852,
+"bbox":{ "min":[3.8294,-1.02705,0.8124], "max":[4.1351,-0.000149727,1.213]},
+"children":null
+},
+{
+"parent":"node-62",
+"file":"node-627",
+"points":1613,
+"bbox":{ "min":[4.1156,-2.05335,0.8125], "max":[4.1516,-1.02835,1.2129]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-63",
+"points":64247,
+"bbox":{ "min":[2.7085,-2.05475,0], "max":[5.0552,-5.05447e-005,0.8123]},
+"children":["node-630", null, "node-632", "node-633", "node-634", "node-635", "node-636", "node-637"]
+},
+{
+"parent":"node-63",
+"file":"node-630",
+"points":3829,
+"bbox":{ "min":[3.6605,-1.02735,0.1908], "max":[3.8818,-0.94085,0.4061]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-632",
+"points":63119,
+"bbox":{ "min":[4.049,-1.02735,0.4062], "max":[4.1354,-5.05447e-005,0.8123]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-633",
+"points":66316,
+"bbox":{ "min":[3.8819,-1.02735,0], "max":[4.1354,-5.05447e-005,0.4061]},
+"children":[null, null, "node-6332", "node-6333", null, null, null, null]
+},
+{
+"parent":"node-633",
+"file":"node-6332",
+"points":3182,
+"bbox":{ "min":[4.1061,-0.51325,0.2033], "max":[4.12,-0.000249863,0.4061]},
+"children":null
+},
+{
+"parent":"node-633",
+"file":"node-6333",
+"points":2618,
+"bbox":{ "min":[4.1051,-0.51355,0], "max":[4.1197,-0.000149727,0.2029]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-634",
+"points":2825,
+"bbox":{ "min":[2.7085,-1.83065,0], "max":[3.8809,-1.02745,0.4061]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-635",
+"points":1628,
+"bbox":{ "min":[3.6802,-1.27885,0.4062], "max":[3.8818,-1.02745,0.5443]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-636",
+"points":6812,
+"bbox":{ "min":[3.8822,-2.05445,0.4063], "max":[5.0552,-1.02745,0.8123]},
+"children":null
+},
+{
+"parent":"node-63",
+"file":"node-637",
+"points":7089,
+"bbox":{ "min":[3.8831,-2.05475,0.000100136], "max":[4.1511,-1.02745,0.4061]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-64",
+"points":64000,
+"bbox":{ "min":[0,-4.09355,0], "max":[2.5275,-2.05485,0.8123]},
+"children":["node-640", "node-641", null, null, "node-644", "node-645", "node-646", "node-647"]
+},
+{
+"parent":"node-64",
+"file":"node-640",
+"points":41570,
+"bbox":{ "min":[0.1128,-3.07415,0], "max":[0.6633,-2.05485,0.4061]},
+"children":null
+},
+{
+"parent":"node-64",
+"file":"node-641",
+"points":26446,
+"bbox":{ "min":[0.1287,-3.07405,0.4062], "max":[0.5939,-2.05485,0.8123]},
+"children":null
+},
+{
+"parent":"node-64",
+"file":"node-644",
+"points":59475,
+"bbox":{ "min":[0,-3.98345,0], "max":[1.2637,-3.07425,0.4061]},
+"children":null
+},
+{
+"parent":"node-64",
+"file":"node-645",
+"points":36699,
+"bbox":{ "min":[0.000100136,-4.00785,0.4062], "max":[1.2637,-3.07425,0.8123]},
+"children":null
+},
+{
+"parent":"node-64",
+"file":"node-646",
+"points":46459,
+"bbox":{ "min":[1.2638,-3.97065,0.4062], "max":[2.5275,-3.76895,0.8123]},
+"children":null
+},
+{
+"parent":"node-64",
+"file":"node-647",
+"points":65466,
+"bbox":{ "min":[1.2638,-4.08075,0], "max":[2.5275,-3.76865,0.4061]},
+"children":["node-6470", "node-6471", "node-6472", "node-6473", null, null, null, null]
+},
+{
+"parent":"node-647",
+"file":"node-6470",
+"points":19451,
+"bbox":{ "min":[1.2638,-3.92465,0], "max":[1.8956,-3.76915,0.203]},
+"children":null
+},
+{
+"parent":"node-647",
+"file":"node-6471",
+"points":13229,
+"bbox":{ "min":[1.2639,-3.92245,0.2031], "max":[1.8956,-3.76945,0.4061]},
+"children":null
+},
+{
+"parent":"node-647",
+"file":"node-6472",
+"points":2388,
+"bbox":{ "min":[1.8957,-3.92465,0.2031], "max":[2.5275,-3.77795,0.4061]},
+"children":null
+},
+{
+"parent":"node-647",
+"file":"node-6473",
+"points":3002,
+"bbox":{ "min":[1.8958,-3.92465,0.000100136], "max":[2.5275,-3.77765,0.203]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-65",
+"points":64000,
+"bbox":{ "min":[0,-4.10955,0.8124], "max":[2.5275,-2.05485,1.6247]},
+"children":["node-650", "node-651", null, null, "node-654", "node-655", "node-656", "node-657"]
+},
+{
+"parent":"node-65",
+"file":"node-650",
+"points":16705,
+"bbox":{ "min":[0.1272,-3.08215,0.8124], "max":[0.880199,-2.05485,1.2185]},
+"children":null
+},
+{
+"parent":"node-65",
+"file":"node-651",
+"points":12653,
+"bbox":{ "min":[0.2555,-3.08215,1.2186], "max":[0.4018,-2.05485,1.6227]},
+"children":null
+},
+{
+"parent":"node-65",
+"file":"node-654",
+"points":19694,
+"bbox":{ "min":[0,-3.98475,0.8124], "max":[1.2637,-3.08225,1.2185]},
+"children":null
+},
+{
+"parent":"node-65",
+"file":"node-655",
+"points":14736,
+"bbox":{ "min":[0.00039959,-3.98495,1.2186], "max":[1.2637,-3.08225,1.6246]},
+"children":null
+},
+{
+"parent":"node-65",
+"file":"node-656",
+"points":6881,
+"bbox":{ "min":[1.2639,-3.97455,1.2186], "max":[2.5275,-3.77665,1.603]},
+"children":null
+},
+{
+"parent":"node-65",
+"file":"node-657",
+"points":16437,
+"bbox":{ "min":[1.2638,-4.10905,0.8124], "max":[2.5275,-3.77335,1.2185]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-66",
+"points":28051,
+"bbox":{ "min":[2.5276,-3.96805,0.8124], "max":[4.234,-2.05515,1.6097]},
+"children":null
+},
+{
+"parent":"node-6",
+"file":"node-67",
+"points":38252,
+"bbox":{ "min":[2.5276,-3.95035,0], "max":[4.2176,-2.05485,0.8123]},
+"children":null
+},
+{
+"parent":"node-root",
+"file":"node-7",
+"points":64000,
+"bbox":{ "min":[0,-4.00955,-1.1945], "max":[4.194,-5.05447e-005,-0.000100136]},
+"children":["node-70", "node-71", "node-72", "node-73", "node-74", "node-75", "node-76", "node-77"]
+},
+{
+"parent":"node-7",
+"file":"node-70",
+"points":66664,
+"bbox":{ "min":[0.000200272,-2.00475,-1.1662], "max":[2.0969,-5.05447e-005,-0.5974]},
+"children":[null, null, null, "node-703", null, null, "node-706", "node-707"]
+},
+{
+"parent":"node-70",
+"file":"node-703",
+"points":6387,
+"bbox":{ "min":[1.1082,-1.00225,-1.1169], "max":[2.0965,-5.05447e-005,-0.8821]},
+"children":null
+},
+{
+"parent":"node-70",
+"file":"node-706",
+"points":1705,
+"bbox":{ "min":[1.0491,-2.00455,-0.8813], "max":[2.0957,-1.00425,-0.5974]},
+"children":null
+},
+{
+"parent":"node-70",
+"file":"node-707",
+"points":3857,
+"bbox":{ "min":[1.0488,-2.00475,-1.0894], "max":[2.0962,-1.00295,-0.8823]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-71",
+"points":65387,
+"bbox":{ "min":[0,-2.00475,-0.5973], "max":[2.0968,-5.05447e-005,-0.000100136]},
+"children":[null, "node-711", "node-712", "node-713", "node-714", "node-715", null, "node-717"]
+},
+{
+"parent":"node-71",
+"file":"node-711",
+"points":1924,
+"bbox":{ "min":[0.00160027,-1.00225,-0.2984], "max":[0.2358,-0.00195026,-0.000299931]},
+"children":null
+},
+{
+"parent":"node-71",
+"file":"node-712",
+"points":2596,
+"bbox":{ "min":[1.0956,-1.00165,-0.2986], "max":[1.4409,-0.000149727,-0.000299931]},
+"children":null
+},
+{
+"parent":"node-71",
+"file":"node-713",
+"points":2142,
+"bbox":{ "min":[1.1039,-0.99775,-0.5973], "max":[1.3619,-0.000249863,-0.2989]},
+"children":null
+},
+{
+"parent":"node-71",
+"file":"node-714",
+"points":2706,
+"bbox":{ "min":[0.000100136,-2.00425,-0.5968], "max":[1.0477,-1.00285,-0.2988]},
+"children":null
+},
+{
+"parent":"node-71",
+"file":"node-715",
+"points":5475,
+"bbox":{ "min":[0.000299454,-2.00405,-0.2987], "max":[1.0476,-1.00305,-0.000199795]},
+"children":null
+},
+{
+"parent":"node-71",
+"file":"node-717",
+"points":1701,
+"bbox":{ "min":[1.0485,-2.00375,-0.5972], "max":[2.0968,-1.00295,-0.2998]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-72",
+"points":64007,
+"bbox":{ "min":[2.097,-2.00475,-0.5973], "max":[4.1585,-5.05447e-005,-0.000100136]},
+"children":[null, null, "node-722", "node-723", "node-724", "node-725", "node-726", "node-727"]
+},
+{
+"parent":"node-72",
+"file":"node-722",
+"points":21435,
+"bbox":{ "min":[4.0446,-1.00235,-0.2987], "max":[4.1352,-5.05447e-005,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-72",
+"file":"node-723",
+"points":11036,
+"bbox":{ "min":[4.0972,-1.00215,-0.5972], "max":[4.1354,-5.05447e-005,-0.2988]},
+"children":null
+},
+{
+"parent":"node-72",
+"file":"node-724",
+"points":6611,
+"bbox":{ "min":[2.0973,-2.00345,-0.5973], "max":[3.1277,-1.33615,-0.2988]},
+"children":null
+},
+{
+"parent":"node-72",
+"file":"node-725",
+"points":4229,
+"bbox":{ "min":[2.1189,-2.00455,-0.2987], "max":[3.1277,-1.47535,-0.143]},
+"children":null
+},
+{
+"parent":"node-72",
+"file":"node-726",
+"points":6050,
+"bbox":{ "min":[3.1281,-2.00465,-0.2987], "max":[4.1585,-1.00265,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-72",
+"file":"node-727",
+"points":9921,
+"bbox":{ "min":[3.1278,-2.00445,-0.5972], "max":[4.1451,-1.00265,-0.2988]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-73",
+"points":64865,
+"bbox":{ "min":[2.097,-2.00475,-1.1945], "max":[4.1509,-5.05447e-005,-0.5974]},
+"children":["node-730", null, "node-732", null, "node-734", "node-735", "node-736", "node-737"]
+},
+{
+"parent":"node-73",
+"file":"node-730",
+"points":13670,
+"bbox":{ "min":[2.097,-1.00225,-1.1308], "max":[3.1239,-0.000149727,-0.9424]},
+"children":null
+},
+{
+"parent":"node-73",
+"file":"node-732",
+"points":1702,
+"bbox":{ "min":[4.067,-1.00235,-0.8953], "max":[4.1379,-0.50045,-0.5974]},
+"children":null
+},
+{
+"parent":"node-73",
+"file":"node-734",
+"points":8205,
+"bbox":{ "min":[2.097,-1.89025,-1.084], "max":[3.1234,-1.00245,-0.903]},
+"children":null
+},
+{
+"parent":"node-73",
+"file":"node-735",
+"points":2324,
+"bbox":{ "min":[2.097,-1.51935,-0.8773], "max":[3.1234,-1.31285,-0.5974]},
+"children":null
+},
+{
+"parent":"node-73",
+"file":"node-736",
+"points":5393,
+"bbox":{ "min":[3.1242,-2.00355,-0.8959], "max":[4.1466,-1.00245,-0.5974]},
+"children":null
+},
+{
+"parent":"node-73",
+"file":"node-737",
+"points":10490,
+"bbox":{ "min":[3.1242,-2.00095,-1.1137], "max":[4.1508,-1.00245,-0.896]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-74",
+"points":64000,
+"bbox":{ "min":[0,-3.98415,-1.1625], "max":[2.0969,-2.00485,-0.5974]},
+"children":["node-740", "node-741", "node-742", "node-743", "node-744", "node-745", "node-746", "node-747"]
+},
+{
+"parent":"node-74",
+"file":"node-740",
+"points":23087,
+"bbox":{ "min":[0,-2.99445,-1.0888], "max":[1.0484,-2.00485,-0.88]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-741",
+"points":26276,
+"bbox":{ "min":[0,-2.99445,-0.8799], "max":[1.0482,-2.00575,-0.5974]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-742",
+"points":7675,
+"bbox":{ "min":[1.0489,-2.99435,-0.8799], "max":[1.9341,-2.00495,-0.5974]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-743",
+"points":35042,
+"bbox":{ "min":[1.0485,-2.99445,-1.0958], "max":[1.9621,-2.00485,-0.88]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-744",
+"points":42707,
+"bbox":{ "min":[0,-3.98405,-1.1434], "max":[1.0484,-2.99455,-0.88]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-745",
+"points":36964,
+"bbox":{ "min":[0.000100136,-3.98395,-0.8799], "max":[1.0484,-2.99455,-0.5974]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-746",
+"points":35421,
+"bbox":{ "min":[1.0485,-3.92085,-0.8799], "max":[2.0969,-2.99455,-0.5974]},
+"children":null
+},
+{
+"parent":"node-74",
+"file":"node-747",
+"points":5976,
+"bbox":{ "min":[1.0485,-3.93275,-1.1036], "max":[2.0969,-2.99455,-0.88]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-75",
+"points":64000,
+"bbox":{ "min":[0,-4.00955,-0.5973], "max":[2.0969,-2.00485,-0.000100136]},
+"children":["node-750", "node-751", null, "node-753", "node-754", "node-755", "node-756", "node-757"]
+},
+{
+"parent":"node-75",
+"file":"node-750",
+"points":38110,
+"bbox":{ "min":[0,-3.00715,-0.5973], "max":[1.0484,-2.00485,-0.2988]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-751",
+"points":40896,
+"bbox":{ "min":[0.000800133,-3.00715,-0.2987], "max":[1.0102,-2.00485,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-753",
+"points":17501,
+"bbox":{ "min":[1.0486,-3.00715,-0.5973], "max":[2.0969,-2.00485,-0.3058]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-754",
+"points":56590,
+"bbox":{ "min":[0.000100136,-4.00145,-0.5973], "max":[1.0484,-3.00725,-0.2988]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-755",
+"points":59627,
+"bbox":{ "min":[0,-3.98885,-0.2987], "max":[1.0484,-3.00725,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-756",
+"points":64000,
+"bbox":{ "min":[1.0485,-4.00955,-0.2987], "max":[2.0969,-3.77105,-0.000100136]},
+"children":["node-7560", "node-7561", "node-7562", "node-7563", "node-7564", "node-7565", "node-7566", "node-7567"]
+},
+{
+"parent":"node-756",
+"file":"node-7560",
+"points":7549,
+"bbox":{ "min":[1.0485,-3.89015,-0.2987], "max":[1.5182,-3.77395,-0.1495]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7561",
+"points":7985,
+"bbox":{ "min":[1.0485,-3.89025,-0.1494], "max":[1.5157,-3.77105,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7562",
+"points":7723,
+"bbox":{ "min":[1.5974,-3.89025,-0.1494], "max":[2.0969,-3.78305,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7563",
+"points":7266,
+"bbox":{ "min":[1.5918,-3.89025,-0.2987], "max":[2.0969,-3.78315,-0.1495]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7564",
+"points":2202,
+"bbox":{ "min":[1.055,-4.00375,-0.2986], "max":[1.5727,-3.89035,-0.1495]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7565",
+"points":2686,
+"bbox":{ "min":[1.0543,-3.94065,-0.1493], "max":[1.5727,-3.89035,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7566",
+"points":3146,
+"bbox":{ "min":[1.5729,-3.92935,-0.1494], "max":[1.8297,-3.89035,-0.000100136]},
+"children":null
+},
+{
+"parent":"node-756",
+"file":"node-7567",
+"points":2817,
+"bbox":{ "min":[1.5728,-3.92835,-0.2987], "max":[1.8306,-3.89035,-0.1495]},
+"children":null
+},
+{
+"parent":"node-75",
+"file":"node-757",
+"points":64669,
+"bbox":{ "min":[1.0485,-4.00165,-0.5973], "max":[2.0969,-3.00725,-0.2988]},
+"children":[null, null, null, "node-7573", "node-7574", "node-7575", "node-7576", "node-7577"]
+},
+{
+"parent":"node-757",
+"file":"node-7573",
+"points":2155,
+"bbox":{ "min":[1.8375,-3.24535,-0.5973], "max":[2.0961,-3.00745,-0.4481]},
+"children":null
+},
+{
+"parent":"node-757",
+"file":"node-7574",
+"points":2650,
+"bbox":{ "min":[1.0489,-3.95215,-0.5973], "max":[1.5727,-3.77105,-0.4481]},
+"children":null
+},
+{
+"parent":"node-757",
+"file":"node-7575",
+"points":3923,
+"bbox":{ "min":[1.0488,-4.00165,-0.448], "max":[1.5727,-3.77375,-0.2988]},
+"children":null
+},
+{
+"parent":"node-757",
+"file":"node-7576",
+"points":4029,
+"bbox":{ "min":[1.5728,-3.92335,-0.448], "max":[2.0967,-3.78495,-0.2988]},
+"children":null
+},
+{
+"parent":"node-757",
+"file":"node-7577",
+"points":2858,
+"bbox":{ "min":[1.5728,-3.92095,-0.5973], "max":[2.0968,-3.78435,-0.4481]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-76",
+"points":70579,
+"bbox":{ "min":[2.097,-3.96105,-0.5973], "max":[4.1929,-2.00485,-0.000100136]},
+"children":[null, null, null, null, "node-764", "node-765", null, null]
+},
+{
+"parent":"node-76",
+"file":"node-764",
+"points":3744,
+"bbox":{ "min":[2.097,-3.95325,-0.5971], "max":[3.1444,-2.98305,-0.2989]},
+"children":null
+},
+{
+"parent":"node-76",
+"file":"node-765",
+"points":1725,
+"bbox":{ "min":[2.097,-3.95315,-0.2986], "max":[3.1434,-3.77635,-0.000400066]},
+"children":null
+},
+{
+"parent":"node-7",
+"file":"node-77",
+"points":66129,
+"bbox":{ "min":[2.097,-3.95395,-1.1121], "max":[4.194,-2.00485,-0.5974]},
+"children":[null, null, null, null, "node-774", null, null, null]
+},
+{
+"parent":"node-77",
+"file":"node-774",
+"points":4225,
+"bbox":{ "min":[2.097,-3.95355,-1.0856], "max":[3.1438,-2.98055,-0.8551]},
+"children":null
+}
+]
