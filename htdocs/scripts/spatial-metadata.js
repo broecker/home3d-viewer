@@ -29,6 +29,7 @@ metadata.load = function(jsonUrl) {
 	metadata.items = [];
 	metadata.alignmentMatrix = mat4.create();
 	metadata.ceiling = -1;
+	metadata.floor = 0;
 
 	// parse json file here
 	var xmlhttp = new XMLHttpRequest();
@@ -48,10 +49,11 @@ metadata.load = function(jsonUrl) {
 				// create oriented bounding boxes
 				var bbox = obb.create();
 				bbox.position = metadata.items[i].bbox_position;
+
 				bbox.halfBounds = metadata.items[i].bbox_scale;
 				bbox.xAxis = metadata.items[i].bbox_axis_x;
-				bbox.yAxis = metadata.items[i].bbox_axis_y;
-				bbox.zAxis = metadata.items[i].bbox_axis_z;
+				bbox.zAxis =-metadata.items[i].bbox_axis_y;
+				bbox.yAxis = metadata.items[i].bbox_axis_z;
 
 				
 				bbox.matrix = mat4.create();
@@ -70,8 +72,10 @@ metadata.load = function(jsonUrl) {
 
 
 				// create the AAT link from the AAT id
-				metadata.items[i].aat_link = "http://www.getty.edu/vow/AATFullDisplay?find=stove&logic=AND&note=&english=N&prev_page=1&subjectid=" + metadata.items[i].aat_id.toString()
-			
+				var itemNo = metadata.items[i].aat_id;
+
+				metadata.items[i].aat_link = 'http://www.getty.edu/vow/AATFullDisplay?find=' + itemNo;
+				metadata.items[i].aat_link +='&logic=AND&note=&english=N&prev_page=1&subjectid=' + itemNo;
 
 				// also append the text to the document
 
@@ -110,6 +114,7 @@ metadata.load = function(jsonUrl) {
 			var mdb = document.getElementById("mdbutton");
 
 			if (bbar && mdb)
+	
 				bbar.removeChild(mdb);
 		}
 
@@ -142,6 +147,9 @@ metadata.loadRegistration = function(jsonUrl) {
 			if (items.ceiling != undefined)
 				metadata.ceiling = items.ceiling;
 
+			if (items.floor != undefined)
+				metadata.floor = items.floor;
+
 		}
 
 		if (xmlhttp.status == 404) { 
@@ -160,9 +168,8 @@ metadata.loadRegistration = function(jsonUrl) {
 
 metadata.draw = function(shader) {
 
-	if (shader === undefined)
+	if (!shader)
 		return;
-
 
 	for (var e in metadata.items) { 
 		
@@ -191,10 +198,9 @@ metadata.drawText = function() {
 		var item = metadata.items[e];
 
 
-		var c = item.bbox.position; //aabb.getCentroid(item.bbox);
+		var c = item.bbox.position; 
 		var v = vec4.fromValues(c[0], c[1], c[2], 1);
 
-	    //vec4.transformMat4(v, v, renderer.modelViewProjection);
 		vec4.transformMat4(v, v, m);
 	     
 	   

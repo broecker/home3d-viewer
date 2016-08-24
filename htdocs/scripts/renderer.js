@@ -245,16 +245,20 @@ window.renderer = {
         if (this.camera.isMoving && (!shaders.objectShader === null))
             camera.drawFocus(this.camera, shaders.objectShader, this.projMatrix, this.viewMatrix);
 
-
         shader = shaders.gridShader;
-        if (this.enableBBoxes && geometry.octree && !(shader === null)) { 
-            octree.drawBBoxes(geometry.octree, shader);
-        }
+        if (shader) {
+            gl.useProgram(shader);
+        
 
+            if (this.enableBBoxes && geometry.octree) { 
+                octree.drawBBoxes(geometry.octree, shader);
+            }
 
+            if (this.enableMetadata) {
+                gl.uniform3f(shader.colorUniform, 0.7, 0.9, 0);
+                metadata.draw(shader);
+            }
 
-        if (this.enableMetadata) { 
-            metadata.draw(shader);
         }
 
 

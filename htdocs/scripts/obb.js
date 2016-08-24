@@ -66,6 +66,34 @@ obb.getCentroid = function(bbox) {
 }
 
 
+obb.extractVertices = function(bbox) { 
+
+	var x = bbox.xAxis;
+	var y = bbox.yAxis;
+	var z = bbox.zAxis;
+	var d = bbox.halfBounds;
+
+	var p = bbox.position;
+
+	// X Y Z
+	var bboxVertices = [ 	p[0] -(x[0]+y[0]+z[1])*d[0], p[1]-(x[1]+y[1]+z[1])*d[1], p[2]-(x[2]+y[2]+z[2])*d[2],
+							p[0] -(x[0]+y[0]+z[1])*d[0], p[1]-(x[1]+y[1]+z[1])*d[1], p[2]+(x[2]+y[2]+z[2])*d[2],
+							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]-(x[1]+y[1]+z[1])*d[1], p[2]+(x[2]+y[2]+z[2])*d[2],
+							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]-(x[1]+y[1]+z[1])*d[1], p[2]-(x[2]+y[2]+z[2])*d[2],
+							p[0] -(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]-(x[2]+y[2]+z[2])*d[2],
+							p[0] -(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]+(x[2]+y[2]+z[2])*d[2],
+							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]+(x[2]+y[2]+z[2])*d[2],
+							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]-(x[2]+y[2]+z[2])*d[2] ];
+
+
+	//debugger;
+	console.log(bboxVertices);
+
+	return bboxVertices;
+
+}
+
+
 obb.draw = function(bbox, shader) { 
 
 	  // 'pseudo static' -- check if the unchanging variables have been initialized (once)
@@ -87,7 +115,7 @@ obb.draw = function(bbox, shader) {
 
     obb.vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.DYNAMIC_DRAW);
     
     obb.indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
@@ -96,6 +124,10 @@ obb.draw = function(bbox, shader) {
   }
 
   gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
+  // update vertices
+  var bboxVertices = obb.extractVertices(bbox);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.DYNAMIC_DRAW);
+
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
 

@@ -365,8 +365,6 @@ octree.updateLOD = function(tree, cameraPosition) {
 octree.drawBBoxes = function(tree, shader) {
 
 
-	console.log(shader);
-
 	if (tree.visible == 0)
 		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);
 	else if (tree.visible == 2)
@@ -377,7 +375,7 @@ octree.drawBBoxes = function(tree, shader) {
 	if (tree.children != null && tree.depth < octree.maxRecursion)
 		for (var i = 0; i < tree.children.length; ++i) 
 			octree.drawBBoxes(tree.children[i], shader);
-	//else
+ 	//else
 		aabb.drawAABB(tree.bbox, shader);
 }
 
