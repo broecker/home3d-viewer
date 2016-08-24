@@ -85,9 +85,7 @@ obb.extractVertices = function(bbox) {
 							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]+(x[2]+y[2]+z[2])*d[2],
 							p[0] +(x[0]+y[0]+z[1])*d[0], p[1]+(x[1]+y[1]+z[1])*d[1], p[2]-(x[2]+y[2]+z[2])*d[2] ];
 
-
-	//debugger;
-	console.log(bboxVertices);
+	//console.log(bboxVertices);
 
 	return bboxVertices;
 
@@ -115,22 +113,13 @@ obb.draw = function(bbox, shader) {
 
     obb.vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.STATIC_DRAW);
     
     obb.indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(bboxIndices), gl.STATIC_DRAW);
     
   }
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
-  // update vertices
-  var bboxVertices = obb.extractVertices(bbox);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bboxVertices), gl.DYNAMIC_DRAW);
-
-  gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
-
 
   // setup shader
   gl.useProgram(shader);
@@ -142,8 +131,15 @@ obb.draw = function(bbox, shader) {
   gl.uniform3f(shader.axisZUniform, bbox.zAxis[0], bbox.zAxis[1], bbox.zAxis[2]);
   gl.uniform3f(shader.scaleUniform, bbox.halfBounds[0], bbox.halfBounds[1], bbox.halfBounds[2]);
 	
+  gl.uniform3f(shader.colorUniform, 0.6, 0.9, 0.2);
+
   gl.uniformMatrix4fv(shader.bboxMatrixUniform, false, bbox.matrix);;
   gl.uniformMatrix4fv(shader.registrationMatrixUniform, false, metadata.alignmentMatrix);		
+
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
+  gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obb.indexBuffer);
 
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   

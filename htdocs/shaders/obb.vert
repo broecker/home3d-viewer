@@ -2,17 +2,17 @@ attribute vec3 positionIn;
 
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
-uniform mat4 bboxMatrix;
 uniform mat4 registrationMatrix;
+
+uniform vec3 axisX;
+uniform vec3 axisY;
+uniform vec3 axisZ;
+uniform vec3 scale;
+uniform vec3 position;
 
 void main()
 {
-	vec3 v = positionIn.xzy * 0.5;
-	v *= vec3(1.0, -1.0, 1.0);
-
-	v = positionIn.xyz * 0.5;;
-
-	gl_Position = projMatrix * viewMatrix * registrationMatrix * bboxMatrix * vec4(v, 1.0); 
+	gl_Position = projMatrix * viewMatrix * registrationMatrix * vec4(positionIn.xyz, 1.0); 
 	gl_PointSize = 1.0;
 
 }

@@ -31,7 +31,7 @@ window.renderer = {
         this.enableGrid = false;
         this.enableBBoxes = false;
         this.enableFXAA = true;
-        this.enableMetadata = false;
+        this.enableMetadata = true;
 
         this.camera = camera.createOrbitalCamera();
         this.camera.radius = 20.0;        
@@ -237,35 +237,34 @@ window.renderer = {
             gl.depthFunc(gl.LEQUAL);
         }
 
-        // draw all static elements ... 
-        if (this.enableGrid && !(shaders.gridShader === null))
-            geometry.drawGrid();
 
+
+        
+        // draw all static elements ... 
+        if (this.enableBBoxes && geometry.octree && shaders.gridShader) { 
+
+            gl.useProgram(shaders.gridShader);
+            octree.drawBBoxes(geometry.octree, shaders.gridShader);
+        }
+
+        if (this.enableGrid && shaders.gridShader)
+            geometry.drawGrid();
+        /*
         //if (global.mouse.button[0] || global.mouse.button[2])
         if (this.camera.isMoving && (!shaders.objectShader === null))
             camera.drawFocus(this.camera, shaders.objectShader, this.projMatrix, this.viewMatrix);
-
-        shader = shaders.gridShader;
-        if (shader) {
-            gl.useProgram(shader);
+        */
         
 
-            if (this.enableBBoxes && geometry.octree) { 
-                octree.drawBBoxes(geometry.octree, shader);
-            }
-
-            if (this.enableMetadata) {
-                gl.uniform3f(shader.colorUniform, 0.7, 0.9, 0);
-                metadata.draw(shader);
-            }
-
-        }
+        if (this.enableMetadata && !(shaders.obbShader === null)) {
+            metadata.draw(shaders.obbShader);
+        } 
+        
 
 
         framebuffer.disable(this.renderTarget);
         gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
-
-        
+   
 
 
     },
@@ -328,24 +327,6 @@ window.renderer = {
         }
 
         if (renderer.enableMetadata) { 
-        
-
-            /*
-            // draw oriented bboxes here
-            shader = shaders.obbShader;
-            if (shader) {
-
-                gl.useProgram(shader);
-                gl.uniform3f(shader.colorUniform, 1, 0, 0);
-                gl.uniformMatrix4fv(shader.projMatrixUniform, false, this.projMatrix);
-                gl.uniformMatrix4fv(shader.viewMatrixUniform, false, this.viewMatrix);
-
-
-                metadata.draw(shader);
-
-            }
-            */
-
             // update and draw the text labels 
             metadata.drawText();
 

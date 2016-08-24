@@ -51,9 +51,16 @@ metadata.load = function(jsonUrl) {
 				bbox.position = metadata.items[i].bbox_position;
 
 				bbox.halfBounds = metadata.items[i].bbox_scale;
-				bbox.xAxis = metadata.items[i].bbox_axis_x;
-				bbox.zAxis =-metadata.items[i].bbox_axis_y;
-				bbox.yAxis = metadata.items[i].bbox_axis_z;
+				
+				var ax = metadata.items[i].bbox_axis_x;
+				var ay = metadata.items[i].bbox_axis_y;
+				var az = metadata.items[i].bbox_axis_z;
+
+				bbox.xAxis = [ax[0], ax[2], -ax[1]];
+				bbox.yAxis = [ay[0], ay[2], -ay[1]];
+				bbox.zAxis = [az[0], az[2], -az[1]];
+
+				bbox.name = "OrientedBoundingBox";
 
 				
 				bbox.matrix = mat4.create();
