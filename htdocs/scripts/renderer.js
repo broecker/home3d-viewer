@@ -22,12 +22,16 @@
 */
 
 
+
 // basic webgl renderer harness rewrite
 
 window.renderer = {
 
+
     // creates the member variables and initializes them
     init : function() {
+        "use strict";
+
         this.enableGrid = false;
         this.enableBBoxes = false;
         this.enableFXAA = true;
@@ -61,38 +65,47 @@ window.renderer = {
 
     
     toggleGrid : function() {
+        "use strict";
         this.enableGrid = !this.enableGrid;
         this.updateVisibilityFlag = true;
     },
 
     toggleBBoxes : function() {
+        "use strict";
         this.enableBBoxes = !this.enableBBoxes;
         this.updateVisibilityFlag = true;
     },
 
     toggleFXAA : function() {
+        "use strict";
         this.enableFXAA = !this.enableFXAA;
     },
 
 
     resetCamera : function() {
-      this.camera = camera.createOrbitalCamera();
-      this.camera.radius = 20.0;
+        "use strict";
+        this.camera = camera.createOrbitalCamera();
+        this.camera.radius = 20.0;
     },
 
     startCameraMove : function() {
-      this.camera.isMoving = true;
-      this.renderTargetResolution.old = this.renderTargetResolution;
-      framebuffer.resize(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
+        "use strict";
+
+        this.camera.isMoving = true;
+        this.renderTargetResolution.old = this.renderTargetResolution;
+        framebuffer.resize(this.renderTarget, [this.renderTargetResolution[0]/2, this.renderTargetResolution[1]/2]);
     },
 
     stopCameraMove : function() {
-      this.camera.isMoving = false;
-      this.updateVisibilityFlag = true;
-      framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
+        "use strict";
+
+        this.camera.isMoving = false;
+        this.updateVisibilityFlag = true;
+        framebuffer.resize(this.renderTarget, this.renderTargetResolution.old);
     },
 
     updateCamera : function() {
+        "use strict";
 
         this.camera.aspect = this.viewport[2] / this.viewport[3]; //canvas.clientWidth / canvas.clientHeight;
 
@@ -108,7 +121,7 @@ window.renderer = {
 
 
     updateVisibleList : function() {
-
+        "use strict";
         this.visibleList = [];
 
 
@@ -156,35 +169,42 @@ window.renderer = {
 
     // displays the renderer content
     drawRenderTarget : function() {
-        // display the fbo 
+        "use strict";
+
+        // display the fbo
         gl.disable(gl.DEPTH_TEST);
 
-        shader = shaders.quadShader;
-        if (shader === null)
+        var shader = shaders.quadShader;
+        if (shader === null) {
             return;
+        }
 
         gl.viewport(this.viewport[0], this.viewport[1], this.viewport[2], this.viewport[3]);
 
-        if (this.enableFXAA && !this.camera.isMoving && !(shaders.fxaaShader === null))
-        shader = shaders.fxaaShader;
+        if (this.enableFXAA && !this.camera.isMoving && !(shaders.fxaaShader === null)) {
 
-        gl.useProgram(shader);
-        gl.activeTexture(gl.TEXTURE0);
+            shader = shaders.fxaaShader;
 
-        gl.bindTexture(gl.TEXTURE_2D, this.renderTarget.texture);
-        gl.uniform1i(shader.colormapUniform, 0);
-        gl.uniform2f(shader.resolutionUniform, this.renderTarget.width, this.renderTarget.height);
+            gl.useProgram(shader);
+            gl.activeTexture(gl.TEXTURE0);
 
-        geometry.drawFullscreenQuad(shader);
+            gl.bindTexture(gl.TEXTURE_2D, this.renderTarget.texture);
+            gl.uniform1i(shader.colormapUniform, 0);
+            gl.uniform2f(shader.resolutionUniform, this.renderTarget.width, this.renderTarget.height);
 
+            geometry.drawFullscreenQuad(shader);
+
+        }
     },
 
 
     requestNewFrame : function() {
+        "use strict";
         this.updateVisibilityFlag = true;
     },
 
     draw : function() {
+        "use strict";
 
         if (this.drawCallCounter === undefined)
             this.drawCallCounter = 0;
@@ -219,7 +239,7 @@ window.renderer = {
 
         // also clear the fbo
         gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-        gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], 1.0); 
+        gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], 1.0);
 
         // draw the skybox
         if (!(shaders.skyboxShader === null)) {
@@ -240,8 +260,8 @@ window.renderer = {
 
 
         
-        // draw all static elements ... 
-        if (this.enableBBoxes && geometry.octree && shaders.gridShader) { 
+        // draw all static elements ...
+        if (this.enableBBoxes && geometry.octree && shaders.gridShader) {
 
             gl.useProgram(shaders.gridShader);
             octree.drawBBoxes(geometry.octree, shaders.gridShader);
