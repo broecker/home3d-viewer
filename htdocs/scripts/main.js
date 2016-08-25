@@ -170,7 +170,7 @@ function handleMouseDown(event) {
 function handleMouseUp(event) {
   "use strict";
   global.mouse.button[event.button] = false;
-  renderer.stopCameraMove();
+  window.renderer.stopCameraMove();
 
 }
 
@@ -217,6 +217,7 @@ function handleMouseWheel(event) {
   camera.moveTowardsTarget(renderer.camera, delta);
 
   window.renderer.udpateVisibilityFlag = true;
+ // window.renderer.stopCameraMove();
 }
 
 
