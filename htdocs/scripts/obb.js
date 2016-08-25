@@ -22,12 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	mat4, vec3, vec4, renderer, gl, metadata
+*/
+
 var obb = obb || {};
 
 
 // creates an oriented bounding box
 // Make sure that the axis vectors are orthonormal
 obb.create = function() { 
+	"use strict";
 	var bbox = {
 		position : vec3.create(),
 		xAxis : vec3.fromValues(1,0,0),
@@ -37,9 +42,10 @@ obb.create = function() {
 	};
 
 	return bbox;
-}
+};
 
 obb.getMatrix = function(bbox) { 
+	"use strict";
 	var m = mat4.create();
 
 	m[0] = bbox.xAxis[0];
@@ -62,12 +68,13 @@ obb.getMatrix = function(bbox) {
 
 
 obb.getCentroid = function(bbox) { 
+	"use strict";
 	return bbox.position;
-}
+};
 
 
 obb.extractVertices = function(bbox) { 
-
+	"use strict";
 	var x = bbox.xAxis;
 	var y = bbox.yAxis;
 	var z = bbox.zAxis;
@@ -89,12 +96,12 @@ obb.extractVertices = function(bbox) {
 
 	return bboxVertices;
 
-}
+};
 
 
 obb.draw = function(bbox, shader) { 
-
-	  // 'pseudo static' -- check if the unchanging variables have been initialized (once)
+	"use strict";
+	 // 'pseudo static' -- check if the unchanging variables have been initialized (once)
   if (obb.vertexBuffer === undefined) {
     console.log("creating OBB vertex buffers ");
     
@@ -133,12 +140,12 @@ obb.draw = function(bbox, shader) {
   gl.uniform3f(shader.scaleUniform, bbox.halfBounds[0], bbox.halfBounds[1], bbox.halfBounds[2]);
  
  
-  gl.uniformMatrix4fv(shader.bboxMatrixUniform, false, bbox.matrix);;
+  gl.uniformMatrix4fv(shader.bboxMatrixUniform, false, bbox.matrix);
   gl.uniformMatrix4fv(shader.registrationMatrixUniform, false, metadata.alignmentMatrix);		
   
   gl.uniform3f(shader.colorUniform, 0.6, 0.9, 0.2);
-  gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);;
-  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);;
+  gl.uniformMatrix4fv(shader.projMatrixUniform, false, renderer.projMatrix);
+  gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
 
 
   gl.bindBuffer(gl.ARRAY_BUFFER, obb.vertexBuffer);
@@ -152,11 +159,11 @@ obb.draw = function(bbox, shader) {
 
 // checks if the given point [vec4] is inside the bbox
 obb.isInside = function(bbox, pt) { 
-
-	var m = oob.getMatrix(bbox);
+	"use strict";
+	var m = obb.getMatrix(bbox);
 	mat4.invert(m, m);
 	var p = vec4.create();
-	vec4.transformMat4(p, bbox._inverseTransform, pt);
+	vec4.transformMat4(p, bbox.inverseTransform, pt);
 
 	return (p.x >= -1 && p.x <= 1 &&
 			p.y >= -1 && p.y <= 1 &&
