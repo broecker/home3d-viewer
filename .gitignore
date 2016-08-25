@@ -15,6 +15,10 @@
 
 # Fortran module files
 *.mod
+<<<<<<< HEAD
+=======
+*.smod
+>>>>>>> github/master
 
 # Compiled Static libraries
 *.lai
