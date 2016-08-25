@@ -22,12 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+  renderer, metadata, window, camera, ReImg,NProgress, octree, shader, Stats
+*/
 
 var canvas;
 var gl = null; // A global variable for the WebGL context
 
-
-var arrow = null;
 
 // store global variables
 var global = global || {};
@@ -47,32 +48,42 @@ var geometry = geometry || {};
 geometry.grid = null;
 
 window.mobilecheck = function() {
+  "use strict";
+  /*
   var check = false;
   (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
   return check;
-}
+  */
+
+  return false;
+};
 
 window.IE11check = function() { 
+  "use strict";
   return (!(window.ActiveXObject) && "ActiveXObject" in window);
-}
+};
 
 
 function isMobile() {
+    "use strict";
     if (navigator.userAgent.match(/Android/i)
             || navigator.userAgent.match(/iPhone/i)
             || navigator.userAgent.match(/iPad/i)
             || navigator.userAgent.match(/iPod/i)
             || navigator.userAgent.match(/BlackBerry/i)
-            || navigator.userAgent.match(/Windows Phone/i)
-            || navigator.userAgent.match(/Opera Mini/i)
+            || navigator.userAgent.match(/Windows\ Phone/i)
+            || navigator.userAgent.match(/Opera\ Mini/i)
             || navigator.userAgent.match(/IEMobile/i)
             ) {
         return true;
     }
+
+    return false;
 }
 
 // initializes the canvas and webgl
 function initWebGL(canvas) {  
+  "use strict";
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
     gl = canvas.getContext("webgl", {preserveDrawingBuffer : true}) || canvas.getContext("experimental-webgl", {preserveDrawingBuffer : true});
@@ -87,7 +98,7 @@ function initWebGL(canvas) {
   
   // If we don't have a GL context, give up now
   if (!gl) {
-    alert("Unable to initialize WebGL. Your browser may not support it.");
+    console.error("Unable to initialize WebGL. Your browser may not support it.");
     gl = null;
   }
   
@@ -96,10 +107,11 @@ function initWebGL(canvas) {
 
 // resizes the canvas to fill the whole window
 function resizeCanvas() {
+  "use strict";
   var width = canvas.clientWidth;
   var height = canvas.clientHeight;
   
-  if (canvas.width != width || canvas.height != height) {
+  if (canvas.width !== width || canvas.height !== height) {
 
     // Change the size of the canvas to match the size being displayed
     canvas.width = width;
@@ -108,29 +120,30 @@ function resizeCanvas() {
   } 
 
   gl.viewport(0, 0, width, height);
-  renderer.resize([0, 0, width, height])
+  renderer.resize([0, 0, width, height]);
 
   //console.log("Resizing canvas to " + width + "x" + height);
 }
 
 
+/*
 function tick() {
-
-
+  "use strict";
   var time = new Date().getTime();
-  
+ 
   if (tick.lastTime !== 0) {
     var dt = (time - tick.lastTime) / 1000.0;
-
   }
   tick.lastTime = time;
   
 }
+*/
 
 function loop() {
+  "use strict";
   global.stats.begin();
 
-  tick();
+  //tick();
 
   renderer.draw();
   renderer.drawRenderTarget(); 
@@ -144,6 +157,7 @@ function loop() {
 
 // mouse callback functions follow .... 
 function handleMouseDown(event) {
+  "use strict";
   event.preventDefault();
 
   global.mouse.button[event.button] = true;
@@ -154,12 +168,14 @@ function handleMouseDown(event) {
 }
 
 function handleMouseUp(event) {
+  "use strict";
   global.mouse.button[event.button] = false;
   renderer.stopCameraMove();
 
 }
 
 function handleMouseMotion(event) {
+  "use strict";
   var mousePosition = [event.clientX, event.clientY];
 
   var deltaX = (mousePosition[0] - global.mouse.lastPosition[0]) / canvas.clientWidth;
@@ -173,12 +189,15 @@ function handleMouseMotion(event) {
 
   if (global.mouse.button[0]) {
 
-    if (global.shiftHeld === true) 
+    if (global.shiftHeld === true)  {
       camera.pan(renderer.camera, deltaX*4.0, -deltaY*4.0);
-    else if (global.ctrlHeld === true)
+    }
+    else if (global.ctrlHeld === true) {
       camera.moveTowardsTarget(renderer.camera, deltaY*10);
-    else
+    }
+    else {
       camera.rotateAroundTarget(renderer.camera, deltaY*Math.PI, -deltaX*Math.PI);
+    }
   }
 
   else if (global.mouse.button[1]) {
@@ -193,8 +212,8 @@ function handleMouseMotion(event) {
 }
 
 function handleMouseWheel(event) {
-  
-  var delta = event.wheelDelta* 0.05;;
+  "use strict";
+  var delta = event.wheelDelta* 0.05;
   camera.moveTowardsTarget(renderer.camera, delta);
 
   window.renderer.udpateVisibilityFlag = true;
@@ -203,6 +222,7 @@ function handleMouseWheel(event) {
 
 // touch callback functions follow .... 
 function handleTouchStart(event) {
+  "use strict";
   event.preventDefault();
 
   global.mouse.button[0] = true;
@@ -217,6 +237,7 @@ function handleTouchStart(event) {
 }
 
 function handleTouchEnd(event) {
+  "use strict";
   global.mouse.button[event.button] = false;
 
   global.touches = event.targetTouches;
@@ -225,14 +246,15 @@ function handleTouchEnd(event) {
 }
 
 function handleTouchMove(event) {
+  "use strict";
 
+  var mousePosition = [0, 0];
 
   // rotation
-  if (event.targetTouches.length == 1) {
+  if (event.targetTouches.length === 1) {
 
     var touch = event.targetTouches[0];
-
-    var mousePosition = [canvas.clientWidth-touch.pageX, touch.pageY];
+    mousePosition = [canvas.clientWidth-touch.pageX, touch.pageY];
 
     var deltaX = (mousePosition[0] - global.mouse.lastPosition[0]) / canvas.clientWidth;
     var deltaY = (mousePosition[1] - global.mouse.lastPosition[1]) / canvas.clientHeight;
@@ -245,7 +267,8 @@ function handleTouchMove(event) {
   } else {
 
     var center =  {minx:event.targetTouches[0].pageX, maxx:event.targetTouches[0].pageX, miny:event.targetTouches[0].pageY, maxy:event.targetTouches[0].pageY};
-    for (var i = 1; i < event.targetTouches.length; ++i) {
+    var i = 0;
+    for (i = 1; i < event.targetTouches.length; i += 1) {
       
       center.minx = Math.min(center.minx, event.targetTouches[i].pageX);
       center.maxx = Math.max(center.maxx, event.targetTouches[i].pageX);
@@ -257,14 +280,15 @@ function handleTouchMove(event) {
     delta = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1]);
 
 
-    var center = [(center.maxx+center.minx)*0.5, (center.maxy+center.miny)*0.5];
+    center = [(center.maxx+center.minx)*0.5, (center.maxy+center.miny)*0.5];
 
 
     var mode = 'pan';
-    if (delta > 100.0)
+    if (delta > 100.0) {
       mode = 'zoom';
+    }
 
-    if (global.prevTouchCenter != undefined && mode === 'pan') {
+    if (global.prevTouchCenter !== undefined && mode === 'pan') {
 
       var move = [center[0] - global.prevTouchCenter[0], center[1] - global.prevTouchCenter[1]]; 
       move[0] *= 0.01;
@@ -276,7 +300,7 @@ function handleTouchMove(event) {
 
     }
 
-    if (global.prevTouchDelta != undefined && mode === 'zoom') { 
+    if (global.prevTouchDelta !== undefined && mode === 'zoom') { 
 
       var factor = global.prevTouchDelta-delta;
       camera.moveTowardsTarget(renderer.camera, factor*0.01);
@@ -300,100 +324,119 @@ function handleTouchMove(event) {
 
 
 function increaseDetail() { 
-  ++octree.maxRecursion;
+  "use strict";
+  octree.maxRecursion += 1;
   renderer.udpateVisibilityFlag =  true;
 }
 
 function decreaseDetail() { 
-  -- octree.maxRecursion;
-  if (octree.maxRecursion < 1)
+  "use strict";
+  octree.maxRecursion -=1;
+  if (octree.maxRecursion < 1) {
     octree.maxRecursion = 1; 
+  }
 
   window.renderer.udpateVisibilityFlag = true;
 }
 
 
 function handleKeydown(event) { 
-
+  "use strict";
   // 'g'
-  if (event.keyCode == 71)
+  if (event.keyCode === 71) {
     renderer.toggleGrid();
+  }
 
   // up
-  if (event.keyCode == 38)
+  if (event.keyCode === 38) {
     camera.pan(renderer.camera, 0, 0, -2.0);
+  }
 
   // down
-  if (event.keyCode == 40) 
+  if (event.keyCode === 40) {
     camera.pan(renderer.camera, 0, 0, 2.0);
+  }
 
   // left
-  if (event.keyCode == 37)
+  if (event.keyCode === 37) {
     camera.pan(renderer.camera, 2.0, 0, 0);
+  }
 
   // right
-  if (event.keyCode == 39)
+  if (event.keyCode === 39) {
     camera.pan(renderer.camera, -2, 0, 0);
+  }
 
   // page down
-  if (event.keyCode == 34)
+  if (event.keyCode === 34) {
     camera.pan(renderer.camera, 0, -2, 0);
+  }
   //page up
-  if (event.keyCode == 33)
+  if (event.keyCode === 33) {
     camera.pan(renderer.camera, 0, 2, 0);
+  }
 
   // 'c' - center camera
-  if (event.keyCode == 67) {
+  if (event.keyCode === 67) {
     renderer.resetCamera();
   }
 
   // 'a' -- increase recursion level
-  if (event.keyCode == 65) {
+  if (event.keyCode === 65) {
     increaseDetail();
   }
 
   // 'z' -- decrease recursion level
-  if (event.keyCode == 90) {
+  if (event.keyCode === 90) {
     decreaseDetail();
   }
 
   // 'x' -- enable multisampling
-  if (event.keyCode == 88)
+  if (event.keyCode === 88) {
     renderer.toggleFXAA();
+  }
 
 
   // b
-  if (event.keyCode == 66)
+  if (event.keyCode === 66) {
     renderer.toggleBBoxes();
+  }
 
 
   // 'shift'
-  if (event.keyCode == 16)
+  if (event.keyCode === 16) {
     global.shiftHeld = true;
+  }
 
   // 'ctrl'
-  if (event.keyCode == 17) 
+  if (event.keyCode === 17) {
     global.ctrlHeld = true;
-  
-  // 'space bar'
-  if (event.keyCode == 32) {
-
   }
+  
+  /*
+  // 'space bar'
+  if (event.keyCode === 32) {
+  }
+  */
 
   
 }
 
 function handleKeyup(event) {
-  if (event.keyCode == 16)
+  "use strict";
+  if (event.keyCode === 16) {
     global.shiftHeld = false;
+  }
 
   // 'ctrl'
-  if (event.keyCode == 17) 
+  if (event.keyCode === 17) {
     global.ctrlHeld = false;
+  }
 
 }
 
 function init(datapath, shaderpath) {
+  "use strict";
   canvas = document.getElementById("canvas");
   
   canvas.addEventListener("webglcontextlost", function(event) {
@@ -427,11 +470,12 @@ function init(datapath, shaderpath) {
   // disables the right-click menu
   document.oncontextmenu = function() {
     return false;
-  }
+  };
 
   
-  if (shaderpath === undefined)
+  if (shaderpath === undefined) {
     shaderpath = ' ';
+  }
 
 
   shader.loadAll(shaders, shaderpath);
@@ -457,7 +501,6 @@ function init(datapath, shaderpath) {
 
   window.setInterval(octree.updateLoadQueue, 100);
 
-  // todo: integrate this with the other data loading
   metadata.load(datapath + 'metadata.json');
   metadata.loadRegistration(datapath + 'registration.json');
 
@@ -481,6 +524,7 @@ function init(datapath, shaderpath) {
 
 /// saves the current opengl canvas in an image and opens it in a new window 
 function saveScreenShotInEditor() {
+  "use strict";
   var image = new Image();
   image.src = canvas.toDataURL("image/png");
    window.open(image.src);  
@@ -488,16 +532,20 @@ function saveScreenShotInEditor() {
 
 
 function saveCanvasToFile() {
+  "use strict";
   var filename = 'home3d_canvas_' + Date.now() + ".png";
-  var canvas = document.getElementById('canvas');
+  var canvasElement = document.getElementById('canvas');
 
-  if (window.IE11check())
-    window.navigator.msSaveBlob(canvas.msToBlob(), filename);
-  else
-    ReImg.fromCanvas(canvas).downloadPng(filename);
+  if (window.IE11check()) {
+    window.navigator.msSaveBlob(canvasElement.msToBlob(), filename);
+  }
+  else {
+    ReImg.fromCanvas(canvasElement).downloadPng(filename);
+  }
 }
 
 function getBasePath(address) { 
+  "use strict";
   var basepath = address.substring(0, address.lastIndexOf("/"));
   basepath = basepath.substring(0, basepath.lastIndexOf("/")+1);
 
@@ -505,6 +553,7 @@ function getBasePath(address) {
 }
 
 function toggleMetadata() {
+  "use strict";
   renderer.enableMetadata = !renderer.enableMetadata;
 
 
@@ -525,23 +574,23 @@ function toggleMetadata() {
 }
 
 function main() {
-  
-  init(decodeURL());
-  loop();
-}
+  "use strict";
 
-function decodeURL() {
+  function decodeURL() {
+    var allParams = location.search.substring(1).split("&");
+    var p0 = allParams[0].split('=');
+    var path = 'data/' + p0[1] + '/';
 
-  var allParams = location.search.substring(1).split("&");
-  var p0 = allParams[0].split('=')
-  var path = 'data/' + p0[1] + '/';
+    if (path === '' || path === undefined) {
+      console.error('No valid path found for dataset "' + p0[1] + '"');
 
-  if (path == '' || path === undefined) {
-    console.error('No valid path found for dataset "' + p0[1] + '"');
+    }
 
+    console.log('loading dataset from "' + path + '"');
+
+    return path;
   }
 
-  console.log('loading dataset from "' + path + '"');
-
-  return path;
+  init(decodeURL());
+  loop();
 }
