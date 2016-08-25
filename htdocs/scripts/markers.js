@@ -22,14 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	gl,renderer,mat4,geometry,shaders
+*/
 
-var markers = markers || []
+var markers = markers || {};
 
 
 markers.load = function(url) { 
+	"use strict";
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
 
 
 			// remove all newline
@@ -40,23 +44,24 @@ markers.load = function(url) {
 			// nodes is an array of marker entries
 			nodes.forEach(function(currentValue, index, array) {
 
-					var m = {}
+					var m = {};
 					m.name = currentValue.name;
 					
 					m.color = currentValue.color;
-					if (m.color === undefined)
-						m.color = [0.8, 0.6, 0.2]
+					if (m.color === undefined) {
+						m.color = [0.8, 0.6, 0.2];
+					}
 									
 
 					m.transform = mat4.create();
 					mat4.translate(m.transform, m.transform, currentValue.location);
 
 					var scale = currentValue.scale;
-					if (scale === undefined)
+					if (scale === undefined) {
 						scale = 1.0;
+					}
 
-					mat4.scale(m.transform, m.transform, [scale, scale, scale])
-
+					mat4.scale(m.transform, m.transform, [scale, scale, scale]);
 					markers.push(m);
 			});
 
@@ -67,16 +72,17 @@ markers.load = function(url) {
 			});
 
 		}
-	}
+	};
 
-	xmlhttp.open("GET", url, true)
+	xmlhttp.open("GET", url, true);
 	xmlhttp.send();
 
-}
+};
 
 markers.draw = function() {
+	"use strict";
 
-	if (Object.keys(geometry.models).length == 0) {
+	if (Object.keys(geometry.models).length === 0) {
 		console.log("No geometry models loaded.");
 		return;
 	}
@@ -91,7 +97,7 @@ markers.draw = function() {
 	
 	var shader = shaders.objectShader;
 	if (shader === undefined) {
-		console.log("Object shader undefined").
+		console.log("Object shader undefined");
 		return;
 	}
 
@@ -131,4 +137,4 @@ markers.draw = function() {
 
 
 
-}
+};

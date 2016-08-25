@@ -22,11 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global 
+	gl
+*/
 
 var framebuffer = framebuffer || {};
 
 
 framebuffer.create = function(width, height) { 
+	"use strict";
 	var fbo = gl.createFramebuffer();
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
@@ -58,18 +62,20 @@ framebuffer.create = function(width, height) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	return fbo;
 
-}
+};
 
 
 framebuffer.destroy = function(fbo) {
+	"use strict";
 	gl.deleteTexture(fbo.texture);
 	gl.deleteRenderbuffer(fbo.renderbuffer);
 	gl.deleteFramebuffer(fbo);
 
 	fbo = null;
-}
+};
 
 framebuffer.resize = function(fbo, resolution) { 
+	"use strict";
 	fbo.width = resolution[0];
 	fbo.height = resolution[1];
 
@@ -85,10 +91,10 @@ framebuffer.resize = function(fbo, resolution) {
 
     //console.log("New FBO size: " + fbo.width + "x" + fbo.height);
 
-}
+};
 
 framebuffer.bind = function(fbo) {
-
+	"use strict";
 	// TODO: save original viewport dimensions here
 	fbo._originalViewport = [];
 
@@ -96,10 +102,10 @@ framebuffer.bind = function(fbo) {
    	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
    	//debugger;
-}
+};
 
 framebuffer.disable = function(fbo) { 
-
+	"use strict";
 	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.bindTexture(gl.TEXTURE_2D, null);
@@ -108,4 +114,4 @@ framebuffer.disable = function(fbo) {
 
 	//gl.viewport(fbo._originalViewport[0], fbo._originalViewport[1], fbo._originalViewport[2], fbo._originalViewport[3] );
 	
-}
+};

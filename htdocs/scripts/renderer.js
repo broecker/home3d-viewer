@@ -22,11 +22,13 @@
 */
 
 
+/*global 
+    gl,vec3,mat4, window, camera,framebuffer,geometry,shaders,octree,metadata,canvas
+*/
 
 // basic webgl renderer harness rewrite
 
 window.renderer = {
-
 
     // creates the member variables and initializes them
     init : function() {
@@ -140,24 +142,24 @@ window.renderer = {
 
         if (this.visibleList.length > 0) {
 
-            renderer.visibleList.sort(function(a,b) {
+            window.renderer.visibleList.sort(function(a,b) {
                return a.lodDistance*a.depth - b.lodDistance*b.depth;
             });
 
 
             if (this.enableDensityCulling) {
-                renderer.visibleList.forEach(function(node) {
-                    octree.updateScreenArea(node, renderer.modelViewProjection, [renderer.renderTarget.width, renderer.renderTarget.height]);
+                window.renderer.visibleList.forEach(function(node) {
+                    octree.updateScreenArea(node, window.renderer.modelViewProjection, [window.renderer.renderTarget.width, window.renderer.renderTarget.height]);
                 });
 
 
-                var oldSize = renderer.visibleList.length;
-                renderer.visibleList = renderer.visibleList.filter(function(node) {
+                var oldSize = window.renderer.visibleList.length;
+                window.renderer.visibleList = window.renderer.visibleList.filter(function(node) {
                     var density2 = node.points / node.screenArea;
                     return density2 < global.densityTreshold*global.densityTreshold;
                 });
 
-                console.log("Removed " + (oldSize-renderer.visibleList.length) + " nodes, " + renderer.visibleList.length + " remaining");
+                console.log("Removed " + (oldSize-window.renderer.visibleList.length) + " nodes, " + window.renderer.visibleList.length + " remaining");
 
             }
 
@@ -281,7 +283,7 @@ window.renderer = {
         } 
 
         framebuffer.disable(this.renderTarget);
-        gl.viewport(0, 0, renderer.viewport[2], renderer.viewport[3]);
+        gl.viewport(0, 0, window.renderer.viewport[2], window.renderer.viewport[3]);
    
 
 
@@ -349,7 +351,7 @@ window.renderer = {
             }
         }
 
-        if (renderer.enableMetadata) {
+        if (window.renderer.enableMetadata) {
             // update and draw the text labels 
             metadata.drawText();
 
@@ -361,5 +363,5 @@ window.renderer = {
     }
 
 
-}
+};
 

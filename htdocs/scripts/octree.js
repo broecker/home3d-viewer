@@ -22,18 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global 
+	vec3,aabb,gl,NProgress,geometry,renderer,FileReader
+*/
 
 
 // Fisher-Yates shuffle
 // see: http://bost.ocks.org/mike/shuffle/
 function shuffle(array) {
+	"use strict";
 	var m = array.length, t, i;
 
 	// While there remain elements to shuffle…
 	while (m) {
 
 		// Pick a remaining element…
-		i = Math.floor(Math.random() * m--);
+		m -= 1;
+		i = Math.floor(Math.random() * m);
 
 		// And swap it with the current element.
 		t = array[m];
@@ -46,20 +51,25 @@ function shuffle(array) {
 
 
 function numberWithCommas(x) {
+	"use strict";
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function max(a, b) { 
-	if (a >= b)
+function max(a, b) {
+	"use strict"; 
+	if (a >= b) {
 		return a;
-	else 
+	}
+	else {
 		return b;
+	}
 }
 
-var octree = octree || {}
+var octree = octree || {};
 
 octree.init = function(isMobile) { 
-
+	"use strict";
+	var i, request;
 
 	octree.maxRecursion = 3;
 	octree.maxPointsRendered = 128000;
@@ -76,26 +86,29 @@ octree.init = function(isMobile) {
 	octree._nodeBacklog = [];
 
 	octree._xmlRequests = [];
-	for (var i = 0; i < octree.maxConcurrentLoads; ++i) {
-		var request = {xhr:new XMLHttpRequest(), node:null};
+	for (i = 0; i < octree.maxConcurrentLoads; i += 1) {
+		request = {xhr:new XMLHttpRequest(), node:null};
 		octree._xmlRequests.push(request);
 	}
-}
+};
 
 octree.doneLoading = function() { 
+	"use strict";
 	console.log(octree._nodeBacklog);
 	return octree._nodeBacklog.length === 0;
-}
+};
 
 octree.updateLoadQueue = function() { 
-
+	"use strict";
 	//console.log("Updating " + octree._xmlRequests.length + " request.");
 
-	for (var i = 0; i < octree._xmlRequests.length; ++i) { 
-		var req = octree._xmlRequests[i];
+	var i, req, tree;
+
+	for (i = 0; i < octree._xmlRequests.length; i += 1) { 
+		req = octree._xmlRequests[i];
 
 		// finished loading
-		if (req.node != null && req.xhr.readyState === 4 && req.xhr.status === 200) {
+		if (req.node !== null && req.xhr.readyState === 4 && req.xhr.status === 200) {
 			octree.loadBlob(req.node, req.xhr.response);
 			req.node = null;
 
@@ -107,7 +120,7 @@ octree.updateLoadQueue = function() {
 		// if ready/empty assign new job
 		if (req.node === null && octree._nodeBacklog.length > 0) {
 
-			var tree = octree._nodeBacklog[0];
+			tree = octree._nodeBacklog[0];
 			octree._nodeBacklog.splice(0, 1);
 
 			req.node = tree;
@@ -124,11 +137,11 @@ octree.updateLoadQueue = function() {
 		NProgress.configure.showSpinner = false;
 
 	}
-}
-
+};
 
 // loads an octree by putting it onto the loading queue
 octree.load = function(tree) {
+	"use strict";
 
 	if (tree.loaded === false) { 
 		tree.loaded = 'in queue';
@@ -138,18 +151,18 @@ octree.load = function(tree) {
 	if (octree._nodeBacklog.length === 1) {
 		NProgress.set(0.1);
 	}
-}
-
-
+};
 
 
 // loads the blob referenced by a tree node's file attribute and generates
 // the vertex buffers.
 octree.loadBlob = function(tree, blob) {
-	console.assert(blob != undefined);
+	"use strict";
+	console.assert(blob !== undefined);
 
-	if (tree.loaded == 'ongoing' || tree.loaded === true)
+	if (tree.loaded === 'ongoing' || tree.loaded === true) {
 		return;
+	}
 
 	tree.loaded = 'ongoing';
 
@@ -175,18 +188,20 @@ octree.loadBlob = function(tree, blob) {
 
 		var dataView = new DataView(buffer, 0);
 
-		for (i = 0; i < pointCount; ++i) {
+		var i, index, x, y, z, r, g, b, a;
 
-			var index = i*POINT_SIZE;
+		for (i = 0; i < pointCount; i += 1) {
 
-			var x = dataView.getFloat32(index+0, littleEndian);
-			var y = dataView.getFloat32(index+4, littleEndian);
-			var z = dataView.getFloat32(index+8, littleEndian);
+			index = i*POINT_SIZE;
 
-			var r = dataView.getUint8(index+12, littleEndian);
-			var g = dataView.getUint8(index+13, littleEndian);
-			var b = dataView.getUint8(index+14, littleEndian);
-			var a = dataView.getUint8(index+15, littleEndian);
+			x = dataView.getFloat32(index+0, littleEndian);
+			y = dataView.getFloat32(index+4, littleEndian);
+			z = dataView.getFloat32(index+8, littleEndian);
+
+			r = dataView.getUint8(index+12, littleEndian);
+			g = dataView.getUint8(index+13, littleEndian);
+			b = dataView.getUint8(index+14, littleEndian);
+			a = dataView.getUint8(index+15, littleEndian);
 
 
 			points[i*3+0] = x;
@@ -209,22 +224,25 @@ octree.loadBlob = function(tree, blob) {
 		gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 
 		tree.loaded = true;
-	}
+	};
 
 
 
-	if (octree.loadBlob.pointsLoaded === undefined)
+	if (octree.loadBlob.pointsLoaded === undefined) {
 		octree.loadBlob.pointsLoaded = 0;
+	}
 
 	octree.loadBlob.pointsLoaded += pointCount;
 
 	document.getElementById("pointsLoaded").innerHTML = "Points: " + numberWithCommas(octree.loadBlob.pointsLoaded);
 
 
-}
+};
 
 
 octree.drawNode = function(tree, shader) {
+	"use strict";
+
 	if (tree.points.length <= 0 || tree.points.length > 65535) {
 		console.error('Invalid point number in tree', tree);
 
@@ -242,170 +260,210 @@ octree.drawNode = function(tree, shader) {
 
 	gl.drawArrays(gl.POINTS, 0, tree.points);
 	octree.pointsDrawn += tree.points;
-}
+};
 
 
 // draws an octree recursivlely
 octree.draw = function(tree, shader, recurse) {
+	"use strict";
+	var i;
 
-	if (tree.depth > octree.maxRecursion)
+	if (tree.depth > octree.maxRecursion) {
 		return;
+	}
 
-	if (octree.pointsDrawn > octree.maxPointsRendered)
+	if (octree.pointsDrawn > octree.maxPointsRendered) {
 		return;
+	}
 
 	// shall we recurse automatically?
 	recurse = recurse || true;
 
 	if (tree.visible > 0 && tree.loaded === true) { 
-		drawOctreeNode(tree, shader);
+		octree.draw(tree, shader);
 	} else if (tree.loaded === false) {
 
-		if (!renderer.updateVisibilityFlag)
+		if (!renderer.updateVisibilityFlag) {
 			octree.load(tree);
+		}
 	}
 
-	if (recurse === true && tree.children != null) { 
+	if (recurse === true && tree.children !== null) { 
 
-		for (var i = 0; i < tree.children.length; ++i) { 
-			if (tree.children[i].visible > 0)
+		for (i = 0; i < tree.children.length; i += 1) { 
+			if (tree.children[i].visible > 0) {
 				octree.draw(tree.children[i], shader);
+			}
 		}
 
 	}
 
 	
-}
+};
 
 
 // sets a whole tree to be visible
 octree.setVisible = function(tree) { 
+	"use strict";
+
+	var i = 0;
+
 	tree.visible = 2;
 	
-	if (tree.children != null) 
-		for (var i = 0; i < tree.children.length; ++i)
+	if (tree.children !== null)  {
+		for (i = 0; i < tree.children.length; i += 1) {
 			octree.setVisible(tree.children[i]);
+		}
+	}
 
-}
+};
 
 // sets a whole tree to be invisible
 octree.setInvisible = function(tree) { 
+	"use strict";
 	tree.visible = 0;
 
-	if (tree.children != null) 
-		for (var i = 0; i < tree.children.length; ++i)
+	var i = 0;
+
+	if (tree.children !== null)  {
+		for (i = 0; i < tree.children.length; i+=1) {
 			octree.setInvisible(tree.children[i]);
-}
+		}
+	}
+};
 
 // performs view-frustum culling recursively on the tree
 octree.updateVisibility = function(tree, matrix) { 
+	"use strict";
 
 	tree.visible = aabb.clipBox(tree.bbox, matrix);
+	var i = 0;
 
+	if (tree.children !== null && tree.depth < octree.maxRecursion) {
 
-	if (tree.children != null && tree.depth < octree.maxRecursion) {
-
-		for (var i = 0; i < tree.children.length; ++i) {
+		for (i = 0; i < tree.children.length; i += 1) {
 			// clipping -- test children individually
-			if (tree.visible == 1)
+			if (tree.visible === 1) {
 				octree.updateVisibility(tree.children[i], matrix);
+			}
 	
 			
 			// recursively set everything visible
-			if (tree.visible == 2)
+			if (tree.visible === 2) {
 				octree.setVisible(tree.children[i]);
+			}
 			
 		}
 
 	}
-}
+};
 
 octree.updateScreenArea = function(tree, matrix, resolution) { 
-	calculateScreenspaceBounds(tree.bbox, matrix);
-    tree.screenArea = calculateScreenspaceArea(tree.bbox, resolution);
-}
+	"use strict";
+	aabb.calculateScreenspaceBounds(tree.bbox, matrix);
+    tree.screenArea = aabb.calculateScreenspaceArea(tree.bbox, resolution);
+};
 
 
 // returns a list of all visible nodes. Must be run after updateOctreeVisibility
 octree.getVisibleNodes = function(tree, list) { 
+	"use strict";
+
+	var i;
 
 	if (tree.visible > 0) {
 		list.push(tree);
 
-		if (tree.children != null && tree.depth < octree.maxRecursion) { 
-			for (var i = 0; i < tree.children.length; ++i) { 
+		if (tree.children !== null && tree.depth < octree.maxRecursion) { 
+			for (i = 0; i < tree.children.length; i += 1) { 
 				octree.getVisibleNodes(tree.children[i], list);
 			}
 
 		}
 
 	}
-}
+};
 
 // updates the distance of tree nodes from the camera. 
 octree.updateLOD = function(tree, cameraPosition) { 
+	"use strict";
 
+	var i;
 
 	tree.lodDistance = vec3.distance(aabb.getCentroid(tree.bbox), cameraPosition);
 	//tree.lodDistance = vec3.dot(getCentroid(tree.bbox), cameraPosition);
 	const MAX_LOD_DISTANCE = 50000;
 
-	if (tree.children != null) {
-		for (var i = 0; i < tree.children.length; ++i) { 
+	if (tree.children !== null) {
+		for (i = 0; i < tree.children.length; i += 1) { 
 			if (tree.children[i].visible > 0) { 
 				octree.updateLOD(tree.children[i], cameraPosition);
 			}
-			else
+			else {
 				tree.children[i].lodDistance = MAX_LOD_DISTANCE;
+			}
 		}
 	}
-}
+};
 
 
 octree.drawBBoxes = function(tree, shader) {
+	"use strict";
 
-	if (tree.visible == 0)
+	var i;
+
+	if (tree.visible === 0) {
 		gl.uniform3f(shader.colorUniform, 0.7, 0, 0);
-	else if (tree.visible == 2)
+	}
+	else if (tree.visible === 2) {
 		gl.uniform3f(shader.colorUniform, 0.0, 0.7, 0.0);
-	else
+	}
+	else {
 		gl.uniform3f(shader.colorUniform, 0.7, 0.7, 0.0);
+	}
 
-	if (tree.children != null && tree.depth < octree.maxRecursion)
-		for (var i = 0; i < tree.children.length; ++i) 
+	if (tree.children !== null && tree.depth < octree.maxRecursion) {
+		for (i = 0; i < tree.children.length; i += 1) {
 			octree.drawBBoxes(tree.children[i], shader);
+		}
+	}
  	//else
 	aabb.drawAABB(tree.bbox, shader);
-}
+};
 
 
 // draws the screen-space bounds of the octree
 octree.drawBboxBounds = function(tree, shader) { 
+	"use strict";
+	var i;
+
 	if (tree.visible > 0) {
 
-		if (tree.screenArea)
+		if (tree.screenArea) {
 			gl.uniform1f(shader.areaUniform, tree.screenArea);
+		}
 
 		gl.uniform1f(shader.pointsUniform, tree.points);
+		aabb.drawScreenspaceBounds(tree.bbox, shader);
 
-		drawScreenspaceBounds(tree.bbox, shader);
-
-		if (tree.children != null && tree.depth < octree.maxRecursion) { 
-			for (var i = 0; i < tree.children.length; ++i)
+		if (tree.children !== null && tree.depth < octree.maxRecursion) { 
+			for (i = 0; i < tree.children.length; i += 1) {
 				octree.drawBboxBounds(tree.children[i], shader);
+			}
 		}
 
 
 	}
 
 
-}
+};
 
 octree.parseJSON = function(jsonUrl) {
-	
+	"use strict";	
 
 	var nodes = null;
-	
+	var i, j, node, n;
+
 	// swap Y and Z coordinates in bboxes (for home3D)
 	const swapYZBBox = true;
 	
@@ -413,7 +471,7 @@ octree.parseJSON = function(jsonUrl) {
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
 
 
 			// remove all newline
@@ -427,14 +485,16 @@ octree.parseJSON = function(jsonUrl) {
 
 			// create an associative container to speed up searching for nodes
 			var nodeDict = {};
-			for (var i = 0; i < nodes.length; ++i)
+			for (i = 0; i < nodes.length; i += 1) {
 				nodeDict[nodes[i].file] = nodes[i];
+			}
 
 			if (swapYZBBox) {
 				console.log('Swapping Y and Z in bboxes');
 
-				for (var i = 0; i < nodes.length; ++i)
+				for (i = 0; i < nodes.length; i += 1) {
 					aabb.swapYZ(nodes[i].bbox);
+				}
 
 
 			}
@@ -442,18 +502,18 @@ octree.parseJSON = function(jsonUrl) {
 
 			var maxNodeDepth = 0;
 
-			for (var i = 0; i < nodes.length; ++i) {
-				var node = nodes[i];
+			for (i = 0; i < nodes.length; i += 1) {
+				node = nodes[i];
 
 				// check if it's not a leaf node
-				if (node.children != null) {
+				if (node.children !== null) {
 
 					// relink all children that are not null to actual nodes
-					for (var j = 0; j < 8; ++j) {
-						if (node.children[j] != null && typeof node.children[j] == "string") {
+					for (j = 0; j < 8; j += 1) {
+						if (node.children[j] !== null && typeof node.children[j] === "string") {
 
-							var n = nodeDict[node.children[j]];
-							console.assert(n != undefined);
+							n = nodeDict[node.children[j]];
+							console.assert(n !== undefined);
 							node.children[j] = n;
 							n.parent = node;
 							
@@ -463,9 +523,10 @@ octree.parseJSON = function(jsonUrl) {
 
 
 					// remove all empty children
-					for (var j = 7; j >= 0; --j) { 
-						if (node.children[j] === null)
+					for (j = 7; j >= 0; j -= 1) { 
+						if (node.children[j] === null) {
 							node.children.splice(j, 1);
+						}
 					}
 
 					
@@ -503,8 +564,9 @@ octree.parseJSON = function(jsonUrl) {
 			// append the full path to all file names
 			var basename = jsonUrl.substring(0, jsonUrl.lastIndexOf("/")+1);
 
-			for (i = 0; i < nodes.length; ++i)
+			for (i = 0; i < nodes.length; i += 1) {
 				nodes[i].file = basename + nodes[i].file;
+			}
 
 
 			// find the root node
@@ -530,23 +592,26 @@ octree.parseJSON = function(jsonUrl) {
 
 			return root;
 		}
-	}
+	};
 
-	xmlhttp.open("GET", jsonUrl, true)
+	xmlhttp.open("GET", jsonUrl, true);
 	xmlhttp.send();
 	
-}
+};
 
 // returns the depth of a node in the tree
 octree.getDepth = function(tree) { 
-
-	if (tree.depth != undefined)
+	"use strict";
+	if (tree.depth !== undefined) {
 		return tree.depth;
+	}
 	else {
 
-		if (tree.parent === null)
+		if (tree.parent === null){
 			return 0;
-		else 
+		}
+		else  {
 			return 1 + octree.getDepth(tree.parent);
+		}
 	}
-}
+};

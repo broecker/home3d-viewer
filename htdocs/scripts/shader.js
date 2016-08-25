@@ -22,11 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	gl
+*/
 
 var shader = shader || {};
 
 shader.createFromDOM = function(domID) {
-// loads a shader with the given id from the DOM
+	"use strict";
+
+	// loads a shader with the given id from the DOM
 	var shaderScript = document.getElementById(domID);
 	if (!shaderScript) {
 		return null;
@@ -35,37 +40,38 @@ shader.createFromDOM = function(domID) {
 	var str = "";
 	var k = shaderScript.firstChild;
 	while (k) {
-		if (k.nodeType == 3) {
+		if (k.nodeType === 3) {
 			str += k.textContent;
 		}
 		k = k.nextSibling;
 	}
 
-	var shader;
-	if (shaderScript.type == "x-shader/x-fragment") {
-		shader = gl.createShader(gl.FRAGMENT_SHADER);
-	} else if (shaderScript.type == "x-shader/x-vertex") {
-		shader = gl.createShader(gl.VERTEX_SHADER);
+	var subShader;
+	if (shaderScript.type === "x-shader/x-fragment") {
+		subShader = gl.createShader(gl.FRAGMENT_SHADER);
+	} else if (shaderScript.type === "x-shader/x-vertex") {
+		subShader = gl.createShader(gl.VERTEX_SHADER);
 	} else {
 		return null;
 	}
 
-	gl.shaderSource(shader, str);
-	gl.compileShader(shader);
+	gl.shaderSource(subShader, str);
+	gl.compileShader(subShader);
 
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		alert(gl.getShaderInfoLog(shader));
+	if (!gl.getShaderParameter(subShader, gl.COMPILE_STATUS)) {
+		console.error(gl.getShaderInfoLog(subShader));
 		return null;
 	}
 
-	return shader;
-}
+	return subShader;
+};
 
 
 /*	loading external file; modified from :
 	http://stackoverflow.com/questions/4878145/javascript-and-webgl-external-scripts
 */
 shader._loadFile = function(url, data, callback, errorCallback) {
+    "use strict";
     // Set up an asynchronous request
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
@@ -73,10 +79,10 @@ shader._loadFile = function(url, data, callback, errorCallback) {
     // Hook the event that gets called as the request progresses
     request.onreadystatechange = function () {
         // If the request is "DONE" (completed or failed)
-        if (request.readyState == 4) {
+        if (request.readyState === 4) {
             // If we got HTTP status 200 (OK)
-            if (request.status == 200) {
-                callback(request.responseText, data)
+            if (request.status === 200) {
+                callback(request.responseText, data);
             } else { // Failed
                 errorCallback(url);
             }
@@ -84,30 +90,33 @@ shader._loadFile = function(url, data, callback, errorCallback) {
     };
 
     request.send(null);    
-}
+};
 
 shader._loadFiles = function(urls, callback, errorCallback) {
+    "use strict";
     var numUrls = urls.length;
     var numComplete = 0;
     var result = [];
+    var i;
 
     // Callback for a single file
     function partialCallback(text, urlIndex) {
         result[urlIndex] = text;
-        numComplete++;
+        numComplete += 1;
 
         // When all files have downloaded
-        if (numComplete == numUrls) {
+        if (numComplete === numUrls) {
             callback(result);
         }
     }
 
-    for (var i = 0; i < numUrls; i++) {
+    for (i = 0; i < numUrls; i += 1) {
         shader._loadFile(urls[i], i, partialCallback, errorCallback);
     }
-}
+};
 
 shader.loadAll = function(shaders, basepath) {
+	"use strict";
 
 	// loading grid shader 
 	shaders.gridShader = null;	
@@ -116,8 +125,7 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
 		}
 
 
@@ -125,8 +133,7 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
 		}
 
 		var program = gl.createProgram();
@@ -134,8 +141,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize grid shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize grid shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
@@ -144,7 +152,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.gridShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 
@@ -155,16 +163,14 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
 		}
 
 
@@ -173,8 +179,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize object shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize object shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.vertexNormalAttribute = gl.getAttribLocation(program, "normalIn");
@@ -188,7 +195,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.objectShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 	// loading quad shader 
@@ -198,16 +205,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -216,8 +223,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize quad shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize quad shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.colormapUniform = gl.getUniformLocation(program, "colormap");
@@ -225,7 +233,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.quadShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 
@@ -236,16 +244,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -254,8 +262,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize fxaa shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize fxaa shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.colormapUniform = gl.getUniformLocation(program, "colormap");
@@ -263,7 +272,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.fxaaShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 
@@ -274,16 +283,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -292,15 +301,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize skybox shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize skybox shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.inverseMVPUniform = gl.getUniformLocation(program, "inverseMVP");
 		shaders.skyboxShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 	// load bounds shader 
@@ -310,16 +320,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -328,8 +338,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize bounds shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize bounds shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.pointsUniform = gl.getUniformLocation(program, "pointsContained");
@@ -337,7 +348,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.boundsShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 
@@ -348,16 +359,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -366,8 +377,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize pointcloud shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize pointcloud shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
@@ -382,7 +394,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.pointsShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 	
 
@@ -393,8 +405,8 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 
@@ -402,8 +414,8 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 		var program = gl.createProgram();
@@ -411,8 +423,9 @@ shader.loadAll = function(shaders, basepath) {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize obb shader");
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error("Could not initialize obb shader");
+		}
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.projMatrixUniform = gl.getUniformLocation(program, "projMatrix");
@@ -428,7 +441,7 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.obbShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 
 	/*
@@ -439,16 +452,16 @@ shader.loadAll = function(shaders, basepath) {
 		gl.shaderSource(vertexShader, shaderText[0]);
 		gl.compileShader(vertexShader);
 		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(vertexShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(vertexShader));
+			
 		}
 
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(fragmentShader, shaderText[1]);
 		gl.compileShader(fragmentShader);
 		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-			alert(gl.getShaderInfoLog(fragmentShader));
-			debugger;
+			console.error(gl.getShaderInfoLog(fragmentShader));
+			
 		}
 
 
@@ -458,7 +471,7 @@ shader.loadAll = function(shaders, basepath) {
 		gl.linkProgram(program);
 
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			alert("Could not initialize pointcloud shader");
+			console.error("Could not initialize pointcloud shader");
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "positionIn");
 		program.vertexColorAttribute = gl.getAttribLocation(program, "colorIn");
@@ -471,8 +484,8 @@ shader.loadAll = function(shaders, basepath) {
 		shaders.dynamicPointcloudShader = program;
 
 		}, function (url) {
-		alert('Failed to download "' + url + '"');
+		console.error('Failed to download "' + url + '"');
 	}); 
 	*/
-}
+};
 

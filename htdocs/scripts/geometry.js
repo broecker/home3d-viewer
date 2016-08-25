@@ -22,11 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	gl,vec3,mat4,shaders,renderer
+*/
+
 var geometry = geometry || {};
 
 
 // creates the geometry of a single plane
 geometry.createPlaneBuffer = function() { 
+	"use strict";
 	var planeVertices = [-20, 0, -20, -20, 0, 20, 20, 0, -20, 20, 0, 20];
 	var planeNormals = [0,1,0, 0,1,0, 0,1,0, 0,1,0 ];
 	var planeColors = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ];
@@ -58,13 +63,15 @@ geometry.createPlaneBuffer = function() {
 
 	var plane = {vertexBuffer:planeVertexBuffer, normalBuffer:planeNormalBuffer, colorBuffer:planeColorBuffer, texcoordBuffer:planeTexCoords, primType:gl.TRIANGLE_STRIP};
 	return plane;
-}
+};
 
 // creates the geometry and vertex buffer for a grid on the Y=0 plane
 geometry.createGridBuffer = function(){
+	"use strict";
+	var i;
 
 	var gridVertices = [];
-	for (var i = -10; i <= 10; ++i) {
+	for (i = -10; i <= 10; i += 1) {
 		gridVertices.push(i);
 		gridVertices.push(0);
 		gridVertices.push(-10);
@@ -90,11 +97,11 @@ geometry.createGridBuffer = function(){
 
 	geometry.grid = {buffer:gridVertexPositionBuffer, primType:gl.LINES};
 
-}
+};
 
 // draws the grid
 geometry.drawGrid = function() {
-
+	"use strict";
 	gl.useProgram(shaders.gridShader);
 	gl.enableVertexAttribArray(shaders.gridShader.vertexPositionAttribute);
 
@@ -105,11 +112,11 @@ geometry.drawGrid = function() {
 	gl.uniformMatrix4fv(shaders.gridShader.projMatrixUniform, false, renderer.projMatrix);
 	gl.uniformMatrix4fv(shaders.gridShader.viewMatrixUniform, false, renderer.viewMatrix);
 	gl.drawArrays(gl.LINES, 0, geometry.grid.buffer.numItems);
-}
+};
 
 
 geometry.createAxisBuffer = function() {
-
+	"use strict";
 	var axisVertices = [0,0,0, 10,0,0, 0,0,0, 0,10,0, 0,0,0, 0,0,10];
 	var axisColors = [1,0,0, 1,0,0, 0,1,0, 0,1,0, 0,0,1, 0,0,1];
 	var axisVertexPositionBuffer = gl.createBuffer();
@@ -120,20 +127,20 @@ geometry.createAxisBuffer = function() {
 
 	var axisVertexColorBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, axisVertexColorBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(axisColor), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(axisColors), gl.STATIC_DRAW);
 	axisVertexColorBuffer.itemSize = 3;
 	axisVertexColorBuffer.numItems = 18;
 
 	geometry.axis = {vertexBuffer:axisVertexPositionBuffer, colorBuffer:axisVertexColorBuffer};
-}
+};	
 
 geometry.drawCoordinateAxis = function() {
+	"use strict";
 
-
-}
+};
 
 geometry.drawFullscreenQuad = function(shader) {
-
+	"use strict";
 	if (geometry.drawFullscreenQuad.vbo === undefined) {
 		var vertices = [0,1, 0,0, 1,1, 1,0 ];
 
@@ -148,24 +155,24 @@ geometry.drawFullscreenQuad = function(shader) {
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-}
+};
 
 geometry.loadJsonModel = function(url, name) { 
-
+	"use strict";
 	geometry.models = geometry.models || {};
 
 	var nodes = null;
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
 
 
 			// remove all newline
 			var data = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
 			
 			nodes = JSON.parse(data);
-			console.log(nodes)
+			console.log(nodes);
 
 
 			var vertexPositionBuffer = gl.createBuffer();
@@ -183,10 +190,9 @@ geometry.loadJsonModel = function(url, name) {
 			var modelIndexBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelIndexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(nodes.faceData), gl.STATIC_DRAW);
-			modelIndexBuffer.numTris = nodes.faceData.length
+			modelIndexBuffer.numTris = nodes.faceData.length;
 
 			var matrix = mat4.create();
-
 			mat4.translate(matrix, matrix, [3.0, 0.0, 2.0]);
 
 			var model = {transform:matrix, numTris:nodes.faceData.length, vertexBuffer:vertexPositionBuffer, normalBuffer:vertexNormalBuffer, indexBuffer:modelIndexBuffer};
@@ -195,27 +201,30 @@ geometry.loadJsonModel = function(url, name) {
 
 			geometry.models[name] = model;
 		
-			console.log("saved model \"" + url + " \" in \"" + name + "\"")
+			console.log("saved model \"" + url + " \" in \"" + name + "\"");
 
 		}
-	}
+	};
 
-	xmlhttp.open("GET", url, true)
+	xmlhttp.open("GET", url, true);
 	xmlhttp.send();
 
-}
+};
 
 
 geometry.drawJsonModel = function(modelName, color) { 
+	"use strict";
 
-	if (Object.keys(geometry.models).length == 0)
+	if (Object.keys(geometry.models).length === 0) {
 		return;
+	}
 
 	var model = geometry.models[modelName];
 	//console.log(model);
 
-	if (model === undefined)
+	if (model === undefined) {
 		return;
+	}
 
 
 	
@@ -248,4 +257,4 @@ geometry.drawJsonModel = function(modelName, color) {
 	gl.drawElements(gl.TRIANGLES, model.numTris, gl.UNSIGNED_SHORT, 0);
 	
 
-}
+};

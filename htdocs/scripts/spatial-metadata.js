@@ -22,9 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	obb, mat4, renderer, shaders, vec4, gl, Math
+*/
+
 var metadata = metadata || {};
 
 metadata.load = function(jsonUrl) {
+	"use strict";
 
 	metadata.items = [];
 	metadata.alignmentMatrix = mat4.create();
@@ -34,7 +39,9 @@ metadata.load = function(jsonUrl) {
 	// parse json file here
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		var i, k, bbox, ax, ay, az, itemNo, container, div, textNode;
+
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
 
 			// remove all newline
 			var items = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
@@ -44,17 +51,16 @@ metadata.load = function(jsonUrl) {
 			//console.log(metadata.items);
 
 			// parse the data
-			for (var i in metadata.items) {
+			for (i in metadata.items) {
 
 				// create oriented bounding boxes
-				var bbox = obb.create();
+				bbox = obb.create();
 				bbox.position = metadata.items[i].bbox_position;
-
 				bbox.halfBounds = metadata.items[i].bbox_scale;
 				
-				var ax = metadata.items[i].bbox_axis_x;
-				var ay = metadata.items[i].bbox_axis_y;
-				var az = metadata.items[i].bbox_axis_z;
+				ax = metadata.items[i].bbox_axis_x;
+				ay = metadata.items[i].bbox_axis_y;
+				az = metadata.items[i].bbox_axis_z;
 
 				bbox.xAxis = [ax[0], ax[2], -ax[1]];
 				bbox.yAxis = [ay[0], ay[2], -ay[1]];
@@ -64,8 +70,9 @@ metadata.load = function(jsonUrl) {
 
 				
 				bbox.matrix = mat4.create();
-				for (var k = 0; k < 16; ++k)
+				for (k = 0; k < 16; k += 1) {
 					bbox.matrix[k] = metadata.items[i].bbox_matrix[k];
+				}
 
 				metadata.items[i].bbox = bbox;
 
@@ -79,20 +86,20 @@ metadata.load = function(jsonUrl) {
 
 
 				// create the AAT link from the AAT id
-				var itemNo = metadata.items[i].aat_id;
+				itemNo = metadata.items[i].aat_id;
 
 				metadata.items[i].aat_link = 'http://www.getty.edu/vow/AATFullDisplay?find=' + itemNo;
 				metadata.items[i].aat_link +='&logic=AND&note=&english=N&prev_page=1&subjectid=' + itemNo;
 
 				// also append the text to the document
 
-				var container = document.getElementById("metadata-labels");
+				container = document.getElementById("metadata-labels");
 
-				var div = document.createElement("div");
+				div = document.createElement("div");
 				div.className = "floating-div";
 				div.id = metadata.items[i].name;
 
-				var textNode = document.createTextNode(metadata.items[i].name);
+				textNode = document.createTextNode(metadata.items[i].name);
 				div.appendChild(textNode);
 
 				container.appendChild(div);
@@ -110,7 +117,7 @@ metadata.load = function(jsonUrl) {
 
 		}
 
-		if (xmlhttp.status == 404) { 
+		if (xmlhttp.status === 404) { 
 			console.error('Unable to load metadata - not present?');
 			console.error('Metadata path: ' + jsonUrl);
 
@@ -120,25 +127,26 @@ metadata.load = function(jsonUrl) {
 			var bbar = document.getElementById("buttons");
 			var mdb = document.getElementById("mdbutton");
 
-			if (bbar && mdb)
-	
+			if (bbar && mdb) {	
 				bbar.removeChild(mdb);
+			}
 		}
 
-	}
+	};
 
-	xmlhttp.open("GET", jsonUrl, true)
+	xmlhttp.open("GET", jsonUrl, true);
 	xmlhttp.send();
 
-}
+};
 
 metadata.loadRegistration = function(jsonUrl) {
-
+	"use strict";
+	
 
 	// load registration file
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
 
 			// remove all newline
 			var items = xmlhttp.response.replace(/(\r\n|\n|\r)/gm,"");
@@ -151,36 +159,42 @@ metadata.loadRegistration = function(jsonUrl) {
 			mat4.rotate(metadata.alignmentMatrix, metadata.alignmentMatrix, Math.PI/2, [-1,0,0]);
 			mat4.translate(metadata.alignmentMatrix, metadata.alignmentMatrix, items.translation); //[1.4, -1, 2.25]);
 
-			if (items.ceiling != undefined)
+			if (items.ceiling !== undefined) {
 				metadata.ceiling = items.ceiling;
+			}
 
-			if (items.floor != undefined)
+			if (items.floor !== undefined) {
 				metadata.floor = items.floor;
+			}
 
 		}
 
-		if (xmlhttp.status == 404) { 
+		if (xmlhttp.status === 404) { 
 			console.error('Unable to load registration - not present?');
 			console.error('registration path: ' + jsonUrl);
 		}
 
-	}
+	};
 
 	
 
-	xmlhttp.open("GET", jsonUrl, true)
+	xmlhttp.open("GET", jsonUrl, true);
 	xmlhttp.send();
-}
+};
 
 
 metadata.draw = function(shader) {
+	"use strict";
+	
+	var e, item;
 
-	if (!shader)
+	if (!shader) {
 		return;
+	}
 
-	for (var e in metadata.items) { 
+	for (e in metadata.items) { 
 		
-		var item = metadata.items[e];
+		item = metadata.items[e];
 		
 		if (item.bbox) {
 			
@@ -189,9 +203,12 @@ metadata.draw = function(shader) {
 		}
 	}
 
-}
+};
 
 metadata.drawText = function() { 
+	"use strict";
+	
+	var e, item, c, v, pixelX, pixelY;
 
 	// draw text here
 
@@ -201,12 +218,12 @@ metadata.drawText = function() {
 	mat4.multiply(m, renderer.modelViewProjection, metadata.alignmentMatrix);
 
 
-	for (var e in metadata.items) { 
-		var item = metadata.items[e];
+	for (e in metadata.items) { 
+		item = metadata.items[e];
 
 
-		var c = item.bbox.position; 
-		var v = vec4.fromValues(c[0], c[1], c[2], 1);
+		c = item.bbox.position; 
+		v = vec4.fromValues(c[0], c[1], c[2], 1);
 
 		vec4.transformMat4(v, v, m);
 	     
@@ -214,8 +231,8 @@ metadata.drawText = function() {
 	    // homogenous transform
 		vec4.scale(v, v, 1.0 / v[3]);
 
-		var pixelX = (v[0] *  0.5 + 0.5) * gl.canvas.width;
-		var pixelY = (v[1] * -0.5 + 0.5) * gl.canvas.height;
+		pixelX = (v[0] *  0.5 + 0.5) * gl.canvas.width;
+		pixelY = (v[1] * -0.5 + 0.5) * gl.canvas.height;
 
 
 	    //console.log(c, pixelX, pixelY);
@@ -226,4 +243,4 @@ metadata.drawText = function() {
 		item.htmlElement.style.alignSelf="center";
 			
 	}
-}
+};

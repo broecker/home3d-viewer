@@ -22,6 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*global
+	gl,vec3,Math,mat4
+*/
+
 
 var camera = camera || {};
 
@@ -32,7 +36,8 @@ function deg2rad(angle) {
   //   example 1: deg2rad(45);
   //   returns 1: 0.7853981633974483
 
-	return angle * .017453292519943295; // (angle / 180) * Math.PI;
+  "use strict";
+	return angle * 0.017453292519943295; // (angle / 180) * Math.PI;
 }
 
 function rad2deg(angle) {
@@ -41,18 +46,19 @@ function rad2deg(angle) {
   // improved by: Brett Zamir (http://brett-zamir.me)
   //   example 1: rad2deg(3.141592653589793);
   //   returns 1: 180
-
+  "use strict";
   return angle * 57.29577951308232; // angle / Math.PI * 180
 }
 
 camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
-	var i, a, x, z;
+	"use strict";
+	var i, a, x, y, z;
 
 	if (camera.drawFocus.centerWidget === undefined) {
 		var centerColors = [];
-		var centerVertices = []
+		var centerVertices = [];
 
-		for (i = 0; i <= 36; ++i) {
+		for (i = 0; i <= 36; i += 1) {
 			a = deg2rad(i*10);
 			x = Math.sin(a);
 			z = Math.cos(a);
@@ -77,7 +83,7 @@ camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
 		centerVertices = [];
 		centerColors = [];
 
-		for (i = 0; i <= 36; ++i) {
+		for (i = 0; i <= 36; i +=1) {
 			a = deg2rad(i*10);
 			x = Math.sin(a);
 			y = Math.cos(a);
@@ -102,7 +108,7 @@ camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
 		centerVertices = [];
 		centerColors = [];
 
-		for (i = 0; i <= 36; ++i) {
+		for (i = 0; i <= 36; i += 1) {
 			a = deg2rad(i*10);
 			y = Math.sin(a);
 			z = Math.cos(a);
@@ -141,7 +147,7 @@ camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
   	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
   	gl.enableVertexAttribArray(shader.vertexColorAttribute);
 
-  	for (i = 0; i < 3; ++i) {
+  	for (i = 0; i < 3; i+=1) {
 	  	gl.bindBuffer(gl.ARRAY_BUFFER, camera.drawFocus.centerWidget.vertexBuffer[i]);
 	  	gl.vertexAttribPointer(shader.vertexPositionAttribute, camera.drawFocus.centerWidget.vertexBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
 	  	gl.bindBuffer(gl.ARRAY_BUFFER, camera.drawFocus.centerWidget.colorBuffer[i]);
@@ -149,33 +155,36 @@ camera.drawFocus = function(camera, shader, projMatrix, viewMatrix) {
 	  	gl.drawArrays(gl.LINE_LOOP, 0, camera.drawFocus.centerWidget.vertexBuffer[i].numItems);
 	}
   	
-}
+};
 
 
 camera.createOrbitalCamera = function() {
+	"use strict";
 	var tgt = [0.0, 0.0, 0.0];
 	var up = [0.0, 1.0, 0.0];
 	var fov = 60.0 * Math.PI / 180.0;
 
-	var theta = deg2rad(22)
+	var theta = deg2rad(22);
 	var phi = deg2rad(10);
 	var radius = 5.0;
 
 	return {fovy:fov, aspect:1.3, near:0.1, far:100.0, target:tgt, up:up, theta:theta, phi:phi, radius:radius};
-}
+};
 
 // calculates the camera's position from its angles and target
 camera.getPosition = function(camera) { 
+	"use strict";
 	var pos = vec3.create();
 	pos[0] = camera.target[0] + camera.radius * Math.sin(camera.theta)*Math.sin(camera.phi);
 	pos[2] = camera.target[2] + camera.radius * Math.sin(camera.theta)*Math.cos(camera.phi);
 	pos[1] = camera.target[1] + camera.radius * Math.cos(camera.theta);
 
 	return pos;
-}
+};
 
 
 function clampAngles(sphericalCoords) {
+	"use strict";
 	sphericalCoords.theta = Math.max( sphericalCoords.theta, deg2rad(1));
 	sphericalCoords.theta = Math.min( sphericalCoords.theta, deg2rad(179));
 
@@ -185,12 +194,13 @@ function clampAngles(sphericalCoords) {
 
 /// pans the camera along the current pane
 camera.pan = function(cam, deltaX, deltaY, deltaZ) {
+	"use strict";
 	var forward = vec3.create();
 	vec3.sub(forward, camera.getPosition(cam), cam.target);
 	vec3.normalize(forward, forward);
 
 	var right = vec3.create();
-	vec3.cross(right, forward, cam.up)
+	vec3.cross(right, forward, cam.up);
 	vec3.normalize(right, right);
 
 	var up = vec3.create();
@@ -202,23 +212,24 @@ camera.pan = function(cam, deltaX, deltaY, deltaZ) {
 	vec3.add(cam.target, cam.target, up);
 	vec3.add(cam.target, cam.target, right); 
 
-	if (deltaZ != undefined) { 
+	if (deltaZ !== undefined) { 
 		vec3.scale(forward, forward, deltaZ);
 		vec3.add(cam.target, cam.target, forward);
 	}
 
-}
+};
 
 
 camera.rotateAroundTarget = function(camera, deltaTheta, deltaPhi) {
-
+	"use strict";
 	camera.theta -= deltaTheta;
 	camera.phi += deltaPhi;
 	
 	clampAngles(camera);
-}
+};
 
 camera.moveTowardsTarget = function(camera, delta) { 
+	"use strict";
 	camera.radius += delta;
 
 	camera.radius = Math.max(0.2, camera.radius);
@@ -226,14 +237,16 @@ camera.moveTowardsTarget = function(camera, delta) {
 
 	//console.log("camera.radius:" + camera.radius);
 
-}
+};
 
 camera.retrieveProjectionMatrix = function(cam, projMatrix) {
+  	"use strict";
   	mat4.identity(projMatrix);
   	mat4.perspective(projMatrix, cam.fovy, cam.aspect, cam.near,cam.far);
-}
+};
 
 camera.retrieveViewMatrix = function(cam, viewMatrix) {
+	"use strict";
 	mat4.identity(viewMatrix);
 	mat4.lookAt(viewMatrix, camera.getPosition(cam), cam.target, cam.up);
-}
+};
