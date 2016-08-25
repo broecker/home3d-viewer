@@ -60,6 +60,7 @@ window.renderer = {
 
     // resizes the viewport
     resize : function(vp) {
+        "use strict";
         this.viewport = vp;
     },
 
@@ -206,8 +207,9 @@ window.renderer = {
     draw : function() {
         "use strict";
 
-        if (this.drawCallCounter === undefined)
+        if (this.drawCallCounter === undefined) {
             this.drawCallCounter = 0;
+        }
 
         //console.log('draw call ' + this.drawCallCounter++ + ", vl: " + this.visibleList.length);
 
@@ -218,8 +220,9 @@ window.renderer = {
             this.updateCamera();
             this.clearFrame();
 
-            if (this.visibleList.length > 0)
+            if (this.visibleList.length > 0) {
                 this.updateVisibilityFlag = false;
+            }
         }
 
         //console.log("visible list (" + this.visibleList.length + "): ", this.visibleList);
@@ -231,8 +234,10 @@ window.renderer = {
 
     // the following two functions handle the incremental rendering implemented for this project
 
-    // clears the render target and draws the grid etc and bboxes 
+    // clears the render target and draws the grid etc and bboxes
     clearFrame : function() {
+        "use strict";
+
         framebuffer.bind(this.renderTarget);
 
         //console.log('first frame.');
@@ -267,8 +272,9 @@ window.renderer = {
             octree.drawBBoxes(geometry.octree, shaders.gridShader);
         }
 
-        if (this.enableGrid && shaders.gridShader)
+        if (this.enableGrid && shaders.gridShader) {
             geometry.drawGrid();
+        }
 
         if (this.enableMetadata && !(shaders.obbShader === null)) {
             metadata.draw(shaders.obbShader);
@@ -282,6 +288,7 @@ window.renderer = {
     },
 
     drawSomePoints : function() {
+        "use strict";
 
         framebuffer.bind(this.renderTarget);
 
@@ -314,8 +321,11 @@ window.renderer = {
             octree.pointsDrawn = 0;
             //console.log('draw points: ' + global.pointsDrawn + "/" + global.maxPointsRendered)
 
-            for (var i = 0; i < this.visibleList.length && octree.pointsDrawn < octree.maxPointsRendered; ++i) {
-                var node = this.visibleList[i];
+            var i = 0;
+            var node = null;
+
+            for (i = 0; i < this.visibleList.length && octree.pointsDrawn < octree.maxPointsRendered; i += 1) {
+                node = this.visibleList[i];
 
                 if (node.loaded === true) {
                     octree.drawNode(node, shader);
@@ -330,15 +340,16 @@ window.renderer = {
 
                 } else {
 
-                    if (node.loaded === false && node.depth <= octree.maxRecursion)
+                    if (node.loaded === false && node.depth <= octree.maxRecursion) {
                         octree.load(node);
+                    }
 
 
                 }
             }
         }
 
-        if (renderer.enableMetadata) { 
+        if (renderer.enableMetadata) {
             // update and draw the text labels 
             metadata.drawText();
 

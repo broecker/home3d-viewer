@@ -21,6 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+
+/*global
+  gl, vec2, vec3, vec4, renderer
+*/
+
 var aabb = aabb || {};
 
 
@@ -62,14 +68,14 @@ aabb.calculate = function(pointcloud) {
   
   
   return {min:minVal, max:maxVal};
-}
+};
 
 aabb.create = function(minVals, maxVals) {
   "use strict";
   var minv = vec3.fromValues(minVals[0], minVals[1], minVals[2]);
   var maxv = vec3.fromValues(maxVals[0], maxVals[1], maxVals[2]);
   return {min:minv, max:maxv};
-}
+};
 
 aabb.extractVertices = function(bbox) {
   /*
@@ -85,6 +91,7 @@ aabb.extractVertices = function(bbox) {
   
   */
   
+  "use strict";
   
   var vertices = [
     bbox.min[0], bbox.min[1], bbox.min[2],
@@ -100,22 +107,25 @@ aabb.extractVertices = function(bbox) {
   
   
   return vertices;
-}
+};
 
 aabb.getCentroid = function(bbox) {
-
+  "use strict";
   return [(bbox.min[0] + bbox.max[0])*0.5,
           (bbox.min[1] + bbox.max[1])*0.5,
           (bbox.min[2] + bbox.max[2])*0.5];
-}
+};
 
 aabb.getSpanLength = function(bbox) {
+  "use strict";
   return vec3.length(bbox.max - bbox.min);
   
-}
+};
 
 
 aabb.calculateAABBAreas = function(bbox) {
+  "use strict";
+
   // dimensions
   var x = bbox.max[0] - bbox.min[0];
   var y = bbox.max[1] - bbox.min[1];
@@ -126,11 +136,12 @@ aabb.calculateAABBAreas = function(bbox) {
   var zArea = x*y;
 
   return [xArea, yArea, zArea];
-}
+};
 
 // clips the box against the frustum specified by the matrix (proj*modelview)
 // returns 0 if box is completely outside, 1 if partially inside, 2 if fully inside 
 aabb.clipBox = function(bbox, matrix) {
+  "use strict";
   var vertices = aabb.extractVertices(bbox);
 
   var i = 0, j = 0;
@@ -156,53 +167,61 @@ aabb.clipBox = function(bbox, matrix) {
 
   var row3 = row(matrix, 3);
   var planes = [ row(matrix, 0), neg(row(matrix, 0)), row(matrix, 1), neg(row(matrix, 1)), row(matrix, 2), neg(row(matrix, 2)) ];
+  var vvertices = [];
+  var v;
 
-  var vvertices = []
-  
-  for (i = 0; i < 8; ++i) {
+  for (i = 0; i < 8; i += 1) {
     //var v = vec4.fromValues(vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0);
-    var v = [vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0];
+    v = [vertices[i*3+0], vertices[i*3+1], vertices[i*3+2], 1.0];
     vvertices.push(v);
   }
 
 
   // add the third row
-  for (i = 0; i < planes.length; ++i) { 
+  for (i = 0; i < planes.length; i += 1) { 
     vec4.add(planes[i], planes[i], row3);
   }
   
-  for (i = 0; i < 6; ++i)
-  {
-    var outside = 0;
-    var inside = 0;
+  var outside = 0, inside = 0;
+  var d = 0;
 
-    for (j = 0; j < 8; ++j)
+  for (i = 0; i < 6; i += 1)
+  {
+    outside = 0;
+    inside = 0;
+
+    for (j = 0; j < 8; j += 1)
     {
-      var d = vec4.dot(planes[i], vvertices[j]);
+      d = vec4.dot(planes[i], vvertices[j]);
       
-      if (d < 0)
-        ++outside;
-      else
-        ++inside;
+      if (d < 0) {
+        outside += 1;
+      }
+      else {
+        inside += 1;
+      }
     }
 
     // fully outside
-    if (inside == 0) {
+    if (inside === 0) {
       bbox.screenSpaceVertices = null;
       return 0;
     }
 
     // partially inside
-    else if (outside > 0)
+    // else if
+    if (outside > 0) {
       return 1;
+    }
   }
 
   // fully inside
   return 2;
-}
+};
 
 aabb.drawAABB = function(bbox, shader) {
-  
+  "use strict";
+
   // 'pseudo static' -- check if the unchanging variables have been initialized (once)
   if (aabb.vertexBuffer === undefined) {
     console.log("creating AABB vertex buffers ");
@@ -240,10 +259,12 @@ aabb.drawAABB = function(bbox, shader) {
   gl.uniformMatrix4fv(shader.viewMatrixUniform, false, renderer.viewMatrix);
   gl.drawElements(gl.LINES, 8*3, gl.UNSIGNED_BYTE, 0);
   
-}
+};
 
 
-aabb.calculateScreenspaceBounds = function(bbox, matrix) { 
+aabb.calculateScreenspaceBounds = function(bbox, matrix) {
+  "use strict";
+
   // extract bounds vertices
   var clipVertices = [[0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1], [0,0,0,1]];
   var vertices = aabb.extractVertices(bbox);
@@ -251,7 +272,7 @@ aabb.calculateScreenspaceBounds = function(bbox, matrix) {
   var i = 0;
   var v;
 
-  for (i = 0; i < 8; ++i) {
+  for (i = 0; i < 8; i += 1) {
 
     v = clipVertices[i];
 
@@ -274,7 +295,7 @@ aabb.calculateScreenspaceBounds = function(bbox, matrix) {
 
   var boundsMin = [HUGE, HUGE], boundsMax = [smal, smal];
 
-  for (i = 0; i < 8; ++i) { 
+  for (i = 0; i < 8; i += 1) { 
     boundsMin[0] = Math.min(clipVertices[i][0], boundsMin[0]);
     boundsMin[1] = Math.min(clipVertices[i][1], boundsMin[1]);
     boundsMax[0] = Math.max(clipVertices[i][0], boundsMax[0]);
@@ -284,15 +305,18 @@ aabb.calculateScreenspaceBounds = function(bbox, matrix) {
 
   bbox.screenSpaceBounds = {min:boundsMin, max:boundsMax};
 
-}
+};
 
 // calculate projected screen-space area in pixels
 aabb.calculateScreenspaceArea = function(bbox, resolution) { 
-  if (!bbox.screenSpaceBounds)
-    return 0;
+    "use strict";
+
+    if (!bbox.screenSpaceBounds) {
+      return 0;
+    }
 
     // scale NDC vertices from [-1..1] to [0..1]
-    var bounds = [0,0,0,0]
+    var bounds = [0,0,0,0];
     bounds[0] = bbox.screenSpaceBounds.min[0] * 0.5 + 0.5; 
     bounds[1] = bbox.screenSpaceBounds.min[1] * 0.5 + 0.5; 
     bounds[2] = bbox.screenSpaceBounds.max[0] * 0.5 + 0.5; 
@@ -310,21 +334,25 @@ aabb.calculateScreenspaceArea = function(bbox, resolution) {
 
     // scale the area to the resolution
     return area * resolution[0]*resolution[1];
-}
+};
 
 aabb.getScreenspaceCentroid = function(bbox) { 
+  "use strict";
 
   var c = vec2.create();
   c[0] = (bbox.screenSpaceBounds.max[0] - bbox.screenSpaceBounds.min[0]) / 2;
   c[1] = (bbox.screenSpaceBounds.max[1] - bbox.screenSpaceBounds.min[1]) /2 ;
 
   return c;
-}
+};
 
 aabb.drawScreenspaceBounds = function(bbox, shader) { 
+  "use strict";
 
-  if (!bbox.screenSpaceBounds)
+
+  if (!bbox.screenSpaceBounds) {
     return;
+  }
  
   // line-loop vertices
   var vertices = [bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.min[1], bbox.screenSpaceBounds.max[0], bbox.screenSpaceBounds.max[1], bbox.screenSpaceBounds.min[0], bbox.screenSpaceBounds.max[1]];
@@ -334,17 +362,17 @@ aabb.drawScreenspaceBounds = function(bbox, shader) {
 
 
 
-  if (drawScreenspaceBounds.vertexBuffer === undefined) {
+  if (aabb.drawScreenspaceBounds.vertexBuffer === undefined) {
     console.log("Creating bbox bounds vertex buffer");
 
-    drawScreenspaceBounds.vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, drawScreenspaceBounds.vertexBuffer);
+    aabb.drawScreenspaceBounds.vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, aabb.drawScreenspaceBounds.vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(2*4), gl.STREAM_DRAW);
 
   }
 
   // update vertex buffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, drawScreenspaceBounds.vertexBuffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, aabb.drawScreenspaceBounds.vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
   
   gl.vertexAttribPointer(shader.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
@@ -352,9 +380,10 @@ aabb.drawScreenspaceBounds = function(bbox, shader) {
   //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 
-}
+};
 
 aabb.swapYZ = function(bbox) {
+  "use strict";
   var temp = bbox.min[1];
   bbox.min[1] = bbox.min[2];
   bbox.min[2] = temp * -1;
@@ -364,4 +393,4 @@ aabb.swapYZ = function(bbox) {
   bbox.max[2] = temp * -1;
 
 
-}
+};
